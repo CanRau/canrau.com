@@ -12,10 +12,11 @@
   },
   "dependencies": {
     "@remix-run/react": "^1.0.3",
+    "@remix-run/serve": "^1.0.3",
+    "accept-language": "3.0.18",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "remix": "^1.0.3",
-    "@remix-run/serve": "^1.0.3"
+    "remix": "^1.0.3"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.0.3",
