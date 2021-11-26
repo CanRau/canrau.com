@@ -4,7 +4,7 @@
   "description": "",
   "license": "",
   "scripts": {
-    "build": "remix build",
+    "build": "npm run build:css && remix build",
     "dev": "remix dev",
     "//dev": "pm2-dev ./other/pm2.config.js",
     "watch:css": "postcss styles --base styles --dir app/styles -w",

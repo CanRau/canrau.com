@@ -12,6 +12,7 @@ import {
 } from "remix";
 import type { LinksFunction } from "remix";
 
+import tailwindStyles from "~/styles/tailwind.css";
 import deleteMeRemixStyles from "~/styles/demos/remix.css";
 import globalStylesUrl from "~/styles/global.css";
 import darkStylesUrl from "~/styles/dark.css";
@@ -26,6 +27,7 @@ import darkStylesUrl from "~/styles/dark.css";
  */
 export let links: LinksFunction = () => {
   return [
+    { rel: "stylesheet", href: tailwindStyles },
     { rel: "stylesheet", href: globalStylesUrl },
     {
       rel: "stylesheet",
