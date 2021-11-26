@@ -63,7 +63,7 @@ export default function Index() {
       <main>
         <h2 className="text-red-600">Welcome to Remix!</h2>
         <p>We're stoked that you're here. 🥳</p>
-        <p>
+        <p className="text-green-300">
           Feel free to take a look around the code to see how Remix does things,
           it might be a bit different than what you’re used to. When you're
           ready to dive deeper, we've got plenty of resources to get you
