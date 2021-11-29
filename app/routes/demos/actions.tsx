@@ -1,11 +1,22 @@
 import { useEffect, useRef } from "react";
 import type { ActionFunction } from "remix";
 import { hash } from "~/utils.server";
-import { Form, json, useActionData, useTransition, redirect } from "remix";
+import {
+  Form,
+  json,
+  useActionData,
+  useTransition,
+  redirect,
+  LinksFunction,
+} from "remix";
+import stylesUrl from "~/styles/windicss/demos-actions.css";
 
 export function meta() {
   return { title: "Actions Demo" };
 }
+export let links: LinksFunction = () => {
+  return [{ rel: "stylesheet", href: stylesUrl }];
+};
 
 // When your form sends a POST, the action is called on the server.
 // - https://remix.run/api/conventions#action
@@ -25,7 +36,7 @@ export let action: ActionFunction = async ({ request }) => {
   let rightAnswers = [
     "4fa6024f12494d3a99d8bda9b7a55f7d140f328a",
     "ce3659ad235ca6d1e12dec21465aff3f9a62bb8c",
-    "bd111dcb4b343de4ec0a79d2d5ec55a3919c79c4"
+    "bd111dcb4b343de4ec0a79d2d5ec55a3919c79c4",
   ];
 
   let encrypted = hash(answer);

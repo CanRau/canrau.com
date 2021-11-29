@@ -14,7 +14,7 @@ import {
   useLoaderData,
 } from "remix";
 
-import preflightStyles from "~/styles/windicss/preflight.css";
+// import preflightStyles from "~/styles/windicss/preflight.css";
 import deleteMeRemixStyles from "~/styles/demos/remix.css";
 import globalStylesUrl from "~/styles/global.css";
 import darkStylesUrl from "~/styles/dark.css";
@@ -51,7 +51,7 @@ import darkStylesUrl from "~/styles/dark.css";
  */
 export let links: LinksFunction = () => {
   return [
-    { rel: "stylesheet", href: preflightStyles },
+    // { rel: "stylesheet", href: preflightStyles },
     { rel: "stylesheet", href: globalStylesUrl },
     {
       rel: "stylesheet",
