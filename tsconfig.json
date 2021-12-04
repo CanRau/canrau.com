@@ -1,12 +1,16 @@
 {
   "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx"],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ES2019"],
+    "lib": ["DOM", "DOM.Iterable", "ES2021"],
     "esModuleInterop": true,
     "jsx": "react-jsx",
+    "incremental": true,
+    "isolatedModules": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "target": "ES2019",
+    "target": "ES2020",
+    "module": "ES2020",
+    "noUncheckedIndexedAccess": true,
     "strict": true,
     "paths": {
       "~/*": ["./app/*"]
@@ -16,3 +20,25 @@
     "noEmit": true
   }
 }
+
+// from KCD
+// {
+//   "compilerOptions": {
+//     "lib": ["ES2021", "DOM", "DOM.Iterable"],
+//     "incremental": true,
+//     "isolatedModules": true,
+//     "importsNotUsedAsValues": "error",
+//     "noEmit": true,
+//     "allowJs": true,
+//     "esModuleInterop": true,
+//     "jsx": "react",
+//     "moduleResolution": "node",
+//     "module": "es2020",
+//     "target": "es2020",
+//     "strict": true,
+//     "skipLibCheck": true,
+//     "resolveJsonModule": true,
+//     "noUncheckedIndexedAccess": true,
+//     "typeRoots": ["../types", "../node_modules/@types"]
+//   }
+// }
