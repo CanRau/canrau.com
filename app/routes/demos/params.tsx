@@ -6,15 +6,15 @@ import {
   Outlet,
   LinksFunction,
 } from "remix";
-import stylesUrl from "~/styles/windicss/demos-params.css";
+// import stylesUrl from "~/styles/windicss/demos-params.css";
+
+// export let links: LinksFunction = () => {
+//   return [{ rel: "stylesheet", href: stylesUrl }];
+// };
 
 export function meta() {
   return { title: "Boundaries Demo" };
 }
-
-export let links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: stylesUrl }];
-};
 
 export default function Boundaries() {
   return (

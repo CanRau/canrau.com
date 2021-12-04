@@ -1,9 +1,9 @@
 import { Link, LinksFunction } from "remix";
-import styles from "~/styles/windicss/demos-about.css";
+// import styles from "~/styles/windicss/demos-about.css";
 
-export let links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: styles }];
-};
+// export let links: LinksFunction = () => {
+//   return [{ rel: "stylesheet", href: styles }];
+// };
 
 export default function AboutIndex() {
   return (

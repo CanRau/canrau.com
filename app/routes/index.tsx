@@ -1,11 +1,11 @@
 import type { MetaFunction, LoaderFunction, LinksFunction } from "remix";
 import { useLoaderData, json, Link } from "remix";
 // import invariant from "tiny-invariant";
-import styles from "~/styles/windicss/index.css";
+// import styles from "~/styles/windicss/index.css";
 
-export let links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: styles }];
-};
+// export let links: LinksFunction = () => {
+//   return [{ rel: "stylesheet", href: styles }];
+// };
 
 type IndexData = {
   resources: Array<{ name: string; url: string }>;

@@ -21,7 +21,7 @@ export const meta: MetaFunction = ({ data, parentsData, location, params }) => {
   };
 };
 
-export let links: LinksFunction = () => {
+export const links: LinksFunction = () => {
   return [
     // { rel: "stylesheet", href: globalStylesUrl },
     // {

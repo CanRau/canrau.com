@@ -9,14 +9,15 @@ import {
   redirect,
   LinksFunction,
 } from "remix";
-import stylesUrl from "~/styles/windicss/demos-actions.css";
+// import stylesUrl from "~/styles/windicss/demos-actions.css";
+
+// export let links: LinksFunction = () => {
+//   return [{ rel: "stylesheet", href: stylesUrl }];
+// };
 
 export function meta() {
   return { title: "Actions Demo" };
 }
-export let links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: stylesUrl }];
-};
 
 // When your form sends a POST, the action is called on the server.
 // - https://remix.run/api/conventions#action
