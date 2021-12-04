@@ -1,0 +1,236 @@
+---
+status: published
+slug: /gracefully-close-sub-subprocess-using-signals-in-deno
+lang: en
+title: Gracefully close sub-subprocess using signals in Deno
+description: How to terminate not only the main but also its subprocess and make sure the server frees the address it was listening on
+created: 2021-10-22
+updated: 2021-10-22
+version: 1
+cover: cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2021-10-22
+  - name: article:section
+    # done: is "Programming" a proper section? Using "Coding" now as found on [FreeCodeCamp](https://www.freecodecamp.org/news/what-is-open-graph-and-how-can-i-use-it-for-my-website/#can-i-get-an-example)
+    content: Coding
+ideas:
+published_at:
+  - https://www.getrevue.co/profile/CanRau/issues/weekly-newsletter-of-canrau-issue-2-819751
+  - https://twitter.com/CanRau/status/1451977100248879110
+  - https://medium.com/@canrau/weekly-newsletter-of-canrau-issue-2-5e3c6551c755
+  - https://github.com/denoland/deno/discussions/9382
+  - https://dev.to/canrau/signals-in-deno-3khg
+---
+
+# Gracefully close sub-subprocess using signals in Deno
+
+![Cover image featuring the Deno logo on a shiny techy background and the article title](./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png)
+Deno logo by [kevinkassimo](https://github.com/kevinkassimo), techy background by [Krzysztof Kowalik](https://unsplash.com/photos/KiH2-tdGQRY) found in [Macro Tech](https://unsplash.com/collections/8792105/macro-tech)
+
+{/* Credits[^cover-credits] */}
+
+## Preface
+
+I've got a custom and very simple CLI to help me execute various tasks, mostly, or for now, in development, as there is no `package.json` in Deno and I didn't want to use `Make` or something, but use this oportunity to familiarize myself more with Deno's syntax and features.
+
+One command of this CLI executes `Deno run` for me with all the required flags one of which is `--watch` to restart the server when I hit save, as I don't have any hot-reload (yet).
+
+Everything works/worked as expected until I started to add a little pomodoro like feature so I could, or actually have to, provide a time duration like `25m`, before the actual command, to automatically terminate the running task and tell me in the terminal that time is up and I should keep the promise I made to my partner that I'll be available in **25m** 😅
+
+## How I got there
+
+{/* done: how to markup keyboard shortcut in md? */}
+
+So before this, I would, whenever I was ready, focus the console, hit <kbd>Ctrl</kbd> + <kbd>C</kbd> to quit the session and everything was fine.
+
+Though stopping the thing from the script itself was a little more involved than earlier expected. Okay enough theorizing lets add some code examples, shall we? So the interesting part (for now) is the following
+
+```ts
+const p = Deno.run({
+  cmd,
+  env: {
+    DENO_DIR: "./deno_dir",
+  },
+});
+```
+
+`cmd` is the command to be run which'll be picked earlier based on what I enter in the command line.
+`p` is a reference to the running process which provides a handy way of `await`ing the process asynchronously, so it runs infinitely until canceled and also a `close()` method to programmatically end the process.
+
+So before my time management helper I would just
+
+```ts
+await p.status();
+```
+
+which is the nifty helper to keep the process running and called it a day. 🥳  
+Introducing the pomodoro "counter" I changed that line to
+
+```ts
+await Promise.any([
+  p.status() as unknown as Promise<void>,
+  commands[command].pomodoro && time !== "x"
+    ? timeout(pomodoroUp, timeInMs)
+    : null,
+]);
+```
+
+😳
+
+{/* done: add link to Promise.any docs */}
+
+Okay so I use [`Promise.any`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/any) to `await` more than one `Promise` by giving it an array of promises.
+The first is the same as before, only that I had to tell Typescript that it should accept it and to change its type I had to first tell TS it's `unknown` so I could then type it as `Promise<void>` which `Promise.any` would accept.
+
+The second "thing" is `ternary` condition to check if the command to run is allowed to terminate after a timeout, as I also have tasks to deploy this website which should run until finished. So every command has a `pomodoro` property set to `true`, `false` or not set at all. If it's set and the provided time duration isn't equal to `x`, which is my prosiblity to bypass the timeout, if I please, then it'll add the timeout `Promise` to the array, otherwise it just adds `null` which is valid but won't do anything 😎
+
+`timeout` is a simple promisified `setTimeout` I've found on [levelup.gitconnected.com](https://levelup.gitconnected.com/how-to-turn-settimeout-and-setinterval-into-promises-6a4977f0ace3). Yes it's simple, but sometimes it's just easier not to spend any time coming up with something I know I can find ready made in a matter of seconds.
+
+```ts
+const timeout = async (func: () => void, ms: number) => {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+  func();
+};
+```
+
+The `pomodoroUp` function I provide to `timeout` will then be called after `timeInMs`, which I calculate earlier based on the provided `string` in the terminal like `13m` or `2h`.
+
+```ts
+function pomodoroUp() {
+  shutDown(`Time Up — Take a Break! (${time})`);
+}
+```
+
+As you can see `pomodoroUp` just calls `shutDown` with a reason, as I use it in different scenarios with differing reasons.
+
+## The actual problem
+
+```ts
+function shutDown(reason?: string | void) {
+  p.close();
+  sigInt.dispose();
+  console.log(reason ?? red(bold("Gracefully shutting down")));
+  Deno.exit();
+}
+```
+
+As mentioned earlier, `Deno.run` returns a couple of properties one of which is `.close()` so I figured "perfect!", let's call it and listo!
+Well, it stops the subprocess and `Deno.exit()` stops the CLI process, but trying to run `./cli x dev` again would error telling me the port is already in use 😨
+
+But I'm `.close()`ing the process??
+
+## Sub-subprocesses
+
+Yes you read that right, **sub**-subprocess. The CLI itself is a process, which I can terminate when needed using `Deno.exit()`. `Deno.run` starts a subprocess, which is easily stopped using `p.close()`. But the server I'm starting from within this subprocess, is yet another process, which `Deno.run` is not aware of, how could it 🤷🏻‍♂️
+
+## Terminal signals
+
+> Be aware, that the signal API in Deno is still `--unstable`
+
+I was actually already using a terminal signal within my CLI, that's where the `sigInt.dispose();` comes from, I'm listening earlier to the `SIGINT` signal like so
+
+```ts
+const sigInt = Deno.signal("SIGINT");
+sigInt.then(shutDown);
+```
+
+I'm not exactly sure when or why I started using it, as hitting <kbd>Ctrl</kbd> + <kbd>C</kbd> which sends a `SIGINT` signal to the running process was already working, so normally you wouldn't need to listen to `SIGINT` in your CLI to be able to close the process via <kbd>Ctrl</kbd> + <kbd>C</kbd>, Deno does that for you.
+
+> Though, be aware that when you listen to `SIGINT` like in the last code snippet, you're actually "overriding", it. So you could prevent people from stopping your CLI or do other things, in my case it didn't help at all 🥲
+
+## How to stop the Oak server sub-subprocess?
+
+Researching a little more I stumbled upon a hint to the Oak docs on how to [close the server](https://github.com/oakserver/oak#closing-the-server).
+
+Now I only needed a way of telling the server to `abort` from within the CLI.
+I could rewrite the whole logic and actually import the server from the CLI and call `startServer()`, though I'd loose the easy `--watch` helper.
+I could also add a, maybe authenticated, route which I could call using `fetch()` from the CLI 🤡
+
+## More signals to the rescue
+
+Luckily, before diving into all those complexities, I realized my server could also listen to signals 🤯😍
+
+Knowing now that overriding `SIGINT` can bring problems I figured I should probably use another signal. Deno's types lets me autocomplete all the possible signals `Deno.signal()` accepts, the only other I recognized and associated with ending something was `SIGKILL` 😬 haha
+
+So then I modified my server to look like this (the relevant part)
+
+> Update: Since Deno 1.16 you have to use `Deno.addSignalListener`
+
+Since Deno 1.16
+
+```ts
+const controller = new AbortController();
+Deno.addSignalListener("SIGQUIT", () => controller.abort); // abort the controller when receiving the signal
+const { signal } = controller;
+
+export const server = async () => {
+  await app.listen({ port, hostname, signal });
+};
+```
+
+Before Deno 1.16
+
+```ts
+const controller = new AbortController();
+const sig = Deno.signal("SIGQUIT");
+sig.then(controller.abort); // abort the controller when receiving the signal
+const { signal } = controller;
+
+export const server = async () => {
+  await app.listen({ port, hostname, signal });
+};
+```
+
+Which shockingly throw the following kinda cryptic error in my face
+
+```bash
+thread 'main' panicked at 'called `Result::unwrap()` on an `Err` value: Custom { kind: Other, error: "Refusing to register signal 9" }', runtime/ops/signal.rs:185:67
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+So I investigated and luckily stumbled upon an existing [issue](https://github.com/denoland/deno/issues/9030) before opening a new one which lead me to the fact that Rust doesn't all `SIGKILL` among a few others 😩
+
+Now I have to take one of the more complex routes or .. wait, let me look if there's another signal I could use without messing with `SIGINT`, and sure enough I found `SIGQUIT` which sounds perfectly fitting for what I want. For all I ever wanted was quitting my server and not `kill`ing it 😭😄
+
+So I just changed the former code to listen for the friendlier signal like so
+
+```ts
+const sig = Deno.signal("SIGKILL");
+```
+
+and changed the `shutDown` function in my CLI so it would send the according signal to the subprocess
+
+```ts
+function shutDown(reason?: string | void) {
+  p.kill("SIGQUIT"); // `.kill()` sends the provided signal to the subprocess
+  p.close(); // closes the subprocess and frees the memory
+  console.log(reason ?? red(bold("Gracefully shutting down")));
+  Deno.exit(); // finally terminates the CLI with everything cleaned up
+}
+```
+
+🥳
+
+> Note: the `| void` type was added to let me put it straight into `.then`
+
+```ts
+const sigInt = Deno.signal("SIGINT");
+sigInt.then(shutDown);
+```
+
+Now that I don't need the `SIGINT` anymore I can get rid of the `void`, which I just noticed thanks to you, writing this article 🥰
+
+I realize now that the CLI API might not be the best `cli 7m dev` as every change in time messes with command completion from history, might be able to improve this by providing actual auto completion, using [omelette](https://github.com/f/omelette), but I might as well change the API first 🤔
+
+### The future
+
+In an upcoming article I'm going to share in more detail how I've build my CLI, so stay tuned if your interested. 😉 Also in general going to share more about Deno, which is in many parts "just" Typescript, and in my opinion a much better Node! And also about Go(lang), as that's the language I use for the pageviews counter you can find at the very end of all pages here on this website and in the future also about non programming topics that interest me 🌴🍍🐒
+
+---
+
+> If you wanna get a notification when I update this article follow me on [Twitter](https://www.twitter.com/CanRau) or subscribe freely to my [newsletter](#newsletter)
+
+{/* [^cover-credits]: Deno logo by [kevinkassimo](https://github.com/kevinkassimo), techy background by [Krzysztof Kowalik](https://unsplash.com/photos/KiH2-tdGQRY) found in [Macro Tech](https://unsplash.com/collections/8792105/macro-tech) */}
