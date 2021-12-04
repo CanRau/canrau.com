@@ -1,5 +1,9 @@
 import { useCatch, Link, json, useLoaderData } from "remix";
-import type { LoaderFunction, MetaFunction } from "remix";
+import type { LoaderFunction, MetaFunction, RouteHandle } from "remix";
+
+export let handle: RouteHandle = {
+  styles: () => "demos-params.css",
+};
 
 // The `$` in route filenames becomes a pattern that's parsed from the URL and
 // passed to your loaders so you can look up data.
@@ -41,7 +45,7 @@ export default function ParamDemo() {
   let data = useLoaderData();
   return (
     <h1>
-      The param is <i style={{ color: "red" }}>{data.param}</i>
+      The param is <i className="text-green-500">{data.param}</i>
     </h1>
   );
 }

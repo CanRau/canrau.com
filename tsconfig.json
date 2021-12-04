@@ -13,7 +13,8 @@
     "noUncheckedIndexedAccess": true,
     "strict": true,
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "/*": ["./*"]
     },
 
     // Remix takes care of building everything in `remix build`.

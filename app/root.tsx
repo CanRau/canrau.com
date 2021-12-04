@@ -1,3 +1,4 @@
+import type { LinksFunction, LoaderFunction } from "remix";
 import * as React from "react";
 import {
   Links,
@@ -10,11 +11,33 @@ import {
   Link,
   NavLink,
 } from "remix";
-import type { LinksFunction } from "remix";
 
+// import preflightStyles from "~/styles/windicss/preflight.css";
 import deleteMeRemixStyles from "~/styles/demos/remix.css";
 import globalStylesUrl from "~/styles/global.css";
 import darkStylesUrl from "~/styles/dark.css";
+// import acceptLanguage from "accept-language";
+// import { languages } from "/remix.config.js";
+
+// export let loader: LoaderFunction = ({ request }) => {
+//   acceptLanguage.languages(languages);
+//   const defaultLang = languages[0];
+//   const url = new URL(request.url);
+//   const browserLang = acceptLanguage.get(
+//     request.headers.get("Accept-Language"),
+//   );
+
+//   const lang = browserLang ?? defaultLang;
+
+//   if (!url.pathname.startsWith(`/${lang}`)) {
+//     url.pathname = `/${lang}${url.pathname}`;
+//     return redirect(url.toString());
+//   }
+
+//   return {
+//     lang,
+//   };
+// };
 
 /**
  * The `links` export is a function that returns an array of objects that map to
@@ -26,6 +49,7 @@ import darkStylesUrl from "~/styles/dark.css";
  */
 export let links: LinksFunction = () => {
   return [
+    // { rel: "stylesheet", href: preflightStyles },
     { rel: "stylesheet", href: globalStylesUrl },
     {
       rel: "stylesheet",
@@ -42,8 +66,10 @@ export let links: LinksFunction = () => {
  * component for your app.
  */
 export default function App() {
+  // const { lang } = useLoaderData();
+  const lang = "en";
   return (
-    <Document>
+    <Document lang={lang}>
       <Layout>
         <Outlet />
       </Layout>
@@ -54,12 +80,14 @@ export default function App() {
 function Document({
   children,
   title,
+  lang,
 }: {
   children: React.ReactNode;
   title?: string;
+  lang: string;
 }) {
   return (
-    <html lang="en">
+    <html lang={lang}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -77,7 +105,7 @@ function Document({
   );
 }
 
-function Layout({ children }: React.PropsWithChildren<{}>) {
+function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="remix-app">
       <header className="remix-app__header">
@@ -137,7 +165,7 @@ export function CatchBoundary() {
   }
 
   return (
-    <Document title={`${caught.status} ${caught.statusText}`}>
+    <Document lang="en" title={`${caught.status} ${caught.statusText}`}>
       <Layout>
         <h1>
           {caught.status}: {caught.statusText}
@@ -151,7 +179,7 @@ export function CatchBoundary() {
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error);
   return (
-    <Document title="Error!">
+    <Document lang="lang" title="Error!">
       <Layout>
         <div>
           <h1>There was an error</h1>

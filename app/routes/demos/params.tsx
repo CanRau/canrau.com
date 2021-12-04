@@ -1,8 +1,20 @@
-import { useCatch, Link, json, useLoaderData, Outlet } from "remix";
+import {
+  useCatch,
+  Link,
+  json,
+  useLoaderData,
+  Outlet,
+  LinksFunction,
+} from "remix";
+import stylesUrl from "~/styles/windicss/demos-params.css";
 
 export function meta() {
   return { title: "Boundaries Demo" };
 }
+
+export let links: LinksFunction = () => {
+  return [{ rel: "stylesheet", href: stylesUrl }];
+};
 
 export default function Boundaries() {
   return (
@@ -12,7 +24,7 @@ export default function Boundaries() {
       </main>
 
       <aside>
-        <h2>Click these Links</h2>
+        <h2 className="text-3xl">Click these Links</h2>
         <ul>
           <li>
             <Link to=".">Start over</Link>
