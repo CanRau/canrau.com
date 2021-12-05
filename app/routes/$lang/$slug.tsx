@@ -1,6 +1,6 @@
 import type { MetaFunction, LoaderFunction, LinksFunction } from "remix";
 import { useLoaderData, json, Link, redirect } from "remix";
-import { useMemo } from "react";
+import { useMemo, FC } from "react";
 // import { bundleMDX } from "mdx-bundler";
 import {
   bundleMDX,
@@ -8,6 +8,9 @@ import {
   getFilePath,
 } from "~/utils/compile-mdx.server";
 import { getMDXComponent, getMDXExport } from "mdx-bundler/client";
+import * as typography from "~/components/typography";
+import prismPlus from "~/styles/prism-plus.css";
+import prismTheme from "~/styles/prism-theme.css";
 
 export const meta: MetaFunction = ({ data, parentsData, location, params }) => {
   console.log({ parentsData });
@@ -18,11 +21,25 @@ export const meta: MetaFunction = ({ data, parentsData, location, params }) => {
     title: title || "Missing Title",
     description: description || "Missing description",
     "og:image": cover ? `/build/_assets${slug}/${cover}` : "",
+    "twitter:image": cover ? `/build/_assets${slug}/${cover}` : "",
+    // 'og:url': url,
+    // 'og:title': title,
+    // 'og:description': description,
+    // 'og:image': image,
+    // 'twitter:card': image ? 'summary_large_image' : 'summary',
+    // 'twitter:creator': '@kentcdodds',
+    // 'twitter:site': '@kentcdodds',
+    // 'twitter:title': title,
+    // 'twitter:description': description,
+    // 'twitter:image': image,
+    // 'twitter:alt': title,
   };
 };
 
 export const links: LinksFunction = () => {
   return [
+    { rel: "stylesheet", href: prismPlus },
+    { rel: "stylesheet", href: prismTheme },
     // { rel: "stylesheet", href: globalStylesUrl },
     // {
     //   rel: "stylesheet",
@@ -53,14 +70,25 @@ export const loader: LoaderFunction = async ({ params }) => {
   return { frontmatter, code };
 };
 
+// note: more on [component substitution](https://github.com/wooorm/xdm#components)
+const components = {
+  h1: typography.H1,
+  h2: typography.H2,
+  h3: typography.H3,
+  h4: typography.H4,
+  h5: typography.H5,
+  h6: typography.H6,
+  p: typography.Paragraph,
+};
+
 export default function Post() {
   const { code, frontmatter } = useLoaderData();
   const Component = useMemo(() => getMDXComponent(code), [code]);
   // console.log({ frontmatter }, getMDXExport(code));
   return (
     <>
-      <main>
-        <Component />
+      <main className="prose prose-light dark:prose-dark mx-auto">
+        <Component components={components} />
       </main>
     </>
   );

@@ -12,10 +12,10 @@ import {
   NavLink,
 } from "remix";
 
-// import preflightStyles from "~/styles/windicss/preflight.css";
-import deleteMeRemixStyles from "~/styles/demos/remix.css";
-import globalStylesUrl from "~/styles/global.css";
-import darkStylesUrl from "~/styles/dark.css";
+import tailwindStyles from "~/styles/tailwind.css";
+// import deleteMeRemixStyles from "~/styles/demos/remix.css";
+// import globalStylesUrl from "~/styles/global.css";
+// import darkStylesUrl from "~/styles/dark.css";
 // import acceptLanguage from "accept-language";
 // import { languages } from "/remix.config.js";
 
@@ -49,14 +49,14 @@ import darkStylesUrl from "~/styles/dark.css";
  */
 export let links: LinksFunction = () => {
   return [
-    // { rel: "stylesheet", href: preflightStyles },
-    { rel: "stylesheet", href: globalStylesUrl },
-    {
-      rel: "stylesheet",
-      href: darkStylesUrl,
-      media: "(prefers-color-scheme: dark)",
-    },
-    { rel: "stylesheet", href: deleteMeRemixStyles },
+    { rel: "stylesheet", href: tailwindStyles },
+    // { rel: "stylesheet", href: globalStylesUrl },
+    // {
+    //   rel: "stylesheet",
+    //   href: darkStylesUrl,
+    //   media: "(prefers-color-scheme: dark)",
+    // },
+    // { rel: "stylesheet", href: deleteMeRemixStyles },
   ];
 };
 
@@ -87,7 +87,7 @@ function Document({
   lang: string;
 }) {
   return (
-    <html lang={lang}>
+    <html lang={lang} className="dark">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -95,7 +95,7 @@ function Document({
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="dark:bg-gray-900">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -107,34 +107,28 @@ function Document({
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="remix-app">
-      <header className="remix-app__header">
-        <div className="container remix-app__header-content">
-          <Link to="/" title="Remix" className="remix-app__header-home-link">
+    <div className="remix-app mx-10vw">
+      <header className="px-5vw py-9 lg:py-12">
+        <div className="lg:max-w-3xl mx-auto flex item-center justify-between dark:text-gray-400">
+          <Link to="/" title="Can Rau Homepage" className="text-2xl">
             {/* <RemixLogo /> */}
             <h2>Can Rau</h2>
           </Link>
           <nav aria-label="Main navigation" className="remix-app__header-nav">
-            <ul>
-              <li>
+            <ul className="flex">
+              <li className="px-5 py-2">
                 <Link to="/">Home</Link>
-              </li>
-              <li>
-                <a href="https://remix.run/docs">Remix Docs</a>
-              </li>
-              <li>
-                <a href="https://github.com/remix-run/remix">GitHub</a>
               </li>
             </ul>
           </nav>
         </div>
       </header>
       <div className="remix-app__main">
-        <div className="container remix-app__main-content">{children}</div>
+        <div className="">{children}</div>
       </div>
       <footer className="remix-app__footer">
-        <div className="container remix-app__footer-content">
-          <p>&copy; You!</p>
+        <div className="flex items-center justify-center mt-8 mb-2 mx-5vw dark:text-gray-600">
+          <p>&copy; 2021 Can Rau</p>
         </div>
       </footer>
     </div>

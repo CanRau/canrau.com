@@ -1,7 +1,7 @@
 import { renderToString } from "react-dom/server";
 import { RemixServer } from "remix";
 import type { EntryContext } from "remix";
-import { generateStyles } from "~/generate-styles.server";
+// import { generateStyles } from "~/generate-styles.server";
 
 // const cachedStyles: Record<string, boolean> = {};
 const isProd = process.env.NODE_ENV === "production";
@@ -24,7 +24,7 @@ export default async function handleRequest(
   // if (!cachedStyles[request.url]) {
   // console.log(`generating styles for ${request.url}`);
   const url = new URL(request.url);
-  await generateStyles({ url, html: markup, minify: isProd });
+  // await generateStyles({ url, html: markup, minify: isProd });
   //   cachedStyles[request.url] = true;
   // }
 

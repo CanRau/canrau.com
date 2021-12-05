@@ -4,8 +4,11 @@
   "description": "",
   "license": "",
   "scripts": {
-    "build": "remix build",
-    "dev": "remix dev",
+    "build": "npm run build:css && remix build",
+    "dev": "concurrently \"npm run dev:css\" \"remix dev\"",
+    "//dev": "remix dev",
+    "dev:css": "postcss styles --base styles --dir app/styles -w",
+    "build:css": "postcss styles --base styles --dir app/styles --env production",
     "postinstall": "remix setup node",
     "deploy": "flyctl deploy --build-arg REMIX_TOKEN=${REMIX_TOKEN}",
     "start": "remix-serve build"
@@ -14,6 +17,10 @@
     "@remix-run/react": "1.0.6",
     "@remix-run/serve": "1.0.6",
     "@sindresorhus/slugify": "2.1.0",
+    "@tailwindcss/aspect-ratio": "0.3.0",
+    "@tailwindcss/line-clamp": "0.2.2",
+    "@tailwindcss/typography": "0.4.1",
+    "clsx": "1.1.1",
     "esbuild": "0.13.15",
     "mdx-bundler": "8.0.0",
     "react": "17.0.2",
@@ -27,14 +34,20 @@
     "remark-mdx-images": "1.0.3",
     "remix": "1.0.6",
     "tiny-invariant": "1.2.0",
-    "windicss": "3.2.1"
+    "unist-util-visit": "4.1.0"
   },
   "devDependencies": {
     "@remix-run/dev": "1.0.6",
     "@types/node": "16.11.11",
     "@types/react": "17.0.37",
     "@types/react-dom": "17.0.11",
+    "autoprefixer": "10.4.0",
+    "concurrently": "6.4.0",
+    "cssnano": "5.0.11",
+    "postcss": "8.4.1",
+    "postcss-cli": "9.0.2",
     "prettier": "2.5.0",
+    "tailwindcss": "2.2.19",
     "typescript": "4.5.2"
   },
   "engines": {
