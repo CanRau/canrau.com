@@ -1,0 +1,24 @@
+name: Deploy to Fly 🚀
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+jobs:
+  deploy:
+    name: Deploy proxy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.6.0
+        with:
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+      # This step checks out a copy of your repository.
+      - uses: actions/checkout@v2
+      # This step runs `flyctl deploy`.
+      - uses: superfly/flyctl-actions@master
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        with:
+          args: "deploy --build-arg COMMIT_SHA=${{ github.sha }}"
