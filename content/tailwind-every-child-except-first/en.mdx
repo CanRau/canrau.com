@@ -1,0 +1,82 @@
+---
+status: published
+slug: /tailwind-every-child-except-first
+lang: en
+title: Target every child except first in Tailwind
+description: How to write a little TailwindCSS helper plugin to add a custom variant like `dark:`
+version: 1
+created: 2021-12-06
+updated: 2021-12-06
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2021-12-06
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+published_at:
+---
+
+# {frontmatter.title}
+
+So I can add a `margin-top` to all the list items except the first
+
+```html
+<ul className="not-first:mt-20">
+  <li>Without Margin</li>
+  <li>With Margin</li>
+  <li>With Margin the second</li>
+</ul>
+```
+
+To get this working I added the following to my `tailwind.config.js` file, though the `notFirst` plugin function part could of course be out-sourced into a separate file.
+
+```js
+// tailwind.config.js
+const plugin = require("tailwindcss/plugin");
+
+const notFirst = plugin(({ addVariant, e }) => {
+  addVariant("not-first", ({ modifySelectors, separator }) => {
+    modifySelectors(({ className }) => {
+      const element = e(`not-first${separator}${className}`);
+      return `.${element} > :not(:first-child)`;
+    });
+  });
+});
+
+module.exports = {
+  plugins: [notFirst],
+};
+```
+
+> Note the `>` which is the [child combinator](https://developer.mozilla.org/en-US/docs/Web/CSS/Child_combinator) to ensure it's only targeting the direct children and not children's-children
+
+And alternative to `:not(:first-child)` would be to use the [adjacent sibling combinator](https://developer.mozilla.org/en-US/docs/Web/CSS/Adjacent_sibling_combinator) which works in CSS like so
+
+{/* prettier-ignore */}
+```css
+ul > li + li {}
+```
+
+and in the Tailwind plugin you would rewrite the return statement in line 8 to
+
+```ts
+return `.${element} > * + *`;
+```
+
+## More research can help find conventions
+
+Then I stumbled upon Tailwinds [space between utilities](https://tailwindcss.com/docs/space#add-vertical-space-between-children) and [divide utilities](https://tailwindcss.com/docs/divide-width#add-borders-between-stacked-children) (to do the same thing with a border) via [tailwindcss/discussions#2156](https://github.com/tailwindlabs/tailwindcss/discussions/2156).
+
+So digging deeper helped me find that it's already possible and I like to stick to existing solutions wherever possible, if I don't "dislike" them for whatever reason 🤓
+
+## Why `margin-top` in the first place?
+
+Ever since I stumbled upon (I think) this article (https://css-tricks.com/margin-bottom-margin-top/) I prefer to use `margin-top` over `margin-bottom`, though both work if you stick to one and/or keep well in mind of [margin's collapse](https://css-tricks.com/what-you-should-know-about-collapsing-margins/)
+
+## More on the topic
+
+- [CSS: margin top vs bottom](https://matthewjamestaylor.com/css-margin-top-vs-bottom) by Matthew James Taylor
+- [CSS best practice between margin-top and margin-bottom when both can work?](https://stackoverflow.com/questions/29458884/css-best-practice-between-margin-top-and-margin-bottom-when-both-can-work) on Stackoverflow

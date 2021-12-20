@@ -1,0 +1,38 @@
+---
+status: draft
+slug: /til-issues-with-open-redirects
+lang: en
+title: "TIL: What Open-Redirects are and how they can be abused"
+description: "fixme: desc"
+created: 2021-10-26
+updated: 2021-10-26
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2021-10-27
+  - name: article:section
+    content: Webdevelopment
+ideas:
+published_at:
+---
+
+{/* export { default as cover } from "./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png"; */}
+
+# {frontmatter.title}
+
+I just stumbled upon [The danger of open redirects!](https://scotthelme.co.uk/the-danger-of-open-redirects/) by [Scott Helme](https://twitter.com/Scott_Helme) a security researcher from the UK.
+
+## What are Open-Redirects and how can they be abused?
+
+from https://www.netsparker.com/blog/web-security/open-redirect-vulnerabilities-netsparker-pauls-security-weekly/
+
+## Solutions
+
+> Force all redirects to first go through a page notifying users that they are going off of your site, with the destination clearly displayed, and have them click a link to confirm.
+> — by [owasp](https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html#preventing-unvalidated-redirects-and-forwards)
+
+## Related
+
+Especially if you're a bigger organisation it might be good to provide a [security.txt](https://scotthelme.co.uk/say-hello-to-security-txt/) to help researchers get easier in touch with the right people.

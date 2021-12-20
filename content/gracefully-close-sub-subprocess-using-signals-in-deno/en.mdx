@@ -7,7 +7,6 @@ description: How to terminate not only the main but also its subprocess and make
 created: 2021-10-22
 updated: 2021-10-22
 version: 1
-cover: cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png
 meta:
   - name: og:type
     content: article
@@ -25,12 +24,42 @@ published_at:
   - https://dev.to/canrau/signals-in-deno-3khg
 ---
 
-# Gracefully close sub-subprocess using signals in Deno
+{/* import cover from "./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png"; */}
+export { default as cover } from "./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png";
+// export const meta = {
+// status: "published",
+// slug: `/gracefully-close-sub-subprocess-using-signals-in-deno`,
+// lang: "en",
+// title: `Gracefully close sub-subprocess using signals in Deno`,
+// description: `How to terminate not only the main but also its subprocess and make sure the server frees the address it was listening on`,
+// created: "2021-10-22",
+// updated: "2021-10-22",
+// version: 1,
+// meta: [
+// { name: "og:type", content: "article" },
+// { name: "article:published_time", content: "2021-10-22" },
+// // done: is "Programming" a proper section? Using "Coding" now as found on [FreeCodeCamp](https://www.freecodecamp.org/news/what-is-open-graph-and-how-can-i-use-it-for-my-website/#can-i-get-an-example)
+// { name: "article:section", content: "Coding" },
+// ],
+// ideas: "",
+// published_at: [
+// "https://www.getrevue.co/profile/CanRau/issues/weekly-newsletter-of-canrau-issue-2-819751",
+// "https://twitter.com/CanRau/status/1451977100248879110",
+// "https://medium.com/@canrau/weekly-newsletter-of-canrau-issue-2-5e3c6551c755",
+// "https://github.com/denoland/deno/discussions/9382",
+// "https://dev.to/canrau/signals-in-deno-3khg",
+// ],
+// cover,
+// };
+
+# {frontmatter.title}
 
 ![Cover image featuring the Deno logo on a shiny techy background and the article title](./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png)
 Deno logo by [kevinkassimo](https://github.com/kevinkassimo), techy background by [Krzysztof Kowalik](https://unsplash.com/photos/KiH2-tdGQRY) found in [Macro Tech](https://unsplash.com/collections/8792105/macro-tech)
 
 {/* Credits[^cover-credits] */}
+
+## Table of contents
 
 ## Preface
 
@@ -225,7 +254,7 @@ Now that I don't need the `SIGINT` anymore I can get rid of the `void`, which I 
 
 I realize now that the CLI API might not be the best `cli 7m dev` as every change in time messes with command completion from history, might be able to improve this by providing actual auto completion, using [omelette](https://github.com/f/omelette), but I might as well change the API first 🤔
 
-### The future
+## The future
 
 In an upcoming article I'm going to share in more detail how I've build my CLI, so stay tuned if your interested. 😉 Also in general going to share more about Deno, which is in many parts "just" Typescript, and in my opinion a much better Node! And also about Go(lang), as that's the language I use for the pageviews counter you can find at the very end of all pages here on this website and in the future also about non programming topics that interest me 🌴🍍🐒
 

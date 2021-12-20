@@ -1,37 +1,97 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* @tailwind variants; https://tailwindcss.com/docs/functions-and-directives#tailwind */
 
-:root {
-  --color-black: #000;
-  --color-white: #fff;
-  --color-blue-100: #e8f2ff;
-  --color-blue-500: #4b96ff;
-  --color-blueGray-500: #a9adc1;
-  --color-gray-100: #f7f7f7;
-  --color-gray-200: #e6e9ee;
-  --color-gray-300: #dde0e4;
-  --color-gray-400: #818890;
-  --color-gray-500: #535661;
-  --color-gray-600: #4b4c53;
-  --color-gray-700: #3a3d4a;
-  --color-gray-800: #2e3039;
-  --color-gray-900: #1f2028;
-  --color-green-100: #e7f9ed;
-  --color-green-500: #30c85e;
-  --color-green-600: #68d94a;
-  --color-red-500: #ff4545;
-  --color-yellow-500: #ffd644;
+/* todo: try out swyx's [100 bytes of CSS](https://twitter.com/swyx/status/1449472712720601088) [blog with explanation](https://dev.to/swyx/100-bytes-of-css-to-look-great-everywhere-19pd) */
+/*
+  html {
+    max-width: 38rem;
+    max-width: 70ch;
+    padding: 3em 1em;
+    margin: auto;
+    line-height: 1.75;
+    font-size: 24px;
+    font-size: 1.25em;
+  }
 
-  --color-team-unknown: #818890;
-  --color-team-blue: #36a3ff;
-  --color-team-red: #ff4545;
-  /* yellow in light mode is... hard */
-  --color-team-yellow: #a08600;
-  --color-yellow-500: #a08600;
+  optional
+  h1,h2,h3,h4,h5,h6 {
+    margin: 3em 0 1em;
+  }
+
+  p,ul,ol {
+    margin-bottom: 2em;
+    color: #1d1d1d;
+    font-family: sans-serif;
+  }
+
+} */
+
+@layer base {
+  /* from https://open-props.style */
+  :root {
+    --color-accent: 108 99 255;
+
+    --color-text: 244 244 245; /* zinc-100 */
+    --color-text-dark: 161 161 170; /* zinc-400 */
+    --color-text-darker: 82 82 91; /* zinc-600 */
+    --color-text-darkest: 24 24 27; /* zinc-900 */
+
+    --color-bg: 24 24 27; /* zinc-900 */
+    --color-bg-light: 82 82 91; /* zinc-600 */
+    --color-bg-lighter: 212 212 216; /* zinc-300 */
+    --color-bg-lightest: 244 244 245; /* zinc-100 */
+  }
+
+  /* @media (prefers-color-scheme: dark) {
+  :root {
+    --brand: var(--brand-dark);
+
+    --text1: var(--text1-dark);
+    --text2: var(--text2-dark);
+
+    --surface1: var(--surface1-dark);
+    --surface2: var(--surface2-dark);
+    --surface3: var(--surface3-dark);
+    --surface4: var(--surface4-dark);
+  }
+}
+
+@media (prefers-contrast: less) {
+  :root {
+    --brand: var(--brand-dim);
+
+    --text1: var(--text1-dim);
+    --text2: var(--text2-dim);
+
+    --surface1: var(--surface1-dim);
+    --surface2: var(--surface2-dim);
+    --surface3: var(--surface3-dim);
+    --surface4: var(--surface4-dim);
+  }
+}
+
+[color-scheme="grape"] {
+  --brand: var(--brand-grape);
+
+  --text1: var(--text1-grape);
+  --text2: var(--text2-grape);
+
+  --surface1: var(--surface1-grape);
+  --surface2: var(--surface2-grape);
+  --surface3: var(--surface3-grape);
+  --surface4: var(--surface4-grape);
+} */
 }
 
 @layer components {
+  code[class*="language-"] {
+    margin-bottom: 2rem;
+  }
+  .prose pre[data-lang] {
+    position: relative;
+  }
   .prose pre[data-lang]::after {
     content: attr(data-lang);
     position: absolute;

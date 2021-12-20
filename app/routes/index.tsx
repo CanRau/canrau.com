@@ -1,107 +1,19 @@
-import type { MetaFunction, LoaderFunction, LinksFunction } from "remix";
-import { useLoaderData, json, Link } from "remix";
-// import invariant from "tiny-invariant";
-// import styles from "~/styles/windicss/index.css";
+import { redirect, type ActionFunction, type LoaderFunction } from "remix";
 
-// export let links: LinksFunction = () => {
-//   return [{ rel: "stylesheet", href: styles }];
-// };
-
-type IndexData = {
-  resources: Array<{ name: string; url: string }>;
-  demos: Array<{ name: string; to: string }>;
+// note: to prevent errors [like this](https://discord.com/channels/770287896669978684/771068344320786452/921025522299981914)
+export const action: ActionFunction = async () => {
+  return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ", 307);
 };
 
-// Loaders provide data to components and are only ever called on the server, so
-// you can connect to a database or run any server side code you want right next
-// to the component that renders it.
-// https://remix.run/api/conventions#loader
-export let loader: LoaderFunction = () => {
-  // invariant(params.userId, "Expected params.userId");
-  let data: IndexData = {
-    resources: [
-      {
-        name: "Remix Docs",
-        url: "https://remix.run/docs",
-      },
-      {
-        name: "React Router Docs",
-        url: "https://reactrouter.com/docs",
-      },
-      {
-        name: "Remix Discord",
-        url: "https://discord.gg/VBePs6d",
-      },
-    ],
-    demos: [
-      {
-        to: "demos/actions",
-        name: "Actions",
-      },
-      {
-        to: "demos/about",
-        name: "Nested Routes, CSS loading/unloading",
-      },
-      {
-        to: "demos/params",
-        name: "URL Params and Error Boundaries",
-      },
-    ],
-  };
-
-  // https://remix.run/api/remix#json
-  return json(data);
+export const loader: LoaderFunction = async () => {
+  /**
+   * sends a 302 by default
+   *
+   * A 301 redirect is a permanent redirect. It is cacheable and any bookmarks for this URL should be updated to point to the new URL.
+   * A 302 redirect is a temporary redirect. It is not cacheable by default and should be re-requested every time (but you can override this with caching headers).
+   * A 302 redirect indicates that the redirect is temporary -- clients should check back at the original URL in future requests.
+   *
+   * more on redirects https://serverfault.com/questions/391181/examples-of-302-vs-303
+   */
+  return redirect("/en");
 };
-
-// https://remix.run/api/conventions#meta
-export let meta: MetaFunction = () => {
-  return {
-    title: "Remix Starter",
-    description: "Welcome to remix!",
-  };
-};
-
-// https://remix.run/guides/routing#index-routes
-export default function Index() {
-  let data = useLoaderData<IndexData>();
-
-  return (
-    <div className="remix__page">
-      <main>
-        <h2 className="bg-red-600">Welcome to Remix!</h2>
-        <p>We're stoked that you're here. 🥳</p>
-        <p className="text-green-300">
-          Feel free to take a look around the code to see how Remix does things,
-          it might be a bit different than what you’re used to. When you're
-          ready to dive deeper, we've got plenty of resources to get you
-          up-and-running quickly.
-        </p>
-        <p>
-          Check out all the demos in this starter, and then just delete the{" "}
-          <code>app/routes/demos</code> and <code>app/styles/demos</code>{" "}
-          folders when you're ready to turn this into your next project.
-        </p>
-      </main>
-      <aside>
-        <h2>Demos In This App</h2>
-        <ul>
-          {data.demos.map((demo) => (
-            <li key={demo.to} className="remix__page__resource">
-              <Link to={demo.to} prefetch="intent">
-                {demo.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <h2>Resources</h2>
-        <ul>
-          {data.resources.map((resource) => (
-            <li key={resource.url} className="remix__page__resource">
-              <a href={resource.url}>{resource.name}</a>
-            </li>
-          ))}
-        </ul>
-      </aside>
-    </div>
-  );
-}

@@ -1,10 +1,17 @@
 import { renderToString } from "react-dom/server";
-import { RemixServer } from "remix";
-import type { EntryContext } from "remix";
+import { createCookie, RemixServer, redirect, type EntryContext } from "remix";
 // import { generateStyles } from "~/generate-styles.server";
-
 // const cachedStyles: Record<string, boolean> = {};
 const isProd = process.env.NODE_ENV === "production";
+
+const dontCountCookie = createCookie("dontcount", {
+  sameSite: "strict",
+  httpOnly: true,
+  secure: true,
+  // note: session secret generated via `head -c20 /dev/urandom | base64` recommended on [martinfowler.com](https://martinfowler.com/articles/session-secret.html)
+  secrets: [process.env.COOKIE_KEY || "fG1JZtGFjF5dGCXwEYmdW3RQcvWc6fU"],
+  path: "/",
+});
 
 export default async function handleRequest(
   request: Request,
@@ -12,6 +19,70 @@ export default async function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext,
 ) {
+  const url = new URL(request.url);
+  let shouldRedirect = false;
+  const headers: Record<string, string> = {};
+
+  // todo: build more extended (db-based) redirect list & solution &| [6G Firewall](https://perishablepress.com/6g/)
+  if (
+    url.pathname.startsWith("/.env") ||
+    url.pathname.startsWith("/php") ||
+    url.pathname.startsWith("/java_script") ||
+    url.pathname.startsWith("/_nuxt") ||
+    url.pathname.startsWith("/uploads") ||
+    url.pathname.startsWith("/sdk") ||
+    url.pathname.startsWith("/evox") ||
+    url.pathname.startsWith("/nmap") ||
+    url.pathname.startsWith("/wp-admin")
+  ) {
+    return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ", 307);
+  }
+
+  // redirect to https:
+  if (
+    // note: not sure why this worked in Deno? [refed](https://community.fly.io/t/redirect-http-to-https/2714/3?u=canrau) [good article](https://fly.io/blog/always-be-connecting-with-https/)
+    // url.protocol === "http:" ||
+    request.headers.get("X-Forwarded-Proto") === "http"
+  ) {
+    url.protocol = "https:";
+    shouldRedirect = true;
+    // headers["X-Forwarded-Proto"] = "https";
+  }
+
+  // prepend www.
+  if (!url.host.startsWith("www")) {
+    url.host = `www.${url.host}`;
+    shouldRedirect = true;
+  }
+
+  // strip trailing slash
+  if (url.pathname.endsWith("/")) {
+    url.pathname = url.pathname.replace(/\/$/, "");
+    shouldRedirect = true;
+  }
+
+  if (isProd && shouldRedirect) {
+    return redirect(url.toString(), { headers, status: 301 });
+  }
+
+  // todo: outsource pageview counter logic
+  if (url.pathname.includes("dontcount")) {
+    url.pathname = "/en";
+    return redirect(url.toString(), {
+      headers: {
+        // note: need to await in order for the signed cookie to work
+        "Set-Cookie": await dontCountCookie.serialize("1"),
+      },
+    });
+  }
+
+  const match = remixContext.matches.find((m) => m.route.id !== "root");
+
+  const canonical =
+    (match?.route?.id &&
+      remixContext?.routeData?.[match.route.id]?.canonical) ||
+    "";
+
   let markup = renderToString(
     <RemixServer context={remixContext} url={request.url} />,
   );
@@ -23,15 +94,55 @@ export default async function handleRequest(
   // }
   // if (!cachedStyles[request.url]) {
   // console.log(`generating styles for ${request.url}`);
-  const url = new URL(request.url);
   // await generateStyles({ url, html: markup, minify: isProd });
   //   cachedStyles[request.url] = true;
   // }
 
   responseHeaders.set("Content-Type", "text/html");
+  if (canonical) {
+    responseHeaders.set("Link", `Link: <${canonical}>; rel="canonical"`);
+  }
 
-  return new Response("<!DOCTYPE html>" + markup, {
+  const response = new Response("<!DOCTYPE html>" + markup, {
     status: responseStatusCode,
     headers: responseHeaders,
   });
+  // console.log(
+  //   "<<<<>>>>CSRF",
+  //   ((process.env.CSRF_KEY ?? "") as string).substring(0, 12),
+  // );
+  // todo: move after response once [figured out how](https://discord.com/channels/770287896669978684/771068344320786452/919301817916088352) — probably once switched to Express template
+  const cookieHeader = request.headers.get("Cookie");
+  const dontcount = (await dontCountCookie.parse(cookieHeader)) || "";
+  if (isProd && !process.env.DB_ENDPOINT) {
+    console.error(`>>>>>>>> ERROR MISSING ENV: "DB_ENDPOINT"`);
+  } else if (isProd && dontcount !== "1") {
+    try {
+      const flyRegionHeader = request.headers.get("Fly-Region");
+      console.log({ flyRegionHeader });
+      const visitRes = await fetch(`${process.env.DB_ENDPOINT}/visit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": process.env.CSRF_KEY ?? "",
+        },
+        body: JSON.stringify({
+          status: response.status,
+          method: request.method,
+          path: url.pathname,
+          region: flyRegionHeader, // fixme:
+        }),
+      });
+      if (visitRes.status !== 200) {
+        // if (isVerbose) {
+        console.log(`Error in page-view counter`, await visitRes.text());
+        // }
+      }
+    } catch (err) {
+      // if (isVerbose)
+      console.log(`Error catched in page-view counter`, err);
+    }
+  }
+
+  return response;
 }

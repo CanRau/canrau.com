@@ -1,0 +1,154 @@
+---
+status: published
+slug: /generate-directory-trees-in-your-terminal
+lang: en
+title: Generate directory trees in your terminal
+description: A small reminder to myself as to how to generate tree like lists of a directory from the terminal, which can be really useful to illustrate something in a GitHub issue, tweet or comment.
+created: 2021-12-15
+updated: 2021-12-15
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2021-12-15
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+{/* export { default as cover } from "./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png"; */}
+
+# {frontmatter.title}
+
+> `<meta name="description" content="`{frontmatter.description}" `/>`
+
+```bash
+tree -CI "node_modules|build"
+# -C to enable colors
+# -I to not list files that match the pattern "node_modules|build"
+```
+
+## Table of contents
+
+## Example
+
+```bash
+.
+├── Dockerfile
+├── README.md
+├── app
+│   ├── app-context.ts
+│   ├── components
+│   │   ├── illustrations
+│   │   │   ├── undraw-bug-fixing.tsx
+│   │   │   └── undraw-not-found.tsx
+│   │   ├── my-age.tsx
+│   │   ├── newsletter-form.tsx
+│   │   └── typography.tsx
+│   ├── entry.client.tsx
+│   ├── entry.server.tsx
+│   ├── geneate-styles.server.tsx
+│   ├── generate-styles.server.tsx
+│   ├── root.tsx
+│   ├── routes
+│   │   ├── $lang
+│   │   │   ├── $slug.tsx
+│   │   │   ├── index.tsx
+│   │   │   └── todos.tsx
+│   │   ├── $lang.tsx
+│   │   └── index.tsx
+│   ├── styles
+│   │   ├── dark.css
+│   │   ├── demos
+│   │   │   ├── about.css
+│   │   │   └── remix.css
+│   │   ├── global.css
+│   │   ├── prism-plus.css
+│   │   ├── prism-theme.css
+│   │   └── tailwind.css
+│   ├── utils
+│   │   ├── compile-mdx.server.ts
+│   │   ├── error-responses.ts
+│   │   ├── get-fly-deply-version.ts
+│   │   ├── get-total-path-visits.ts
+│   │   └── mdx.server.ts
+│   └── utils.server.tsx
+├── config.ts
+├── content
+│   ├── bookmarks
+│   │   └── en.mdx
+│   ├── deno-run-cmd-arguments
+│   │   └── en.mdx
+│   ├── failed-to-resolve-fs-or-path-in-remix
+│   │   └── en.mdx
+│   ├── generate-directory-trees-in-your-terminal
+│   │   └── en.mdx
+│   ├── gracefully-close-sub-subprocess-using-signals-in-deno
+│   │   ├── cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png
+│   │   └── en.mdx
+│   ├── how-to-add-canonical-url-to-remix
+│   │   ├── cover_canonical-urls-remix_s.png
+│   │   └── en.mdx
+│   ├── leasot-deno
+│   │   └── en.mdx
+│   ├── remix-mdx-bundler-and-images
+│   │   ├── cover_remix-mdx-bundler-images_s.png
+│   │   └── en.mdx
+│   ├── tailwind-every-child-except-first
+│   │   └── en.mdx
+│   ├── til-issues-with-open-redirects
+│   │   └── en.mdx
+│   ├── uses
+│   │   └── en.mdx
+│   ├── welcome
+│   │   ├── canrau-smiling-on-rainforest-path.jpg
+│   │   ├── canrau-waving-in-front-of-andean-mountains.jpg
+│   │   └── en.mdx
+│   └── with-or-without-trailing-slash
+│       ├── cover_with-or-without-trailing-slash_s.png
+│       └── en.mdx
+├── fly.toml
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── public
+│   └── favicon.ico
+├── remix.config.js
+├── remix.env.d.ts
+├── styles
+│   ├── prism-plus.css
+│   ├── prism-theme.css
+│   └── tailwind.css
+├── tailwind.config.js
+├── tsconfig.json
+└── types
+    └── index.d.ts
+
+29 directories, 76 files
+```
+
+## command not found: tree
+
+If the `tree` command is not available in your terminal you can get it working via
+
+### macOS
+
+```bash
+brew install tree
+```
+
+### Linux (Ubuntu)
+
+```bash
+sudo apt-get install tree
+```
+
+### Windows
+
+```bash
+cmd //c tree
+```
+
+[Official tree website](http://mama.indstate.edu/users/ice/tree/)

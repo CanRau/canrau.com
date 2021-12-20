@@ -7,8 +7,8 @@ const config = {
 
 if (process.env.NODE_ENV === "production") {
   config.plugins.cssnano = {
-    preset: 'default',
-  }
+    preset: "default",
+  };
 }
 
-module.exports = config
+module.exports = config;

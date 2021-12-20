@@ -2,9 +2,8 @@
 status: published
 slug: /welcome
 lang: en
-title: Welcome to the digital garden of Can Rau — CanRau.com
+title: Welcome to the digital garden of Can Rau
 description: Follow me creating my digital garden live.
-cover: canrau-waving-in-front-of-andean-mountains.jpg
 version: 1
 created: 2021-10-20
 updated: 2021-10-20
@@ -21,10 +20,16 @@ published_at:
   - https://twitter.com/CanRau/status/1450873078502809606
 ---
 
-# Welcome to the digital garden of Can Rau
+import { Age } from "~/components/age";
+export { default as cover } from "./canrau-waving-in-front-of-andean-mountains.jpg";
 
-![Me waving & smiling hilariously into the cam, being way up in the andean mountains at more than 3000m](./canrau-waving-in-front-of-andean-mountains.jpg)
-Photo by [@fuckyeahgaiama](https://www.instagram.com/fuckyeahgaiama)
+{/* export const meta = {cover}; */}
+
+# {frontmatter.title} {/* todo: doesn't work with [rehype-extract-toc](https://github.com/stefanprobst/rehype-extract-toc) */}
+
+![Me waving & smiling hilariously into the cam, being way up in the andean mountains at more than 3000m](./canrau-waving-in-front-of-andean-mountains.jpg) Photo by Judith 🥰 via [@fuckyeahgaiama](https://www.instagram.com/fuckyeahgaiama)
+
+## Table of contents
 
 👋 A warm welcome to everyone stumbling upon my website and especially this page 🤓
 
@@ -48,18 +53,15 @@ Also I feel like I have ambitious plans for my content, which can definitely be 
 
 ## Sounds kinda interesting, but who are you actually?? 🧐
 
-{/* todo: Make age a dynamic component */}
+{/* done: Make age a dynamic component */}
 
-Right! So, as you might've guessed my name's Can Rau, I'm 33 years old and was born and raised in Berlin, Germany, Hallo 👋.
+Right! So, as you might've guessed my name's Can Rau, I'm <Age year={1988} month={0} day={17} /> years old and was born and raised in Berlin, Germany, Hallo 👋.
 I left Germany in 2013 to explore the world by bike and live now full-time in Perú 🇵🇪🦙 since december 2014 🎅
 I just love the climate of a higher rainforest 🌴
 
 Also I've co-founded a [rainforest conservation organization](https://www.instagram.com/fuckyeahgaiama) here to help protect some of the worlds precious wild lifes 🐒🦋🔐
 
-{/* ![Me in my natural habitat aka. topless at a local rainforest river](/canrau-topless-at-rainforest-river.jpg) */}
-
-![Me in my natural habitat, smiling into the cam](./canrau-smiling-on-rainforest-path.jpg)
-Photo by [@fuckyeahgaiama](https://www.instagram.com/fuckyeahgaiama)
+![Me in my natural habitat, smiling into the cam](./canrau-smiling-on-rainforest-path.jpg) Photo by [@fuckyeahgaiama](https://www.instagram.com/fuckyeahgaiama)
 
 ## What's a digital garden though?
 

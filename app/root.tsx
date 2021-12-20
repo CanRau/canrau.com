@@ -1,5 +1,12 @@
-import type { LinksFunction, LoaderFunction } from "remix";
-import * as React from "react";
+import {
+  useLoaderData,
+  LinksFunction,
+  LoaderFunction,
+  useMatches,
+  json,
+} from "remix";
+import { useShouldHydrate } from "remix-utils";
+import { useState, useEffect, ReactNode } from "react";
 import {
   Links,
   LiveReload,
@@ -10,34 +17,73 @@ import {
   useCatch,
   Link,
   NavLink,
+  useNavigate,
+  useParams,
 } from "remix";
-
+import clsx from "clsx";
+import { AppContext } from "~/app-context";
+import { getDeployVersion } from "~/utils/get-fly-deploy-version";
+import { type ThrownResponses } from "~/utils/error-responses";
 import tailwindStyles from "~/styles/tailwind.css";
+import { UndrawNotFound } from "~/components/illustrations/undraw-not-found";
+import { UndrawBugFixing } from "~/components/illustrations/undraw-bug-fixing";
+import {
+  defaultLang,
+  languages,
+  rootUrl,
+  titleSeperator,
+  domain,
+} from "/config";
+import type { Lang } from "/types";
+import invariant from "tiny-invariant";
+import { NewsletterForm } from "~/components/newsletter-form";
 // import deleteMeRemixStyles from "~/styles/demos/remix.css";
 // import globalStylesUrl from "~/styles/global.css";
 // import darkStylesUrl from "~/styles/dark.css";
 // import acceptLanguage from "accept-language";
-// import { languages } from "/remix.config.js";
+// import { languages } from "/remix.config.js";;
 
 // export let loader: LoaderFunction = ({ request }) => {
-//   acceptLanguage.languages(languages);
-//   const defaultLang = languages[0];
-//   const url = new URL(request.url);
-//   const browserLang = acceptLanguage.get(
-//     request.headers.get("Accept-Language"),
-//   );
+// acceptLanguage.languages(languages);
+// const defaultLang = languages[0];
+// const url = new URL(request.url);
+// const browserLang = acceptLanguage.get(
+//   request.headers.get("Accept-Language"),
+// );
 
-//   const lang = browserLang ?? defaultLang;
+// const lang = browserLang ?? defaultLang;
 
-//   if (!url.pathname.startsWith(`/${lang}`)) {
-//     url.pathname = `/${lang}${url.pathname}`;
-//     return redirect(url.toString());
-//   }
+// if (!url.pathname.startsWith(`/${lang}`)) {
+//   url.pathname = `/${lang}${url.pathname}`;
+//   return redirect(url.toString());
+// }
 
-//   return {
-//     lang,
-//   };
+// return {
+//   lang,
 // };
+// console.log(request.url);
+//   return {};
+// };
+
+const isProd = process.env.NODE_ENV === "production";
+
+type LoaderData = {
+  lang: string;
+  commitSha: string;
+  appVersion: number;
+};
+
+export const loader: LoaderFunction = async ({ params, request }) => {
+  const lang = params.lang || "en";
+  const commitSha = process.env.COMMIT_SHA;
+  const DB_ENDPOINT = process.env.DB_ENDPOINT;
+  invariant(DB_ENDPOINT, "DB_ENDPOINT MISSING");
+  const url = new URL(request.url);
+  const { appVersion } = await getDeployVersion();
+  // console.log({ appVersion, commitSha });
+
+  return json({ lang, commitSha, appVersion });
+};
 
 /**
  * The `links` export is a function that returns an array of objects that map to
@@ -57,6 +103,7 @@ export let links: LinksFunction = () => {
     //   media: "(prefers-color-scheme: dark)",
     // },
     // { rel: "stylesheet", href: deleteMeRemixStyles },
+    // { rel: "shortcut icon", type: "image/jpg", href: favicon },
   ];
 };
 
@@ -66,14 +113,53 @@ export let links: LinksFunction = () => {
  * component for your app.
  */
 export default function App() {
-  // const { lang } = useLoaderData();
-  const lang = "en";
+  const { lang, commitSha, appVersion } = useLoaderData<LoaderData>();
+  const navigate = useNavigate();
+
+  const [totalPathVisits, setTotalPathVisits] = useState<number>();
+  const setPageViewCountForPath = (visits: number) =>
+    setTotalPathVisits(visits);
+
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      window.location.hash.toLowerCase() === "#roadmap"
+    ) {
+      navigate(`/${lang}/todos`);
+    }
+  });
+
+  // todo: add console notes like gaiama.org
+  // useEffect(() => {
+  // only run in the browser
+  //   if (typeof window === "undefined") {
+  //     return
+  //   }
+  //     console.log(
+  //       `Welcome to GaiAma.org version 2.10.4, you're on the master branch`,
+  //     );
+  //     console.log(`Feel free to inspect everything, e.g. 'window.GaiAma'`);
+  //     console.log(
+  //       `You'll find the MIT licensed source code of the website at https://github.com/gaiama/gaiama.org`,
+  //     );
+  //     console.log(
+  //       `If you encounter anything unexpected, or have other feedback feel free to file an issue at https://github.com/gaiama/gaiama.org/issues/new?labels=ViaDevTools`,
+  //     );
+  // });
+
   return (
-    <Document lang={lang}>
-      <Layout>
-        <Outlet />
-      </Layout>
-    </Document>
+    <AppContext.Provider value={{ setPageViewCountForPath }}>
+      <Document lang={lang}>
+        <Layout
+          lang={lang}
+          commitSha={commitSha}
+          appVersion={appVersion}
+          totalPathVisits={totalPathVisits}
+        >
+          <Outlet />
+        </Layout>
+      </Document>
+    </AppContext.Provider>
   );
 }
 
@@ -82,42 +168,96 @@ function Document({
   title,
   lang,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   title?: string;
   lang: string;
 }) {
+  const matches = useMatches();
+  const includeScripts = useShouldHydrate();
+  // const match = matches.find((match) => match.handle && match.handle.canonical);
+  const match = matches.find((match) => match.data && match.data.canonical);
+  const canonical = match?.data.canonical;
+  // note: use `export const handle = { hydrate: true };` in any route to enable JS
+
   return (
-    <html lang={lang} className="dark">
+    <html lang={lang} className="dark scroll-smooth">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         {title ? <title>{title}</title> : null}
         <Meta />
+        {!!canonical && <link rel="canonical" href={canonical} />}
         <Links />
+
+        {/* todo: more meta tags */}
+        {/* <meta name="theme-color" content="#fff"></meta> */}
+
+        {/* prettier-ignore */}
+        <link rel="alternate" type="application/rss+xml" href={`${rootUrl}/${lang}/feed.xml`} title="Can Rau's XML Feed" />
+        {/* prettier-ignore */}
+        <link rel="alternate" type="application/feed+json" href={`${rootUrl}/${lang}/feed.json`} title="Can Rau's JSON Feed" />
+        {/* Google Search Console */}
+        {/* prettier-ignore */}
+        <meta name="google-site-verification" content="KGv3z097pffnaQ1ZA4nUtkhyewpwfmUPLxAoPVlyfpw" />
+        <link rel="sitemap" type="application/xml" href="/en/sitemap.xml" />
       </head>
-      <body className="dark:bg-gray-900">
+      <body className="dark:bg-zinc-900">
         {children}
         <ScrollRestoration />
-        <Scripts />
+        {includeScripts && <Scripts />}
         {process.env.NODE_ENV === "development" && <LiveReload />}
       </body>
     </html>
   );
 }
 
-function Layout({ children }: { children: React.ReactNode }) {
+function Layout({
+  lang = "en",
+  className = "",
+  commitSha,
+  appVersion,
+  totalPathVisits,
+  children,
+}: {
+  lang?: string;
+  className?: string;
+  commitSha?: string;
+  appVersion?: number;
+  totalPathVisits?: number;
+  children: ReactNode;
+}) {
   return (
-    <div className="remix-app mx-10vw">
-      <header className="px-5vw py-9 lg:py-12">
-        <div className="lg:max-w-3xl mx-auto flex item-center justify-between dark:text-gray-400">
-          <Link to="/" title="Can Rau Homepage" className="text-2xl">
+    <div
+      className={clsx(
+        "remix-app max-w-prose mx-auto px-10vw md:px-0 dark:text-zinc-100",
+        className,
+      )}
+    >
+      <header className="py-9 lg:py-12">
+        <div className="lg:max-w-3xl mx-auto md:flex item-center justify-between dark:text-zinc-400">
+          <Link to="/" title={domain} className="flex items-center">
             {/* <RemixLogo /> */}
-            <h2>Can Rau</h2>
+            <h2 className="text-2xl">Can Rau</h2>{" "}
+            <span
+              title="Work-in-Progress"
+              className="ml-2 mt-1 dark:text-gray-500"
+            >
+              WIP
+            </span>
           </Link>
-          <nav aria-label="Main navigation" className="remix-app__header-nav">
-            <ul className="flex">
-              <li className="px-5 py-2">
-                <Link to="/">Home</Link>
+          <nav
+            aria-label="Main navigation"
+            className="remix-app__header-nav mt-6 md:mt-0"
+          >
+            <ul className="md:flex">
+              <li className="md:px-5 py-2">
+                <NavLink to={`/${lang}`}>Home</NavLink>
+              </li>
+              <li className="md:px-5 py-2">
+                <NavLink to={`/${lang}/bookmarks`}>Bookmarks</NavLink>
+              </li>
+              <li className="md:px-5 py-2">
+                <NavLink to={`/${lang}/todos`}>Todos (Roadmap)</NavLink>
               </li>
             </ul>
           </nav>
@@ -126,70 +266,104 @@ function Layout({ children }: { children: React.ReactNode }) {
       <div className="remix-app__main">
         <div className="">{children}</div>
       </div>
-      <footer className="remix-app__footer">
-        <div className="flex items-center justify-center mt-8 mb-2 mx-5vw dark:text-gray-600">
-          <p>&copy; 2021 Can Rau</p>
+      <footer className="flex flex-col items-center justify-center mt-24 mb-4 mx-5vw dark:text-zinc-600">
+        <NewsletterForm />
+        <div className="mt-20">
+          <p className="dark:text-gray-400">{totalPathVisits} visits so far</p>
+        </div>
+        <div className="flex items-center justify-center mt-8">
+          <p>
+            &copy; 2021 Can Rau | running on fly.io
+            {appVersion && ` as v${appVersion}`}
+            {commitSha && ` | #${commitSha}`}
+          </p>
         </div>
       </footer>
     </div>
   );
 }
 
+const catchStrings: Record<Lang, Record<number, string>> = {
+  en: {
+    401: "Oops! Looks like you tried to visit a page that you do not have access to.",
+    404: "Oops! Looks like you tried to visit a page that does not exist.",
+  },
+  // de: {
+  //   401: "",
+  //   404: "",
+  // },
+  // es: {
+  //   401: "",
+  //   404: "",
+  // },
+};
+
 export function CatchBoundary() {
-  let caught = useCatch();
-
-  let message;
-  switch (caught.status) {
-    case 401:
-      message = (
-        <p>
-          Oops! Looks like you tried to visit a page that you do not have access
-          to.
-        </p>
-      );
-      break;
-    case 404:
-      message = (
-        <p>Oops! Looks like you tried to visit a page that does not exist.</p>
-      );
-      break;
-
-    default:
-      throw new Error(caught.data || caught.statusText);
+  const caught = useCatch<ThrownResponses>();
+  const { lang, slug } = useParams<"lang" | "slug">();
+  const lng = languages.includes(lang as Lang) ? (lang as Lang) : defaultLang;
+  const message = catchStrings?.[lng]?.[caught.status];
+  if (!message) {
+    throw new Error(caught.data.error || caught.statusText);
   }
 
   return (
-    <Document lang="en" title={`${caught.status} ${caught.statusText}`}>
+    <Document
+      lang={lng}
+      title={`${caught.status} ${caught.statusText}${titleSeperator}${domain}`}
+    >
       <Layout>
-        <h1>
-          {caught.status}: {caught.statusText}
+        <h1 className="text-4xl text-center">
+          {caught.status} — {caught.statusText}
         </h1>
-        {message}
+        <UndrawNotFound className="max-w-xl mx-auto" />
+        <p className="text-sm text-right">
+          Illustration by{" "}
+          <a
+            href="https://undraw.co/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Undraw.co
+          </a>
+        </p>
+        <p className="mt-4 text-lg text-center">{message}</p>
       </Layout>
     </Document>
   );
 }
 
+const errorStrings: Record<Lang, string> = {
+  en: "There was an error",
+  // de: "Es gab einen Fehler",
+  // es: "Hubo un error",
+};
+
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error);
+  const { lang, slug } = useParams<"lang" | "slug">();
+  const lng = languages.includes(lang as Lang) ? (lang as Lang) : defaultLang;
+  const url = lang ? `/${lang}/${slug}` : "";
+  const msg = errorStrings[lng] || errorStrings[defaultLang];
   return (
-    <Document lang="lang" title="Error!">
+    <Document lang={lng} title={`Error!${titleSeperator}${domain}`}>
       <Layout>
         <div>
-          <h1>There was an error</h1>
-          <p>{error.message}</p>
+          <h1 className="text-4xl text-center">{msg}</h1>
+          <UndrawBugFixing className="max-w-xl mt-8 mx-auto" />
+          {/* <p>{error.message}</p>
           <hr />
           <p>
             Hey, developer, you should replace this with what you want your
             users to see.
-          </p>
+          </p> */}
         </div>
       </Layout>
     </Document>
   );
 }
 
-// function RemixLogo(props: React.ComponentPropsWithoutRef<"svg">) {
+// function RemixLogo(props: ComponentPropsWithoutRef<"svg">) {
 //   return (
 //     <svg
 //       viewBox="0 0 659 165"

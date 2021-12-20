@@ -1,0 +1,58 @@
+---
+status: published
+slug: /failed-to-resolve-fs-or-path-in-remix
+lang: en
+title: Failed to resolve "fs" or "path" in Remix 💿
+description: Bumped into issues importing node modules like "fs" and "path" in Remix recently, here's how I fixed it
+version: 1
+created: 2021-12-09
+updated: 2021-12-09
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2021-12-09
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+published_at:
+---
+
+# {frontmatter.title}
+
+This is the error message I've got in my browsers console:
+
+```
+Uncaught TypeError: failed to resolve "fs". Relative references must start with either "./", "../" or "/"
+```
+
+Though I first noticed:
+
+```
+Uncaught TypeError: routeModules is undefined
+    RemixRoute components.js:181
+    React 17
+    <anonymous> entry.client.tsx:4
+```
+
+Though as the terminal builds correctly I should've come earlier to this conclusion, importing is not the problem, but Remix couldn't completely remove it from the browser bundle and that's where the problem lies, as NodeJS core modules aren't supported in the browser (at least not directly).
+
+I thought Remix would be able to remove it from the browser bundle as I'm only using the core-functions in a `loader`, but sometimes things can get confused, especially directly in route files.
+
+Luckily Remix gives us a way to ensure certain imports won't accidentaly end up in the browser bundle, by suffixing a file with `.server.(jsx?|tsx?)` like `utils.server.ts`.
+
+So instead of importing those core-module functions like "fs" directly in my route file, I'm now re-exporting them from `utils.server.ts` like so:
+
+```ts
+export { readdir, readFile, stat } from "fs/promises";
+export { extname, join, relative } from "path";
+```
+
+and then I can easily import them
+
+```ts
+import { readdir, join } from "~/utils.server";
+```
+
+🥳

@@ -1,0 +1,389 @@
+---
+status: published
+slug: /todo-comment-parsing-in-remix
+lang: en
+title: Todo comment parsing in Remix 💿
+description: How to use a route to auto generate a list of all your `TODO:`, `FIXME:` (and more) comments
+version: 1
+created: 2021-12-16
+updated: 2021-12-16
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2021-12-16
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+published_at:
+---
+
+# {frontmatter.title}
+
+> TL;DR {frontmatter.description}
+
+## WIP
+
+This post is still work-in-progress, you can check out the full code of my route below, though some imports are still missing as well as more explanation and structure ䷦
+
+## I Love Remix!
+
+It feels so natural to write server and client logic in the same file, get SSR, client hydration (if needed), yet without the feeling I got from most other solutions where I had to fight the framework to get it to make what I want 👊 🤦🏻‍♂️
+
+Porting my custom Deno based website to Remix, is such a pleasure, though my formerly called "Roadmap" shouldn't miss, which was such a breeze to bring over.
+
+## Table of contents
+
+## Parsing `TODO:` comments using Leasot
+
+Thanks to [leasot](https://github.com/pgilad/leasot) I only need to get the file contents and feed them to the parser which then returns all the relevant comments, `TODO:`, `FIXME:` and whatever else I desire of the specified file.
+
+```ts
+const fileContent = await readFile("path/to/todos.tsx", { encoding: "utf-8" });
+const filename = basename(filePath);
+const extension = extname(filename);
+
+const fileTodos = leasot.parse(fileContent, {
+  extension,
+  filename: relative(rootDir, filePath),
+  customTags: ["note", "done"],
+});
+```
+
+That's the code to illustrate general usage for a single file.
+
+To actually get all the files and build a grouped object of arrays holding all comments of all files we first have to recursively read all directories to get all file paths. While at it, I'm already excluding files like binaries (which aren't supported), as well as other files I'm not interested in, so I don't load them unnecessarily into memory.
+
+## Recursively reading all file paths
+
+I made a helper function for this, as it needs to be able to call itself, to recurse the directory tree. You'll never know [how deep it'll be](https://www.youtube.com/watch?v=XpqqjU7u5Yc) 🥰
+
+```ts
+import {
+  readdir,
+  readFile,
+  stat,
+  extname,
+  basename,
+  join,
+  relative,
+} from "~/utils.server";
+import { rootUrl, titleSeperator, domain } from "/config";
+
+const getAllFiles = async (
+  root: string,
+  dirPath: string = "",
+  files: Array<string> = [],
+) => {
+  const _files = await readdir(join(root, dirPath));
+
+  files = files = [];
+
+  for (const file of _files) {
+    const filePath = join(root, dirPath, file);
+    const filePathRelative = relative(root, filePath);
+    if (
+      // automate using `.gitignore` file or something
+      filePathRelative.startsWith("node_modules/") ||
+      filePathRelative.startsWith(".cache") ||
+      filePathRelative.startsWith(".git") ||
+      filePathRelative.startsWith(".dockerignore") ||
+      filePathRelative.startsWith("public") ||
+      filePathRelative.startsWith("build") ||
+      filePathRelative.endsWith(".png") ||
+      filePathRelative.endsWith(".jpg") ||
+      filePathRelative.endsWith(".jpeg") ||
+      filePathRelative.endsWith(".ico") ||
+      filePathRelative.endsWith(".DS_Store") ||
+      filePathRelative.endsWith(".env")
+    ) {
+      continue;
+    }
+    const fileStat = await stat(filePath);
+    if (fileStat.isDirectory()) {
+      // if the file path is itself a directory, call the function again to dig deeper
+      files.push(...(await getAllFiles(root, join(dirPath, file), files)));
+    } else {
+      // otherwise add the absolute file path to `files` array
+      // maybe use [mmmagic](https://github.com/mscdex/mmmagic) to get mime type to exclude images, videos etc
+      files.push(join(root, dirPath, file));
+    }
+  }
+
+  return files;
+};
+```
+
+As you can't import node modules in a route file I have a `utils.server.ts` which looks like the following
+
+```ts
+export { readdir, readFile, stat } from "fs/promises";
+export { basename, extname, join, relative } from "path";
+export {
+  default as leasot,
+  isExtensionSupported as leasotExtSupported,
+} from "leasot";
+```
+
+and for completeness this is the minimal `config.ts` needed for this code to work, which I keep in the projects root, next to `package.json`.
+
+```ts
+export const rootUrl: string = "https://www.canrau.com";
+```
+
+> It's basically just re-exporting the modules I use, alternatively it could just export everything using `export * from "fs/promises";` 💁🏻‍♂️
+
+So now that we've got an array containing all the file paths, we can loop it, load the file contents and pass them to leasot.
+
+Also, we have to hack a little around the fact that leasot sadly won't accept files without an extension, like `Dockerfile`, so if `extname("Dockerfile")` returns an empty string, we turn the file name into the extension so than actually `filename === "Dockerfile"` and `extension === ".Dockerfile"` and to make leasot understand this file extension, we can luckily provide a list to associate extensions with parsers.
+
+> Check out [supported-languages.md](https://github.com/pgilad/leasot/blob/master/media/supported-languages.md) to see which file extensions are supported by default, using which parser and also which parser handles which type of comments. Though I just started until I got an error that some extension isn't supported, then I decided on if I want to support or exclude it.
+
+```ts
+// defining more extensions I want to have supported and associate them with a parser
+const associateParser = {
+  ".mdx": { parserName: "defaultParser" },
+  ".json": { parserName: "defaultParser" },
+  ".toml": { parserName: "defaultParser" },
+  ".Dockerfile": { parserName: "defaultParser" },
+};
+
+// I wrapped `isExtensionSupported` from leasot
+// which I first renamed in `utils.server.ts` to `leasotExtSupported`
+// this version checks for officially supported extensions as well as my custom associated ones
+const leasotExtensionSupported = (ext: string) =>
+  leasotExtSupported(ext) || Object.keys(associateParser).includes(ext);
+
+const files = await getAllFiles(rootDir);
+
+for (const filePath of files) {
+  const fileContent = await readFile(filePath, { encoding: "utf-8" });
+  const filename = basename(filePath);
+  let extension = extname(filename);
+  // to hack around [leasot not allowing extensionless files](https://github.com/pgilad/leasot/blob/3e6e07a507d180d1d7c2c6265dd7728ce370a40b/src/lib/parsers.ts#L88)
+  if (extension === "") {
+    // here I'll set the extension to file filename prefixed with a `.` if empty
+    extension = filename.startsWith(".") ? filename : `.${filename}`;
+  }
+  if (!leasotExtensionSupported(extension)) {
+    // if the extension isn't supported I want to get an info in the console
+    // note I wrapped the extension in quotes "" to make it easier to notice empty extensions
+    console.error(
+      `>>>>>>>> LEASOT: Unsupported extension: "${extension}" (${filePath})`,
+    );
+    // then skip to the next item, otherwise leasot will throw 😳
+    continue;
+  }
+  const fileTodos = leasot.parse(fileContent, {
+    extension,
+    filename: relative(rootDir, filePath),
+    customTags: ["note", "done", "fix"],
+    associateParser,
+  });
+  todosUngrouped.push(...fileTodos);
+}
+```
+
+`fileTodos` is an array `[]` of all the comments from that specific file, so I [`spread`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax) it into an array which will hold all comments of all files im interested in.
+
+## The full code
+
+```ts
+import {
+  readdir,
+  readFile,
+  stat,
+  extname,
+  basename,
+  join,
+  relative,
+  leasot,
+  leasotExtSupported,
+} from "~/utils.server";
+import { useLoaderData, type LoaderFunction, type MetaFunction } from "remix";
+import { useMemo } from "react";
+import { getMDXComponent } from "mdx-bundler/client";
+import type { TodoComment } from "leasot/dist/definitions";
+import { bundleMDX } from "~/utils/compile-mdx.server";
+const sortArray = ["FIXME", "TODO", "DONE", "NOTE"];
+
+export const meta: MetaFunction = () => ({
+  title: `Todos`,
+});
+
+type TodoCommentWithMDX = TodoComment & {
+  mdx: { code: string };
+};
+
+const getAllFiles = async (
+  root: string,
+  dirPath: string = "",
+  files: Array<string> = [],
+) => {
+  const _files = await readdir(join(root, dirPath));
+
+  files = files = [];
+
+  for (const file of _files) {
+    const filePath = join(root, dirPath, file);
+    const filePathRelative = relative(root, filePath);
+    if (
+      // automate using `.gitignore` file I guess
+      filePathRelative.startsWith("node_modules/") ||
+      filePathRelative.startsWith(".cache") ||
+      filePathRelative.startsWith(".git") ||
+      filePathRelative.startsWith(".dockerignore") ||
+      filePathRelative.startsWith("public") ||
+      filePathRelative.startsWith("build") ||
+      filePathRelative.endsWith(".png") ||
+      filePathRelative.endsWith(".jpg") ||
+      filePathRelative.endsWith(".jpeg") ||
+      filePathRelative.endsWith(".ico") ||
+      filePathRelative.endsWith(".DS_Store") ||
+      filePathRelative.endsWith(".env")
+    ) {
+      continue;
+    }
+    const fileStat = await stat(filePath);
+    if (fileStat.isDirectory()) {
+      files.push(...(await getAllFiles(root, join(dirPath, file), files)));
+    } else {
+      // maybe use [mmmagic](https://github.com/mscdex/mmmagic) to get mime type to exclude images, videos etc
+      files.push(join(root, dirPath, file));
+    }
+  }
+
+  return files;
+};
+
+// by https://stackoverflow.com/a/66987261/3484824
+const groupBy = <T, K extends keyof T>(
+  array: T[],
+  groupOn: K | ((i: T) => string),
+): Record<string, T[]> => {
+  const groupFn =
+    typeof groupOn === "function" ? groupOn : (o: T) => o[groupOn];
+
+  return Object.fromEntries(
+    array.reduce((acc, obj) => {
+      const groupKey = groupFn(obj);
+      return acc.set(groupKey, [...(acc.get(groupKey) || []), obj]);
+    }, new Map()),
+  ) as Record<string, T[]>;
+};
+
+const associateParser = {
+  ".mdx": { parserName: "defaultParser" },
+  ".json": { parserName: "defaultParser" },
+  ".toml": { parserName: "defaultParser" },
+  ".Dockerfile": { parserName: "defaultParser" },
+};
+
+const leasotExtensionSupported = (ext: string) =>
+  leasotExtSupported(ext) || Object.keys(associateParser).includes(ext);
+
+type Todos = Record<string, TodoCommentWithMDX[]>;
+type LoaderData = { todos: Todos };
+
+export const loader: LoaderFunction = async ({ params, request }) => {
+  const rootDir = process.cwd();
+  const todosUngrouped: TodoComment[] = [];
+
+  const files = await getAllFiles(rootDir);
+
+  for (const filePath of files) {
+    const fileContent = await readFile(filePath, { encoding: "utf-8" });
+    const filename = basename(filePath);
+    let extension = extname(filename);
+    // to hack around [leasot not allowing extensionless files](https://github.com/pgilad/leasot/blob/3e6e07a507d180d1d7c2c6265dd7728ce370a40b/src/lib/parsers.ts#L88)
+    if (extension === "") {
+      extension = filename.startsWith(".") ? filename : `.${filename}`;
+    }
+    if (!leasotExtensionSupported(extension)) {
+      console.error(
+        `>>>>>>>> LEASOT: Unsupported extension: "${extension}" (${filePath})`,
+      );
+      continue;
+    }
+    const fileTodos = leasot.parse(fileContent, {
+      extension,
+      filename: relative(rootDir, filePath),
+      customTags: ["note", "done", "fix"],
+      associateParser,
+    });
+    todosUngrouped.push(...fileTodos);
+  }
+  const todosWithMDX: TodoCommentWithMDX[] = await Promise.all(
+    todosUngrouped.map(async (t) => ({
+      ...t,
+      mdx: await bundleMDX({ source: t.text }),
+    })),
+  );
+
+  const todos = groupBy(todosWithMDX, "tag");
+  return { todos };
+};
+
+const getEmoji = (tag: string, num: number) => {
+  if (tag === "DONE") {
+    return <span>{num > 20 ? `🥰` : num > 10 ? `😎` : `😌`}</span>;
+  }
+  return <span>{num > 20 ? `😱` : num > 10 ? `😨` : `😊`}</span>;
+};
+
+type ITodoProps = {
+  todos: Todos;
+};
+
+const TodoList = ({ todos }: ITodoProps) =>
+  sortArray.map((tag) => {
+    const tagsTodos = todos?.[tag];
+    if (!tagsTodos || tagsTodos.length === 0) return null;
+    const count = tagsTodos.length;
+    return (
+      <div id={tag} className="w-172 max-w-90vw px-5" key={tag}>
+        <div id={tag.toLowerCase()} className="text-xl">
+          {tag}'s ({count} {getEmoji(tag, count)})
+        </div>
+        <ul className="mt-6">
+          {tagsTodos.map((todo) => {
+            const Component = useMemo(
+              () => getMDXComponent(todo.mdx.code),
+              [todo.mdx.code],
+            );
+            return (
+              <li className="mt-4" key={todo.text}>
+                <div className="font-boldX">
+                  <Component />
+                </div>
+                <div className="text-xs text-gray-300">
+                  {todo.ref ? `Ref: ${todo.ref} - ` : ""}
+                  {todo.file}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  });
+
+export const Roadmap = ({ todos }: ITodoProps) => (
+  <div className="flex flex-col items-center text-gray-100 my-15">
+    <h1 className="text-3xl text-left w-full">Todos</h1>
+    <div className="mt-12 space-y-28">
+      <TodoList todos={todos} />
+    </div>
+  </div>
+);
+
+export default function Todos() {
+  const { todos } = useLoaderData<LoaderData>();
+  return (
+    <main>
+      <Roadmap todos={todos} />
+    </main>
+  );
+}
+```

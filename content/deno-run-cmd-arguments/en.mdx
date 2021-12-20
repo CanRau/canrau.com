@@ -1,0 +1,153 @@
+---
+status: published
+slug: /deno-run-cmd-arguments
+lang: en
+title: Deno.run cmd arguments
+description: "fixme: desc"
+created: 2021-10-26
+updated: 2021-10-26
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2021-10-27
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+  - https://twitter.com/CanRau/status/1453087942495379457
+---
+
+{/* export { default as cover } from "./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png"; */}
+
+# `Deno.run` cmd arguments
+
+```ts
+const p = Deno.run({
+  cmd: ["echo", "I love 🍉"],
+});
+
+// await its completion
+await p.status();
+```
+
+Which works just as expected, and `echo`'es (prints) the provided text to the terminal.
+Though when I wanted my CLI to help me with more complex tasks I run into unexpected behaviour.
+
+I'm using [Fly.io](https://fly.io) to deploy my site using a custom `Dockerfile` and I wanted to include the current git hash into my website so I thought I'd pass it to the `Dockerfile` via a `--build-arg` 🤓
+
+Though confusingly the following makes the `flyctl` CLI throw: `Error unknown flag: --build-arg GIT_REVISION`
+
+```ts
+const p = Deno.run({
+  cmd: [
+    "flyctl",
+    "deploy",
+    "--remote-only",
+    "--no-cache",
+    `--build-arg GIT_REVISION=${await getGitRevision()}`, // won't work
+  ],
+});
+```
+
+Which confused me as I actually expected I could just pass kinda any command even in a single string, though that's not the case as for example the following doesn't work either, or at least not as expected
+
+```ts
+const p = Deno.run({
+  cmd: ["echo", "I love 🍉", "&&", "echo", "and 🍍"],
+});
+```
+
+this prints
+
+```bash
+I love 🍉 && echo and 🍍
+```
+
+instead of
+
+```bash
+I love 🍉
+and 🍍
+```
+
+Checking the [docs](https://doc.deno.land/builtin/stable#Deno.run)
+
+> Spawns new subprocess. RunOptions must contain at a minimum the opt.cmd, an array of program arguments, **_the first of which is the binary_**.
+
+"[..] the first of which is the binary.", so you can only spawn one command, which when thinking about it probably makes sense and things simpler and as we're already in-code it's no trouble running `Deno.run` as often as we like right 🥳
+
+## How to properly pass argument values
+
+So the solution to my initial problem is to put the value in it's own array item like in the following example
+
+```ts
+const p = Deno.run({
+  cmd: [
+    "flyctl",
+    "deploy",
+    "--remote-only",
+    "--no-cache",
+    "--build-arg",
+    `GIT_REVISION=${await getGitRevision()}`,
+  ],
+});
+```
+
+## Get && commands working in Deno
+
+```ts
+function run(cmd: string) {
+  let cmds: string[];
+  if (cmd.includes("&&")) {
+    cmds = cmd.split("&&").map((c) => c.trim());
+  } else {
+    cmds = [cmd];
+  }
+  const processes: Deno.Process[] = [];
+  for (const index in cmds) {
+    const command = cmds[index];
+    const p = Deno.run({
+      cmd: command.split(" "),
+      stdout: "piped",
+    });
+    processes.push(p);
+  }
+  return processes;
+}
+```
+
+Which you can use like so
+
+```ts
+const [p1, p2] = run("echo 'command 1' && echo 'command 2'");
+await p1.status();
+await p2.status();
+
+// and to get the commands outputs
+const decoder = new TextDecoder();
+console.log(decoder.decode(await p1.output()).replace(/\n$/, ""));
+console.log(decoder.decode(await p2.output()).replace(/\n$/, ""));
+```
+
+You could chain more of course or even `await Promise.all` and because `stdout` is set to `piped` can read the commands outputs, or remove `stdout` from `Deno.run` to have it print to your terminal without the need for `console.log`.
+
+🦕😃
+
+## Bonus: Get the current git revision hash
+
+```ts
+const getGitRevision = async () => {
+  const p = await Deno.run({
+    cmd: ["git", "rev-parse", "--short", "HEAD"],
+    stdout: "piped",
+  });
+  const decoder = new TextDecoder();
+  return decoder.decode(await p.output()).replace(/\n$/, "");
+};
+```
+
+## Related
+
+Read more about `Deno.run` in the [manual](https://deno.land/manual@v1.15.3/examples/subprocess) and [docs](https://doc.deno.land/builtin/stable#Deno.run)

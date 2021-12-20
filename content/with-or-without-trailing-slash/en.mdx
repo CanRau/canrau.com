@@ -1,0 +1,114 @@
+---
+status: published
+slug: /with-or-without-trailing-slash
+lang: en
+title: To Add or Remove trailing slashes?
+description: Bumped into issues importing node modules like "fs" and "path" in Remix recently, here's how I fixed it
+version: 1
+created: 2021-10-26
+updated: 2021-10-26
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2021-10-26
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: SEO
+published_at:
+  - https://twitter.com/CanRau/status/1453087942495379457
+---
+
+export { default as cover } from "./cover_with-or-without-trailing-slash_s.png";
+
+# {frontmatter.title}
+
+So I conducted some research and a [Twitter Poll](https://twitter.com/CanRau/status/1453087942495379457) on that matter.
+
+I know that it's not overly important if a site redirects to strip or add trailing slashes, or even allows both, as long as the `canonical` meta tag is set consistently
+
+It's just a personal curiosity which pleases my #OCD 🤓
+
+## Middlewares to remove trailing slashes in Oak (or Koa)
+
+If you're using [Oak](https://github.com/oakserver/oak/) or [Koa](https://github.com/koajs/koa/) then you can drop this somewhere in your codebase and then apply it to all the routes you want the trailing slash to be removed from
+
+```ts
+import { Status } from "https://deno.land/std@0.113.0/http/http_status.ts";
+const removeTrailingSlashMiddleware = async (
+  ctx: Context,
+  next: NextMiddleware,
+) => {
+  const { url } = ctx.request;
+  if (url.pathname.endsWith("/")) {
+    url.pathname = url.pathname.replace(/\/$/, "");
+    ctx.response.status = Status.Found;
+    return ctx.response.redirect(url);
+  }
+  await next();
+};
+```
+
+### Usage of `removeTrailingSlashMiddleware`
+
+```ts
+router.get(
+  "/blog/:slug",
+  removeTrailingSlashMiddleware,
+  async (ctx: Context, next: NextMiddleware) => {
+    ctx.response.body = "Trailing slash has been removed 👏";
+  },
+);
+```
+
+## Middlewares to add trailing slashes in Oak (or Koa)
+
+```ts
+import { Status } from "https://deno.land/std@0.113.0/http/http_status.ts";
+const addTrailingSlashMiddleware = async (
+  ctx: Context,
+  next: NextMiddleware,
+) => {
+  const { url } = ctx.request;
+  if (!url.pathname.endsWith("/")) {
+    ctx.response.status = Status.Found;
+    url.pathname = `${url.pathname}/`;
+    return ctx.response.redirect(url);
+  }
+  await next();
+};
+```
+
+### Usage of `addTrailingSlashMiddleware`
+
+```ts
+router.get(
+  "/blog/:slug",
+  addTrailingSlashMiddleware,
+  async (ctx: Context, next: NextMiddleware) => {
+    ctx.response.body = "Trailing slash has been added 👏";
+  },
+);
+```
+
+## Canonical meta tag
+
+It's still recommended to add the canonical URL to your pages `<head/>` like so
+
+### Canonical URL without trailing slash
+
+```html
+<link rel="canonical" href="https://www.my.canonical/url" />
+```
+
+### Canonical URL with trailing slash
+
+```html
+<link rel="canonical" href="https://www.my.canonical/url/" />
+```
+
+## More about trailing slashes
+
+- [Consolidate duplicate URLs - Google Search Central](https://developers.google.com/search/docs/advanced/crawling/consolidate-duplicate-urls)
+- [To slash or not to slash - Google Search Central](https://developers.google.com/search/blog/2010/04/to-slash-or-not-to-slash)

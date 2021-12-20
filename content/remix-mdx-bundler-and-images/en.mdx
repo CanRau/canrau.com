@@ -1,0 +1,97 @@
+---
+status: published
+slug: /remix-mdx-bundler-and-images
+lang: en
+title: Remix 💿 mdx-bundler and images
+description: How to get mdx-bundler (by Kent C. Dodds) working with local images
+version: 1
+created: 2021-12-04
+updated: 2021-12-04
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2021-12-04
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+published_at:
+---
+
+export { default as cover } from "./cover_remix-mdx-bundler-images_s.png";
+
+# {frontmatter.title}
+
+This [issue](https://github.com/kentcdodds/mdx-bundler/issues/52) has helped me finally get the right settings going.
+
+My complete helper file `compile-mdx.server.ts`
+
+```ts
+import * as mdxBundler from "mdx-bundler";
+import { remarkMdxImages } from "remark-mdx-images";
+import { join, resolve } from "path";
+import { readFile } from "fs/promises";
+
+type IBundleMdx = {
+  cwd: string;
+  file: string;
+};
+
+// `resolve` won't work in a non `.server.ts` file
+export const getContentPath = (slug: string) => resolve("content", slug);
+
+export const getFilePath = (contentPath: string, filename: string) =>
+  resolve(contentPath, filename);
+
+export const bundleMDX = async ({ cwd, file }: IBundleMdx) => {
+  const { default: remarkGfm } = await import("remark-gfm");
+  const { default: remarkBreaks } = await import("remark-breaks");
+  const { default: remarkFootnotes } = await import("remark-footnotes");
+  const { default: rehypeSlug } = await import("rehype-slug");
+  const { default: linkHeadings } = await import("rehype-autolink-headings");
+  const { default: rehypePrism } = await import("rehype-prism-plus");
+
+  return mdxBundler.bundleMDX({
+    cwd,
+    file,
+    xdmOptions: (options) => {
+      options.remarkPlugins = [
+        ...(options.remarkPlugins ?? []),
+        remarkMdxImages,
+        remarkGfm,
+        remarkBreaks,
+        [remarkFootnotes, { inlineNotes: true }],
+      ];
+
+      options.rehypePlugins = [
+        ...(options.rehypePlugins ?? []),
+        rehypeSlug,
+        linkHeadings,
+        [rehypePrism, { ignoreMissing: true, showLineNumbers: true }],
+      ];
+
+      return options;
+    },
+    esbuildOptions: (options) => {
+      // Set the `outdir` to a public location for this bundle.
+      // console.log("esbuildOptions", resolve("public"));
+      // options.outdir = resolve("public", "build", "_assets");
+      options.outdir = resolve("public/build/_assets");
+      options.loader = {
+        ...options.loader,
+        ".png": "file",
+        ".jpg": "file",
+        ".jpeg": "file",
+      };
+      // Set the public path to /img/about
+      options.publicPath = join("/build/_assets");
+
+      // Set write to true so that esbuild will output the files.
+      options.write = true;
+
+      return options;
+    },
+  });
+};
+```

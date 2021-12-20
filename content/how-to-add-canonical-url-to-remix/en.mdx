@@ -1,0 +1,105 @@
+---
+status: published
+slug: /how-to-add-canonical-url-to-remix
+lang: en
+title: How to add canonical url to Remix 💿
+description: Add canonical urls to you Remix website to avoid duplicate content penalties for better SEO
+version: 1
+created: 2021-12-06
+updated: 2021-12-18
+published: 2021-12-06
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2021-12-06
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+published_at:
+---
+
+export { default as cover } from "./cover_canonical-urls-remix_s.png";
+
+# {frontmatter.title}
+
+![Cover showing the title with the full Remix logo instead of the word Remix](./cover_canonical-urls-remix_s.png)
+
+There's so far 2 ways I like.
+
+## Using `loader` data
+
+This one is probably my fav, as it doesn't require any other function than the most probably already present `loader`. And because it's part of the loader it gives me full access to the already fetched content 🥰
+
+```ts
+import { homepage } from "/package.json"; // or import from some kind of "/config"
+export const loader: LoaderFunction = async ({ params }) => {
+  // [..]
+  const { frontmatter, code } = await bundleMDX();
+  // [..]
+  const canonical = `${homepage}/${frontmatter?.lang}${frontmatter?.slug}`;
+  return { frontmatter, code, canonical };
+};
+```
+
+Then in my `root.tsx` I have the following `Document` component, where especially lines 12 - 14 and line 23 are relevant.
+
+```tsx
+function Document({
+  children,
+  title,
+  lang,
+}: {
+  children: ReactNode;
+  title?: string;
+  lang: string;
+}) {
+  // use `export const handle = { hydrate: true };` in any route to enable JS
+  const includeScripts = useShouldHydrate(); // from remix-utils
+  const matches = useMatches();
+  const match = matches.find((match) => match.data && match.data.canonical);
+  const canonical = match?.data.canonical;
+
+  return (
+    <html lang={lang} className="dark scroll-smooth">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        {title ? <title>{title}</title> : null}
+        <Meta />
+        {!!canonical && <link rel="canonical" href={canonical} />}
+        <Links />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          href={`${rootUrl}/${lang}/feed.xml`}
+          title="Can Rau's XML Feed"
+        />
+        <link
+          rel="alternate"
+          type="application/feed+json"
+          href={`${rootUrl}/${lang}/feed.json`}
+          title="Can Rau's JSON Feed"
+        />
+      </head>
+      <body className="dark:bg-gray-900">
+        {children}
+        <ScrollRestoration />
+        {includeScripts && <Scripts />}
+        {process.env.NODE_ENV === "development" && <LiveReload />}
+      </body>
+    </html>
+  );
+}
+```
+
+> Note: More about my the `<link rel="alternate" />` in [RSS in Remix](/en/rss-in-remix)
+
+More about useMatches in the [Remix Package docs](https://remix.run/docs/en/v1/api/remix#usematches) and in the [Disabling Javscript docs](https://remix.run/docs/en/v1/guides/disabling-javascript)
+
+Remix used to provide the `loader` data to `links`, but they had to [remove it for prefetching](https://discord.com/channels/770287896669978684/771068344320786452/907715068303642655)
+
+- [Mistake 5: rel=canonical in the <body/> - 5 common mistakes with rel=canonical](https://developers.google.com/search/blog/2013/04/5-common-mistakes-with-relcanonical#mistake-5:-rel=canonical-in-the-body)
+- [​Canonical outside of head](https://sitebulb.com/hints/indexability/canonical-outside-of-head/)
+- [Canonical URL / Location Checker](https://www.seoreviewtools.com/canonical-url-location-checker/)
