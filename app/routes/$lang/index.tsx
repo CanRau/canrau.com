@@ -16,8 +16,6 @@ import {
   domain,
   twitterHandle,
 } from "/config";
-import { useContext } from "react";
-import { AppContext } from "~/app-context";
 // import invariant from "tiny-invariant";
 // import styles from "~/styles/windicss/index.css";
 
@@ -108,9 +106,7 @@ const Post = ({ post, url }: { post: Frontmatter; url: string }) => {
 };
 
 export default function Index() {
-  const { hero, posts, totalPathVisits } = useLoaderData<LoaderData>();
-  const { setPageViewCountForPath } = useContext(AppContext);
-  setPageViewCountForPath(totalPathVisits);
+  const { hero, posts } = useLoaderData<LoaderData>();
 
   return (
     <div className="remix__page">

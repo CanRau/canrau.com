@@ -1,4 +1,4 @@
-import { Outlet, LoaderFunction, useLoaderData } from "remix";
+import { Outlet, type LoaderFunction, useLoaderData } from "remix";
 // import {
 //   getTotalPathVisits,
 //   IGetTotalPathVisits,
@@ -20,7 +20,6 @@ import { Outlet, LoaderFunction, useLoaderData } from "remix";
 // };
 
 export default function LangLayout() {
-  // console.log(useLoaderData());
   return (
     <>
       {/* <h1>Layout</h1> */}

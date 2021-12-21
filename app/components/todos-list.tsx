@@ -10,13 +10,12 @@ import {
   leasotExtSupported,
 } from "~/utils.server";
 import { useLoaderData, type LoaderFunction } from "remix";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { getMDXComponent } from "mdx-bundler/client";
 import type { TodoComment } from "leasot/dist/definitions";
 import { bundleMDX } from "~/utils/compile-mdx.server";
 import { loader as getTotalPathVisitsLoader } from "~/utils/get-total-path-visits";
 import { rootUrl, titleSeperator, domain } from "/config";
-import { AppContext } from "~/app-context";
 
 type TodoCommentWithMDX = TodoComment & {
   mdx: { code: string };

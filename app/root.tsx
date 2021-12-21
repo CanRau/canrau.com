@@ -21,7 +21,6 @@ import {
   useParams,
 } from "remix";
 import clsx from "clsx";
-import { AppContext } from "~/app-context";
 import { getDeployVersion } from "~/utils/get-fly-deploy-version";
 import { type ThrownResponses } from "~/utils/error-responses";
 import tailwindStyles from "~/styles/tailwind.css";
@@ -34,6 +33,7 @@ import {
   titleSeperator,
   domain,
 } from "/config";
+import { repository } from "/package.json";
 import type { Lang } from "/types";
 import invariant from "tiny-invariant";
 import { NewsletterForm } from "~/components/newsletter-form";
@@ -116,10 +116,6 @@ export default function App() {
   const { lang, commitSha, appVersion } = useLoaderData<LoaderData>();
   const navigate = useNavigate();
 
-  const [totalPathVisits, setTotalPathVisits] = useState<number>();
-  const setPageViewCountForPath = (visits: number) =>
-    setTotalPathVisits(visits);
-
   useEffect(() => {
     if (
       typeof window !== "undefined" &&
@@ -148,18 +144,11 @@ export default function App() {
   // });
 
   return (
-    <AppContext.Provider value={{ setPageViewCountForPath }}>
-      <Document lang={lang}>
-        <Layout
-          lang={lang}
-          commitSha={commitSha}
-          appVersion={appVersion}
-          totalPathVisits={totalPathVisits}
-        >
-          <Outlet />
-        </Layout>
-      </Document>
-    </AppContext.Provider>
+    <Document lang={lang}>
+      <Layout lang={lang} commitSha={commitSha} appVersion={appVersion}>
+        <Outlet />
+      </Layout>
+    </Document>
   );
 }
 
@@ -216,16 +205,18 @@ function Layout({
   className = "",
   commitSha,
   appVersion,
-  totalPathVisits,
   children,
 }: {
   lang?: string;
   className?: string;
   commitSha?: string;
   appVersion?: number;
-  totalPathVisits?: number;
   children: ReactNode;
 }) {
+  const sha = commitSha ? commitSha.substr(0, 7) : "";
+  const matches = useMatches();
+  const currentRoute = matches.find((m) => m.data?.totalPathVisits > 0);
+  const visits = currentRoute.data.totalPathVisits;
   return (
     <div
       className={clsx(
@@ -269,14 +260,30 @@ function Layout({
       <footer className="flex flex-col items-center justify-center mt-24 mb-4 mx-5vw dark:text-zinc-600">
         <NewsletterForm />
         <div className="mt-20">
-          <p className="dark:text-gray-400">{totalPathVisits} visits so far</p>
+          <p className="dark:text-gray-400">{visits} visits so far</p>
         </div>
-        <div className="flex items-center justify-center mt-8">
-          <p>
-            &copy; 2021 Can Rau | running on fly.io
+        {/* note: i like not-first:before:content-['_|_'] but those are missing when copying 😒 */}
+        <div className="mt-8">
+          <span>&copy; 2021 Can Rau</span>
+          {" | "}
+          <span>
+            running on fly.io
             {appVersion && ` as v${appVersion}`}
-            {commitSha && ` | #${commitSha}`}
-          </p>
+          </span>
+          {commitSha && (
+            <>
+              {" | "}
+              <span>
+                <a
+                  href={`${repository.url}/commit/${commitSha}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  #{sha}
+                </a>
+              </span>
+            </>
+          )}
         </div>
       </footer>
     </div>

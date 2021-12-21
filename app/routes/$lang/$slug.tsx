@@ -1,12 +1,12 @@
 import {
-  useLoaderData,
-  json,
   type MetaFunction,
   type LoaderFunction,
   type LinksFunction,
   type RouteHandle,
+  json,
+  useLoaderData,
 } from "remix";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import parseISO from "date-fns/parseISO";
 import formatDate from "date-fns/format";
 import { readFile } from "~/utils.server";
@@ -24,7 +24,6 @@ import prismTheme from "~/styles/prism-theme.css";
 import { rootUrl, domain, titleSeperator, twitterHandle } from "/config";
 import type { Lang } from "/types";
 import { NotFoundError } from "~/utils/error-responses";
-import { AppContext } from "~/app-context";
 // import type { TocEntry } from "@stefanprobst/rehype-extract-toc";
 
 const isProd = process.env.NODE_ENV === "production";
@@ -102,7 +101,6 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const canonical =
     frontmatter.canonical ||
     `${rootUrl}/${frontmatter?.lang}${frontmatter?.slug}`;
-
   return json({ frontmatter, code, canonical, totalPathVisits });
 };
 
@@ -125,7 +123,7 @@ type IGetH1 = {
   updated: Date;
 };
 const GetH1 =
-  ({ published, updated }: IGetH1) =>
+  ({ published, updated, created }: IGetH1) =>
   (props) => {
     // const time = updated ?? published
     // const timeProps = updated ? {datetime: updated, itemprop: "dateUpdated"}
@@ -159,18 +157,18 @@ const GetH1 =
 
 export default function Post() {
   const { code, frontmatter, totalPathVisits } = useLoaderData<LoaderData>();
-  const { setPageViewCountForPath } = useContext(AppContext);
-  setPageViewCountForPath(totalPathVisits);
   const Component = useMemo(() => getMDXComponent(code), [code]);
   // todo: Add "banner" if page not yet published
   return (
     <>
+      {/* todo: mark external links somewhow `prose-a:after:content-['_↗']` (from TW docs) is interesting but might be a little much? */}
       <main className="prose prose-lg lg:prose-xl dark:prose-invert mx-auto">
         <Component
           components={{
             h1: GetH1({
               updated: frontmatter.updated,
               published: frontmatter.published,
+              created: frontmatter.created,
             }),
             /*components*/
           }}

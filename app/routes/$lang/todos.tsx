@@ -10,13 +10,12 @@ import {
   leasotExtSupported,
 } from "~/utils.server";
 import { useLoaderData, type LoaderFunction, type MetaFunction } from "remix";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { getMDXComponent } from "mdx-bundler/client";
 import type { TodoComment } from "leasot/dist/definitions";
 import { bundleMDX } from "~/utils/compile-mdx.server";
 import { loader as getTotalPathVisitsLoader } from "~/utils/get-total-path-visits";
 import { rootUrl, titleSeperator, domain } from "/config";
-import { AppContext } from "~/app-context";
 const sortArray = ["FIXME", "TODO", "DONE", "NOTE"];
 
 export const meta: MetaFunction = () => ({
@@ -210,9 +209,7 @@ export const Roadmap = ({ todos }: ITodoProps) => (
 );
 
 export default function Todos() {
-  const { todos, totalPathVisits } = useLoaderData<LoaderData>();
-  const { setPageViewCountForPath } = useContext(AppContext);
-  setPageViewCountForPath(totalPathVisits);
+  const { todos } = useLoaderData<LoaderData>();
   return (
     <main>
       <Roadmap todos={todos} />
