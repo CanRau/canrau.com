@@ -2,7 +2,10 @@ const plugin = require("tailwindcss/plugin");
 
 const variants = ["blue", "red", "yellow"];
 
+// note: wrote this as a POC for ['Custom "Modes/Themes" (Ex. Dark Mode)' tailwindlabs/tailwindcss#6547](https://github.com/tailwindlabs/tailwindcss/discussions/6547#discussioncomment-1820291)
 const customVariants = plugin(({ addVariant, e }) => {
+  // couldn't get this working
+  // addVariant("blue", ".blue &");
   variants.map((variant) =>
     addVariant(variant, ({ modifySelectors, separator }) => {
       modifySelectors(({ className }) => {
@@ -17,19 +20,11 @@ const customVariants = plugin(({ addVariant, e }) => {
 // todo: Get tailwind.config.js [types](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/tailwindcss) working for plugins [tailwindlabs/tailwindcss#1077](https://github.com/tailwindlabs/tailwindcss/discussions/1077)
 /** @type {import('tailwindcss/plugin')} */
 const notFirst = plugin(({ addVariant, e }) => {
-  // couldn't get this working
-  // addVariant("blue", ".blue &");
-  // note: wrote this as a POC for ['Custom "Modes/Themes" (Ex. Dark Mode)' tailwindlabs/tailwindcss#6547](https://github.com/tailwindlabs/tailwindcss/discussions/6547#discussioncomment-1820291)
-  addVariant("blue", ({ modifySelectors, separator }) => {
-    modifySelectors(({ className }) => {
-      const element = e(`blue${separator}${className}`);
-      return `.blue .${element}`;
-    });
-  });
   addVariant("not-first", ({ modifySelectors, separator }) => {
     modifySelectors(({ className }) => {
       const element = e(`not-first${separator}${className}`);
-      return `.${element} > * + *`;
+      // return `.${element} > * + *`;
+      return `.${element} > :not(:first-child)`;
     });
   });
 });
@@ -38,7 +33,7 @@ const notFirst = plugin(({ addVariant, e }) => {
 module.exports = {
   content: ["./{app,content}/**/*.{ts,tsx}"],
   // done: don't remove (defaults to media) until light mode has been fixed (by me 🥲)!
-  // todo: make theme toggling, based on class, default to auto (via code), be customizable but also revertible to auto [tweet](https://mobile.twitter.com/chaphasilor/status/1472142142109851652)
+  // todo: make theme toggling, based on class, default to auto (via code), be customizable but also revertible to auto [tweet](https://mobile.twitter.com/chaphasilor/status/1472142142109851652) [discord](https://discord.com/channels/770287896669978684/771068344320786452/922672997754605568)
   // darkMode: "class",
   plugins: [
     // done: TailwindCSS Typography plugins' styles, or remove it 🤨 Wait for [tailwindcss-typography#102](https://github.com/tailwindlabs/tailwindcss-typography/issues/102) and [tailwindlabs/tailwindcss/discussions/5711](https://github.com/tailwindlabs/tailwindcss/discussions/5711)
