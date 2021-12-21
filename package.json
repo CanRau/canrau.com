@@ -4,6 +4,13 @@
   "description": "",
   "license": "",
   "homepage": "https://www.canrau.com",
+  "repository": {
+    "url": "https://github.com/CanRau/canrau.com",
+    "type": "git"
+  },
+  "bugs": {
+    "url": "https://github.com/CanRau/canrau.com/issues"
+  },
   "scripts": {
     "build": "npm run build:css && remix build",
     "dev": "concurrently \"npm run dev:css\" \"remix dev\"",
