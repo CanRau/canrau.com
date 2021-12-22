@@ -28,9 +28,9 @@ import { NotFoundError } from "~/utils/error-responses";
 
 const isProd = process.env.NODE_ENV === "production";
 
-export const handle: RouteHandle = {
-  canonical: (pathname: string) => pathname,
-};
+// export const handle: RouteHandle = {
+//   canonical: (pathname: string) => pathname,
+// };
 
 export const meta: MetaFunction = ({ data }) => {
   const {

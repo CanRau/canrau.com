@@ -164,7 +164,8 @@ function Document({
   const matches = useMatches();
   const includeScripts = useShouldHydrate();
   // todo: last item in useMatches always correct? get canonical from here as well?
-  const { canonical, jsonld } = matches?.[matches.length - 1]?.data ?? {};
+  const currentRoute = matches?.[matches.length - 1];
+  const { canonical, jsonld } = currentRoute?.data ?? {};
   // const match = matches.find((match) => match.handle && match.handle.canonical);
   // const match = matches.find((match) => match.data && match.data.canonical);
   // const canonical = match?.data.canonical;
@@ -223,8 +224,9 @@ function Layout({
 }) {
   const sha = commitSha ? commitSha.substr(0, 7) : "";
   const matches = useMatches();
-  const currentRoute = matches.find((m) => m.data?.totalPathVisits > 0);
-  const visits = currentRoute.data.totalPathVisits;
+  // const currentRoute = matches.find((m) => m?.data?.totalPathVisits > 0);
+  const currentRoute = matches?.[matches.length - 1];
+  const { totalPathVisits } = currentRoute?.data ?? {};
   return (
     <div
       className={clsx(
@@ -268,7 +270,7 @@ function Layout({
       <footer className="flex flex-col items-center justify-center mt-24 mb-4 mx-5vw dark:text-zinc-600">
         <NewsletterForm />
         <div className="mt-20">
-          <p className="dark:text-gray-400">{visits} visits so far</p>
+          <p className="dark:text-gray-400">{totalPathVisits} visits so far</p>
         </div>
         {/* note: i like not-first:before:content-['_|_'] but those are missing when copying 😒 */}
         <div className="mt-8">
