@@ -89,7 +89,13 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     throw NotFoundError(lang);
   });
 
-  const [{ frontmatter, code }, totalPathVisits] = await Promise.all([
+  const [
+    {
+      frontmatter: { jsonld, ...frontmatter },
+      code,
+    },
+    totalPathVisits,
+  ] = await Promise.all([
     bundleMdxPromise,
     getTotalPathVisitsLoader({ request }),
   ]);
@@ -101,7 +107,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const canonical =
     frontmatter.canonical ||
     `${rootUrl}/${frontmatter?.lang}${frontmatter?.slug}`;
-  return json({ frontmatter, code, canonical, totalPathVisits });
+  return json({ frontmatter, code, canonical, totalPathVisits, jsonld });
 };
 
 // note: more on [component substitution](https://github.com/wooorm/xdm#components)
@@ -125,9 +131,8 @@ type IGetH1 = {
 const GetH1 =
   ({ published, updated, created }: IGetH1) =>
   (props) => {
-    // const time = updated ?? published
-    // const timeProps = updated ? {datetime: updated, itemprop: "dateUpdated"}
     // todo: why is parseISO necessary??
+    // note: [schema.org/Date](https://schema.org/Date)
     return (
       <>
         <typography.H1 {...props} />
@@ -135,7 +140,10 @@ const GetH1 =
           {updated && (
             <div>
               Last updated:&nbsp;
-              <time className="ml-1" dateTime={updated} itemProp="dateUpdated">
+              <time
+                className="ml-1"
+                // dateTime={updated} property="dateModified"
+              >
                 {formatDate(parseISO(updated), "yyyy-MM-dd")}
               </time>
             </div>
@@ -144,8 +152,7 @@ const GetH1 =
             Published:&nbsp;
             <time
               className="ml-1"
-              dateTime={published || created}
-              itemProp="datePublished"
+              // dateTime={published || created} property="datePublished"
             >
               {formatDate(parseISO(published || created), "yyyy-MM-dd")}
             </time>

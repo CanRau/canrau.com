@@ -163,9 +163,11 @@ function Document({
 }) {
   const matches = useMatches();
   const includeScripts = useShouldHydrate();
+  // todo: last item in useMatches always correct? get canonical from here as well?
+  const { canonical, jsonld } = matches?.[matches.length - 1]?.data ?? {};
   // const match = matches.find((match) => match.handle && match.handle.canonical);
-  const match = matches.find((match) => match.data && match.data.canonical);
-  const canonical = match?.data.canonical;
+  // const match = matches.find((match) => match.data && match.data.canonical);
+  // const canonical = match?.data.canonical;
   // note: use `export const handle = { hydrate: true };` in any route to enable JS
 
   return (
@@ -189,6 +191,12 @@ function Document({
         {/* prettier-ignore */}
         <meta name="google-site-verification" content="KGv3z097pffnaQ1ZA4nUtkhyewpwfmUPLxAoPVlyfpw" />
         <link rel="sitemap" type="application/xml" href="/en/sitemap.xml" />
+        {jsonld && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }}
+          />
+        )}
       </head>
       <body className="dark:bg-zinc-900">
         {children}
