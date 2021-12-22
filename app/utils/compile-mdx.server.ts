@@ -5,6 +5,7 @@ import { join, resolve } from "path";
 import { readFile } from "fs/promises";
 import { isWhitespaceCharacter } from "is-whitespace-character";
 import { author, rootUrl } from "/config";
+import { loaders } from "@remix-run/dev/compiler/loaders";
 // import { type Frontmatter } from "~/utils/mdx.server";
 
 // from https://stackoverflow.com/a/60617060/3484824
@@ -325,13 +326,10 @@ export const bundleMDX = async ({ cwd, source }: IBundleMdx) => {
       // options.outdir = resolve("public", "build", "_assets");
       options.outdir = resolve("public/build/_assets");
       options.loader = {
+        ...loaders, // note: esbuild loaders for png, jpe?g imported from remix
         ...options.loader,
-        ".png": "file",
-        ".jpg": "file",
-        ".jpeg": "file",
         ".ico": "file",
       };
-      // Set the public path to /img/about
       options.publicPath = join("/build/_assets");
 
       // Set write to true so that esbuild will output the files.
