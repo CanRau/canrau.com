@@ -2,7 +2,7 @@ import {
   type MetaFunction,
   type LoaderFunction,
   type LinksFunction,
-  type RouteHandle,
+  // type RouteHandle,
   json,
   useLoaderData,
 } from "remix";
@@ -11,7 +11,7 @@ import parseISO from "date-fns/parseISO";
 import formatDate from "date-fns/format";
 import { readFile } from "~/utils.server";
 // import { bundleMDX } from "mdx-bundler";
-import { getMDXComponent } from "mdx-bundler/client";
+import { getMDXComponent, getMDXExport } from "mdx-bundler/client";
 import {
   bundleMDX,
   getContentPath,
@@ -91,7 +91,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
   const [
     {
-      frontmatter: { jsonld, ...frontmatter },
+      frontmatter, // : { jsonld, ...frontmatter },
       code,
     },
     totalPathVisits,
@@ -103,6 +103,9 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   if (isProd && frontmatter.status !== "published") {
     throw NotFoundError(lang);
   }
+
+  // todo: wait for [kentcdodds/mdx-bundler#70](https://github.com/kentcdodds/mdx-bundler/issues/70)
+  const {jsonld} = getMDXExport(code);
 
   const canonical =
     frontmatter.canonical ||

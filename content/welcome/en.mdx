@@ -3,7 +3,7 @@ status: published
 slug: /welcome
 lang: en
 title: Welcome to the digital garden of Can Rau
-description: Follow me creating my digital garden live.
+description: Let me give you a little background story of myself.
 version: 1
 created: 2021-10-20
 updated: 2021-10-20
@@ -18,27 +18,57 @@ meta:
     content: DigitalGarden
 published_at:
   - https://twitter.com/CanRau/status/1450873078502809606
-jsonld:
-  "@context": "https://schema.org"
-  "@type": "NewsArticle"
-  headline: "Article headline"
-  image:
-    - "https://example.com/photos/1x1/photo.jpg"
-    - "https://example.com/photos/4x3/photo.jpg"
-    - "https://example.com/photos/16x9/photo.jpg"
-  datePublished: "2015-02-05T08:00:00+08:00"
-  dateModified: "2015-02-05T09:20:00+08:00"
-  author:
-    - "@type": "Person"
-      name: "Can Rau"
-      url: "https://twitter.com/CanRau"
-      gender: Male
-      birthDate: 1988-01-17
-      birthPlace: Berlin, Germany
+# jsonld:
+#   "@context": "https://schema.org"
+#   "@type": "AboutPage"
+#   headline: "Welcome to the digital garden of Can Rau"
+# todo: get frontmatter images working?
+#   # image:
+#   #   - ./canrau-waving-in-front-of-andean-mountains.jpg
+#   #   - ./canrau-smiling-on-rainforest-path.jpg
+#   dateCreated: "2021-10-20"
+#   datePublished: "2021-10-20"
+#   dateModified: "2021-10-20"
+#   author:
+#     - "@type": "Person"
+#       name: "Can Rau"
+#       url: "https://twitter.com/CanRau"
+#       gender: Male
+#       birthDate: 1988-01-17
+#       birthPlace: "Berlin, Germany"
 ---
 
 import { Age } from "~/components/age";
-export { default as cover } from "./canrau-waving-in-front-of-andean-mountains.jpg";
+import coverImage from "./canrau-waving-in-front-of-andean-mountains.jpg";
+import secondImage from "./canrau-smiling-on-rainforest-path.jpg";
+export const cover = coverImage;
+
+export const jsonld = {
+  "@context": "https://schema.org",
+  "@type": "Article", // note: AboutPage not accepted by https://search.google.com/test/rich-results/
+  headline: "Welcome to the digital garden of Can Rau",
+  description: "Let me give you a little background story of myself.",
+  primaryImageOfPage: {
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+    contentUrl: coverImage,
+    description: "Me waving & smiling hilariously into the cam, being way up in the andean mountains at more than 3000m"
+  },
+  image: [coverImage, secondImage],
+  dateCreated: "2021-10-20",
+  datePublished: "2021-10-20",
+  dateModified: "2021-10-20",
+  author: [
+    {
+      "@type": "Person",
+      name: "Can Rau",
+      url: "https://twitter.com/CanRau",
+      gender: "Male",
+      birthDate: "1988-1-17",
+      birthPlace: "Berlin, Germany",
+    },
+  ],
+};
 
 {/* export const meta = {cover}; */}
 
