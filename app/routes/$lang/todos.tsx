@@ -44,6 +44,8 @@ const getAllFiles = async (
       filePathRelative.startsWith("node_modules/") ||
       filePathRelative.startsWith(".cache") ||
       filePathRelative.startsWith(".git") ||
+      filePathRelative.startsWith("yarn") ||
+      filePathRelative.startsWith(".yarn") ||
       filePathRelative.startsWith(".dockerignore") ||
       filePathRelative.startsWith("public") ||
       filePathRelative.startsWith("build") ||
