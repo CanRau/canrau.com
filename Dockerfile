@@ -79,4 +79,5 @@ ADD . .
 # RUN ls -lAFh
 # RUN du -sh * | sort -h
 
-CMD ["yarn", "start"]
+# CMD ["yarn", "start"]
+CMD ["remix-serve", "build"]
