@@ -6,20 +6,34 @@ import {
   type KeyboardEvent,
 } from "react";
 
-type Props = {
-  initial: string;
-  prefix: string;
-  suffix: string;
+type IUserUrl = {
+  initial?: string;
+  prefix?: string;
+  suffix?: string;
+};
+
+type IWrapper = {
+  children: ReactNode;
+  className?: string;
 };
 
 // ReactNode via https://www.carlrippon.com/react-children-with-typescript/
-const Wrapper = ({ children }: { children: ReactNode }) => (
-  <div>{children}</div>
+const Wrapper = ({ children, ...props }: IWrapper) => (
+  <div
+    className="space-y-2 px-4 py-5 bg-black rounded-xl shadow-md shadow-zinc-800"
+    {...props}
+  >
+    {children}
+  </div>
 );
 
-export const UserUrl = ({ initial = "", prefix = "", suffix = "" }: Props) => {
+export const UserUrl = ({
+  initial = "",
+  prefix = "",
+  suffix = "",
+}: IUserUrl) => {
   const [value, setValue] = useState("");
-  const link = useRef();
+  const link = useRef(null);
 
   // types from https://stackoverflow.com/a/70095204/3484824
   const onChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -47,14 +61,14 @@ export const UserUrl = ({ initial = "", prefix = "", suffix = "" }: Props) => {
     </div>
   );
 
-  // value needs to include at least 1 character followed by / and a nother character
-  if (/[^/<>?]+\/[^/<>?]+/.test(value)) {
+  // value needs to include at least 1 character followed by / and another character
+  if (/[^/<>#&*()?]+\/[^/<>#&*()?]+/.test(value)) {
     return (
       <Wrapper>
         {input}
-        <div className="mt-2">
+        <div>
           <a
-            ref={link.current}
+            ref={link}
             href={`${prefix}${value || initial}${suffix}`}
             target="_blank"
             rel="noopener noreferrer"
@@ -69,7 +83,7 @@ export const UserUrl = ({ initial = "", prefix = "", suffix = "" }: Props) => {
   return (
     <Wrapper>
       {input}
-      <div className="mt-2">
+      <div>
         <span>
           type your GitHub username/repo to generate the settings link
         </span>
