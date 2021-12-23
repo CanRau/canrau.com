@@ -2,7 +2,7 @@ import {
   type MetaFunction,
   type LoaderFunction,
   type LinksFunction,
-  // type RouteHandle,
+  type RouteHandle,
   json,
   useLoaderData,
 } from "remix";
@@ -27,10 +27,6 @@ import { NotFoundError } from "~/utils/error-responses";
 // import type { TocEntry } from "@stefanprobst/rehype-extract-toc";
 
 const isProd = process.env.NODE_ENV === "production";
-
-// export const handle: RouteHandle = {
-//   canonical: (pathname: string) => pathname,
-// };
 
 export const meta: MetaFunction = ({ data }) => {
   const {
@@ -75,6 +71,12 @@ type LoaderData = {
   canonical: string;
   totalPathVisits: number;
 };
+
+// export const handle: RouteHandle = {
+//   canonical: (pathname: string) => pathname,
+// };
+
+export const handle: RouteHandle = { hydrate: ({frontmatter}: LoaderData) => frontmatter?.hydrate };
 
 // https://remix.run/api/conventions#loader
 export const loader: LoaderFunction = async ({ params, request }) => {
