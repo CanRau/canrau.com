@@ -1,0 +1,147 @@
+---
+status: published
+hydrate: true
+slug: /deploy-remix-to-fly-using-github-action
+lang: en
+title: "How to deploy Remix 💿 to fly.io using GitHub Action"
+description: "How to deploy your Remix.run 💿 website to fly.io using GitHub Actions?"
+version: 1
+created: 2021-12-21T20:00:00
+updated: 2021-12-22T22:04:00
+published: 2021-12-22T22:04:00
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2021-12-22T22:04:00
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+published_at:
+---
+
+{/* export { default as cover } from "./cover_rss-in-remix_s.png"; */}
+
+export const jsonld = {
+  "@context": "https://schema.org",
+  // todo: maybe switch to [HowTo](https://developers.google.com/search/docs/advanced/structured-data/how-to)
+  "@type": "Article",
+  headline: "How to deploy Remix 💿 to fly.io using GitHub Action",
+  description: "How to deploy your Remix.run 💿 website to fly.io using GitHub Actions?",
+  // primaryImageOfPage: {
+  //   "@context": "https://schema.org",
+  //   "@type": "ImageObject",
+  //   contentUrl: coverImage,
+  //   description: "Me waving & smiling hilariously into the cam, being way up in the andean mountains at more than 3000m"
+  // },
+  // image: [coverImage, secondImage],
+  dateCreated: "2021-12-21T20:00:00",
+  dateModified: "2021-12-22T22:04:00",
+  datePublished: "2021-12-22T22:04:00",
+  author: [
+    {
+      "@type": "Person",
+      name: "Can Rau",
+      url: "https://twitter.com/CanRau",
+      gender: "Male",
+      birthDate: "1988-1-17",
+      birthPlace: "Berlin, Germany",
+    },
+  ],
+};
+
+import {UserUrl} from "./user-url"
+
+# {frontmatter.title}
+
+## Table of contents
+
+{/* ## Bootstrap Remix 💿 */}
+
+## fly.io access token
+
+When you've [registered for an account with fly.io](https://fly.io/app/sign-up), you can go to your [account settings](https://web.fly.io/user/personal_access_tokens) to get yourself an active token.
+
+Click on the "Create access token" button and give it a descriptive name, I named mine "gh_worker_canrau.com".
+
+Copy the token (it's the only time you'll get to see it) and then go to your GitHub repository's settings, and select "Secrets" in the left menu then click on "New repository secret".
+
+{/*the URL should look like `https://github.com/<YOUR_ACCOUNT>/<REPO_NAME>/settings/secrets/actions`*/}
+
+__OR__
+
+<UserUrl initial="user/repo" prefix="https://github.com/" suffix="/settings/secrets/actions/new" />
+
+Give it the name `FLY_API_TOKEN` and value of the before copied access token you've got from fly.io, click "Add secret" and your done.
+
+## GitHub Action
+
+Works with NPM & Yarn
+
+```yaml
+# .github/workflows/deployment.yml
+
+name: Deploy to Fly 🚀
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+jobs:
+  deploy:
+    name: Deploy proxy
+    runs-on: ubuntu-latest
+    steps:
+      # Although I'm not building that often, so far
+      # it seems pretty useful to have in place,
+      # for example when trying to debug something you need to deploy 🧑‍🔧
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.6.0
+        with:
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+      # This step checks out a copy of your repository.
+      - uses: actions/checkout@v2
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: 📥 Download deps
+        uses: bahmutov/npm-install@v1
+
+      - name: ⚙️ Build
+        run: yarn build
+        env:
+          # The `COMMIT_SHA` environment variable is not necessary
+          # if you don't want to access it from your remix app
+          # I reference it in my websites footer and link it to the GitHub commit 🤓
+          COMMIT_SHA: ${{ github.sha }}
+
+      # This step runs `fly(ctl) deploy`.
+      - name: Deploy
+        uses: superfly/flyctl-actions@master
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        with:
+          # actually I'm not sure the former `COMMIT_SHA` was really necessary (at least in my case)
+          # as this one here should be sufficient
+          args: "deploy --build-arg COMMIT_SHA=${{ github.sha }}"
+```
+
+This is a pretty basic build+deploy workflow.
+
+I'm going to keep it updated with my [actual Action](https://github.com/CanRau/canrau.com/blob/main/.github/workflows/deployment.yml).
+
+If you want more inspiration on what you can do with your Remix app in a GitHub Action, check out Kent C. Dodds [deployment.yml](https://github.com/kentcdodds/kentcdodds.com/blob/main/.github/workflows/deployment.yml), this is also where I got mine from. 😇
+
+## Cloudflare Workers
+
+If you're using Cloudflare Workers you might get results with [this workflow](https://github.com/edmundhung/remix-worker-template/blob/main/.github/workflows/deploy.yml) I've found in the [Remix Discord](https://discord.com/channels/770287896669978684/777863813981536280/920759269534597170). Not using Workers so can't vouch for it.
+
+## More about
+
+[secrets.GITHUB_TOKEN](https://docs.github.com/en/actions/security-guides/automatic-token-authentication)
+[bahmutov/npm-install](https://github.com/bahmutov/npm-install)
