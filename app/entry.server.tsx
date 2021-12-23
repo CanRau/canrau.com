@@ -33,6 +33,7 @@ export default async function handleRequest(
     url.pathname.startsWith("/sdk") ||
     url.pathname.startsWith("/evox") ||
     url.pathname.startsWith("/nmap") ||
+    url.pathname.startsWith("/boaform") ||
     url.pathname.startsWith("/wp-admin")
   ) {
     return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ", 307);

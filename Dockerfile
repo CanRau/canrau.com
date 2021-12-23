@@ -80,4 +80,5 @@ ADD . .
 # RUN du -sh * | sort -h
 
 # CMD ["yarn", "start"]
-CMD ["remix-serve", "build"]
+CMD ["npm", "run", "start"]
+# CMD ["remix-serve", "build"] // Cannot find module '/app/remix-serve'
