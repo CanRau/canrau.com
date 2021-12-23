@@ -153,15 +153,15 @@ const GetH1 =
               </time>
             </div>
           )}
-          <div>
+          {published && <div>
             Published:&nbsp;
             <time
               className="ml-1"
               // dateTime={published || created} property="datePublished"
             >
-              {formatDate(parseISO(published || created), "yyyy-MM-dd")}
+              {formatDate(parseISO(published), "yyyy-MM-dd")}
             </time>
-          </div>
+          </div>}
         </div>
       </>
     );
