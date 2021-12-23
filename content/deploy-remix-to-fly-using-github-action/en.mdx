@@ -7,7 +7,7 @@ title: "How to deploy Remix 💿 to fly.io using GitHub Action"
 description: "How to deploy your Remix.run 💿 website to fly.io using GitHub Actions?"
 version: 1
 created: 2021-12-21T20:00:00
-updated: 2021-12-23T01:47:00
+updated: 2021-12-23T17:31:00
 published: 2021-12-22T22:04:00
 meta:
   - name: og:type
@@ -22,23 +22,25 @@ published_at:
 ---
 
 import coverImage from "./cover_deploy-remix-flyio-gh-actions_s.png";
-export const cover = coverImage
+export const cover = coverImage;
 
 export const jsonld = {
   "@context": "https://schema.org",
   // todo: maybe switch to [HowTo](https://developers.google.com/search/docs/advanced/structured-data/how-to)
   "@type": "Article",
   headline: "How to deploy Remix 💿 to fly.io using GitHub Action",
-  description: "How to deploy your Remix.run 💿 website to fly.io using GitHub Actions?",
+  description:
+    "How to deploy your Remix.run 💿 website to fly.io using GitHub Actions?",
   primaryImageOfPage: {
     "@context": "https://schema.org",
     "@type": "ImageObject",
     contentUrl: coverImage,
-    description: "Collage including the logos of Remix.run, fly.io & GitHub Actions followed by the articles headline",
+    description:
+      "Collage including the logos of Remix.run, fly.io & GitHub Actions followed by the articles headline",
   },
   image: [coverImage],
   dateCreated: "2021-12-21T20:00:00",
-  dateModified: "2021-12-23T01:47:00",
+  dateModified: "2021-12-23T17:31:00",
   datePublished: "2021-12-22T22:04:00",
   author: [
     {
@@ -52,7 +54,7 @@ export const jsonld = {
   ],
 };
 
-import {UserUrl} from "./user-url"
+import { UserUrl } from "./user-url";
 
 ![Collage including the logos of Remix.run, fly.io & GitHub Actions followed by the articles headline](./cover_deploy-remix-flyio-gh-actions_s.png)
 
@@ -70,17 +72,21 @@ Click on the "Create access token" button and give it a descriptive name, I name
 
 Copy the token (it's the only time you'll get to see it) and then go to your GitHub repository's settings, and select "Secrets" in the left menu then click on "New repository secret".
 
-{/*the URL should look like `https://github.com/<YOUR_ACCOUNT>/<REPO_NAME>/settings/secrets/actions`*/}
+{/* the URL should look like `https://github.com/<YOUR_ACCOUNT>/<REPO_NAME>/settings/secrets/actions` */}
 
-__OR__
+**OR**
 
-<UserUrl initial="user/repo" prefix="https://github.com/" suffix="/settings/secrets/actions/new" />
+<UserUrl
+  initial="user/repo"
+  prefix="https://github.com/"
+  suffix="/settings/secrets/actions/new"
+/>
 
 Give it the name `FLY_API_TOKEN` and value of the before copied access token you've got from fly.io, click "Add secret" and your done.
 
 ## GitHub Action
 
-Works with NPM & Yarn
+This one is independent of your package manager, it just cancels any previous builds, checks out your repo and tells fly to build it. So it completely depends on it beeing fly.io compatible, probably via a `Dockerfile`.
 
 ```yaml
 # .github/workflows/deployment.yml
@@ -130,4 +136,3 @@ If you're using Cloudflare Workers you might get results with [this workflow](ht
 ## More about
 
 [secrets.GITHUB_TOKEN](https://docs.github.com/en/actions/security-guides/automatic-token-authentication)
-[bahmutov/npm-install](https://github.com/bahmutov/npm-install)
