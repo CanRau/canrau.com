@@ -83,7 +83,7 @@ Works with NPM & Yarn
 ```yaml
 # .github/workflows/deployment.yml
 
-name: Deploy to Fly 🚀
+name: 🚀 Deploy to Fly 🚀
 on:
   push:
     branches:
@@ -92,7 +92,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy proxy
+    name: 🚀 Deploy
     runs-on: ubuntu-latest
     steps:
       # Although I'm not building that often, so far
@@ -102,33 +102,16 @@ jobs:
         uses: styfle/cancel-workflow-action@0.6.0
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
+
       # This step checks out a copy of your repository.
       - uses: actions/checkout@v2
 
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 16
-
-      - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
-
-      - name: ⚙️ Build
-        run: yarn build
-        env:
-          # The `COMMIT_SHA` environment variable is not necessary
-          # if you don't want to access it from your remix app
-          # I reference it in my websites footer and link it to the GitHub commit 🤓
-          COMMIT_SHA: ${{ github.sha }}
-
       # This step runs `fly(ctl) deploy`.
-      - name: Deploy
+      - name: 🚀 Deploy
         uses: superfly/flyctl-actions@master
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         with:
-          # actually I'm not sure the former `COMMIT_SHA` was really necessary (at least in my case)
-          # as this one here should be sufficient
           args: "deploy --build-arg COMMIT_SHA=${{ github.sha }}"
 ```
 
