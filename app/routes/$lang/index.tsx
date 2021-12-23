@@ -45,7 +45,14 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const hero = allPosts.find((p) => p.slug === "/welcome");
   const posts = allPosts.filter((p) => p.slug !== "/welcome");
   const canonical = `${rootUrl}/${lang}`;
-  return json({ hero, posts, canonical, totalPathVisits });
+  // todo: once I've got search on this site add a [SearchAction](https://developers.google.com/search/docs/advanced/structured-data/sitelinks-searchbox) to JSON-LD
+  // note: Schema.org [WebSite](https://schema.org/WebSite)
+  const jsonld = {
+    "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": canonical,
+  };
+  return json({ hero, posts, canonical, totalPathVisits, jsonld });
 };
 
 export const meta: MetaFunction = ({ data }) => {
