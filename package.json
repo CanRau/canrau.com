@@ -12,14 +12,14 @@
     "url": "https://github.com/CanRau/canrau.com/issues"
   },
   "scripts": {
-    "build": "npm run build:css && remix build",
-    "dev": "concurrently \"npm run dev:css\" \"remix dev\"",
+    "build": "yarn build:css && remix build",
+    "dev": "concurrently \"yarn dev:css\" \"remix dev\"",
     "//when express dev": "node -r dotenv/config your_script.js",
     "dev:css": "postcss styles --base styles --dir app/styles -w",
     "build:css": "postcss styles --base styles --dir app/styles --env production",
     "postinstall": "remix setup node",
-    "deploy": "npm run deploy:local -- --remote-only",
-    "deploy:local": "npm run build && fly deploy --no-cache --build-arg COMMIT_SHA=\"$(git rev-parse --short HEAD)\"",
+    "deploy": "yarn deploy:local -- --remote-only",
+    "deploy:local": "yarn build && fly deploy --no-cache --build-arg COMMIT_SHA=\"$(git rev-parse --short HEAD)\"",
     "start": "remix-serve build",
     "tree": "tree -I \"node_modules|build|content\""
   },
@@ -82,7 +82,7 @@
   },
   "engines": {
     "node": "16",
-    "npm": "8"
+    "yarn": "3"
   },
   "sideEffects": false
 }
