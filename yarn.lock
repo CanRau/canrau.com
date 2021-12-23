@@ -474,7 +474,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:17.0.2":
+"@types/node@npm:*":
+  version: 17.0.3
+  resolution: "@types/node@npm:17.0.3"
+  checksum: aa08e2ecc70a0c45d8a34f986300b491e0eaef9c028ae49ff799ff876cd3e1bbb8eb734378ac0b0265453d2cdfc5b4c7724dc64c043421c162590d22214870ad
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:17.0.2":
   version: 17.0.2
   resolution: "@types/node@npm:17.0.2"
   checksum: a827d2542ef7adba5c79ba7f85b7c2ba8256d317bd99d77ed7af237cfebae0034dff5c4182e1845e6fbef29ae4c78186c4b4a7dbf236037a04120783aa30ba74
@@ -1114,9 +1121,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001272, caniuse-lite@npm:^1.0.30001286":
-  version: 1.0.30001291
-  resolution: "caniuse-lite@npm:1.0.30001291"
-  checksum: ae24be79227036564ccd2ab8a0be8793a2e650941607a9f3e68a967db08d90cf17ded0382c2ce87063051b7200e618ec83bdb12f423ed60665922dc4d8eb8f78
+  version: 1.0.30001292
+  resolution: "caniuse-lite@npm:1.0.30001292"
+  checksum: 930d02514769243f26033919f56536a307db83bba933374e6955c6678878fe8a8105051796868947d230f31d237b782fa2cf7390b84b69b555077add12469966
   languageName: node
   linkType: hard
 
@@ -1790,9 +1797,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.17":
-  version: 1.4.25
-  resolution: "electron-to-chromium@npm:1.4.25"
-  checksum: 03b01837a1f2548e20a0062d5f87edbdc6656d12c964cebe6260e6975b0509ec6adef6d5cc602ae3815dccd0dadc816d401a337f833a1f1b27c55b7b1e6988bb
+  version: 1.4.27
+  resolution: "electron-to-chromium@npm:1.4.27"
+  checksum: 2e325d19a0f004cd0bf6884874a33fb6ea1de777fc2889bf1a84e78accc1a8aa0363a7792ab39318657f4a777665c17908cf61e45e202059b38a00caf970bfc1
   languageName: node
   linkType: hard
 
@@ -5570,12 +5577,12 @@ __metadata:
   linkType: hard
 
 "postcss-selector-parser@npm:^6.0.2, postcss-selector-parser@npm:^6.0.4, postcss-selector-parser@npm:^6.0.5, postcss-selector-parser@npm:^6.0.6, postcss-selector-parser@npm:^6.0.7":
-  version: 6.0.7
-  resolution: "postcss-selector-parser@npm:6.0.7"
+  version: 6.0.8
+  resolution: "postcss-selector-parser@npm:6.0.8"
   dependencies:
     cssesc: ^3.0.0
     util-deprecate: ^1.0.2
-  checksum: 661808ad629e3f289e0d237fbe9bb13766dadd2d548ec09ae86f68118f5d98be0f25bbaf5cd88486c5416e2eefaa9f73c59c2fc98dc370872fa51b250c7d1d9c
+  checksum: 550351c8d04216106e259f7c433652aa6742dd7ddbedf7afdc313526963bb170589a6fefd1bc1fe6268a2cf9f5073d4ecb09bc7b5b4bef49edf80634300500af
   languageName: node
   linkType: hard
 
