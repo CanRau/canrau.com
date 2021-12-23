@@ -14,7 +14,7 @@ ARG COMMIT_SHA
 RUN mkdir /app
 WORKDIR /app
 
-ADD package.json yarn.lock ./
+ADD package.json yarn.lock .yarn ./
 # RUN npm install --production=false
 RUN yarn install
 
@@ -42,6 +42,7 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=deps /app/.yarn /app/.yarn
 
 # If we're using Prisma, uncomment to cache the prisma schema
 # ADD prisma .
