@@ -7,7 +7,7 @@ import {
 } from "react";
 
 type IUserUrl = {
-  initial?: string;
+  placeholder?: string;
   prefix?: string;
   suffix?: string;
 };
@@ -28,7 +28,7 @@ const Wrapper = ({ children, ...props }: IWrapper) => (
 );
 
 export const UserUrl = ({
-  initial = "",
+  placeholder = "",
   prefix = "",
   suffix = "",
 }: IUserUrl) => {
@@ -53,7 +53,7 @@ export const UserUrl = ({
       <input
         className="w-full bg-zinc-300 text-black placeholder:text-zinc-500 dark:bg-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-400 px-4 py-2 mt-1 rounded-md"
         type="text"
-        placeholder={initial}
+        placeholder={placeholder}
         value={value}
         onChange={onChange}
         onKeyUp={onKeyUp}
@@ -69,7 +69,7 @@ export const UserUrl = ({
         <div>
           <a
             ref={link}
-            href={`${prefix}${value || initial}${suffix}`}
+            href={`${prefix}${value}${suffix}`}
             target="_blank"
             rel="noopener noreferrer"
           >
