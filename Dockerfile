@@ -4,7 +4,7 @@ FROM node:16-bullseye-slim as base
 ARG COMMIT_SHA
 
 # Install openssl for Prisma
-RUN apt-get update && apt-get install -y openssl
+RUN apt-get update && apt-get install -y
 
 # Install all node_modules, including dev dependencies
 FROM base as deps
@@ -14,7 +14,9 @@ ARG COMMIT_SHA
 RUN mkdir /app
 WORKDIR /app
 
-ADD package.json yarn.lock .yarn ./
+ADD package.json yarn.lock .yarnrc.yml ./
+# note: ADD copies the contents of a folder instead of the folder 🤷‍♂️ [SO](https://stackoverflow.com/a/54616645/3484824)
+COPY .yarn .yarn
 # RUN npm install --production=false
 RUN yarn install
 
@@ -42,11 +44,10 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=deps /app/package.json /app/package.json
 COPY --from=deps /app/.yarn /app/.yarn
-
-# If we're using Prisma, uncomment to cache the prisma schema
-# ADD prisma .
-# RUN npx prisma generate
+COPY --from=deps /app/yarn.lock /app/yarn.lock
+COPY --from=deps /app/.yarnrc.yml /app/.yarnrc.yml
 
 ADD . .
 RUN yarn build
@@ -63,13 +64,12 @@ ENV NODE_ENV=production
 RUN mkdir /app
 WORKDIR /app
 
-COPY --from=production-deps /app/node_modules /app/node_modules
-
-# Uncomment if using Prisma
-# COPY --from=build /app/node_modules/.prisma /app/node_modules/.prisma
-
+# COPY --from=production-deps /app/node_modules /app/node_modules
+COPY --from=deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 COPY --from=build /app/public /app/public
+# RUN ls -lAFh
 ADD . .
+# RUN ls -lAFh
 
 CMD ["yarn", "start"]
