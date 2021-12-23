@@ -15,26 +15,25 @@ RUN mkdir /app
 WORKDIR /app
 
 ADD package.json yarn.lock ./
-RUN npm install --production=false
+# RUN npm install --production=false
+RUN yarn install
 
 # Setup production node_modules
-FROM base as production-deps
+# FROM base as production-deps
 
-ARG COMMIT_SHA
+# ARG COMMIT_SHA
 
-RUN mkdir /app
-WORKDIR /app
+# RUN mkdir /app
+# WORKDIR /app
 
-COPY --from=deps /app/node_modules /app/node_modules
-ADD package.json package-lock.json ./
-RUN npm prune --production
+# COPY --from=deps /app/node_modules /app/node_modules
+# ADD package.json yarn.lock ./
+# RUN npm prune --production
 
 # Build the app
 FROM base as build
 
 ARG COMMIT_SHA
-# RUN echo "build stage :>>>>>>>>>>>>>>>> COMMIT_SHA=$COMMIT_SHA"
-# RUN echo "build stage :>>>>>>>>>>>>>>>> CSRF_KEY=$CSRF_KEY"
 
 # todo: KCD sets it only in last step?
 ENV NODE_ENV=production
@@ -49,7 +48,7 @@ COPY --from=deps /app/node_modules /app/node_modules
 # RUN npx prisma generate
 
 ADD . .
-RUN npm run build
+RUN yarn build
 
 # Finally, build the production image with minimal footprint
 FROM base
@@ -72,4 +71,4 @@ COPY --from=build /app/build /app/build
 COPY --from=build /app/public /app/public
 ADD . .
 
-CMD ["npm", "run", "start"]
+CMD ["yarn", "start"]
