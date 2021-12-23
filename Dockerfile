@@ -17,20 +17,20 @@ WORKDIR /app
 ADD package.json yarn.lock .yarnrc.yml ./
 # note: ADD copies the contents of a folder instead of the folder 🤷‍♂️ [SO](https://stackoverflow.com/a/54616645/3484824)
 COPY .yarn .yarn
-# RUN npm install --production=false
 RUN yarn install
 
 # Setup production node_modules
-# FROM base as production-deps
+FROM base as production-deps
 
-# ARG COMMIT_SHA
+ARG COMMIT_SHA
 
-# RUN mkdir /app
-# WORKDIR /app
+RUN mkdir /app
+WORKDIR /app
 
-# COPY --from=deps /app/node_modules /app/node_modules
-# ADD package.json yarn.lock ./
-# RUN npm prune --production
+COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=deps /app/.yarn /app/.yarn
+ADD package.json yarn.lock .yarnrc.yml /app/
+RUN yarn workspaces focus --all --production
 
 # Build the app
 FROM base as build
@@ -44,9 +44,9 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY --from=deps /app/node_modules /app/node_modules
-COPY --from=deps /app/package.json /app/package.json
+# COPY --from=deps /app/package.json /app/package.json
 COPY --from=deps /app/.yarn /app/.yarn
-COPY --from=deps /app/yarn.lock /app/yarn.lock
+# COPY --from=deps /app/yarn.lock /app/yarn.lock
 COPY --from=deps /app/.yarnrc.yml /app/.yarnrc.yml
 
 ADD . .
@@ -64,8 +64,7 @@ ENV NODE_ENV=production
 RUN mkdir /app
 WORKDIR /app
 
-# COPY --from=production-deps /app/node_modules /app/node_modules
-COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 COPY --from=build /app/public /app/public
 # RUN ls -lAFh
