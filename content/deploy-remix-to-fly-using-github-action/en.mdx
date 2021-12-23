@@ -7,7 +7,7 @@ title: "How to deploy Remix 💿 to fly.io using GitHub Action"
 description: "How to deploy your Remix.run 💿 website to fly.io using GitHub Actions?"
 version: 1
 created: 2021-12-21T20:00:00
-updated: 2021-12-22T22:04:00
+updated: 2021-12-23T01:47:00
 published: 2021-12-22T22:04:00
 meta:
   - name: og:type
@@ -21,7 +21,8 @@ meta:
 published_at:
 ---
 
-{/* export { default as cover } from "./cover_rss-in-remix_s.png"; */}
+import coverImage from "./cover_deploy-remix-flyio-gh-actions_s.png";
+export const cover = coverImage
 
 export const jsonld = {
   "@context": "https://schema.org",
@@ -29,15 +30,15 @@ export const jsonld = {
   "@type": "Article",
   headline: "How to deploy Remix 💿 to fly.io using GitHub Action",
   description: "How to deploy your Remix.run 💿 website to fly.io using GitHub Actions?",
-  // primaryImageOfPage: {
-  //   "@context": "https://schema.org",
-  //   "@type": "ImageObject",
-  //   contentUrl: coverImage,
-  //   description: "Me waving & smiling hilariously into the cam, being way up in the andean mountains at more than 3000m"
-  // },
-  // image: [coverImage, secondImage],
+  primaryImageOfPage: {
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+    contentUrl: coverImage,
+    description: "Collage including the logos of Remix.run, fly.io & GitHub Actions followed by the articles headline",
+  },
+  image: [coverImage],
   dateCreated: "2021-12-21T20:00:00",
-  dateModified: "2021-12-22T22:04:00",
+  dateModified: "2021-12-23T01:47:00",
   datePublished: "2021-12-22T22:04:00",
   author: [
     {
