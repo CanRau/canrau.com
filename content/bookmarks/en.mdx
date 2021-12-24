@@ -3,7 +3,7 @@ status: published
 slug: /bookmarks
 lang: en
 title: Bookmarks
-description: "A list of interesting links"
+description: "A list of interesting links curated by Can Rau"
 created: 2021-12-15T20:00:00
 updated: 2021-12-24T15:32:00
 published: 2021-12-15T22:04:00
@@ -15,6 +15,27 @@ ideas:
 published_at:
   - https://twitter.com/CanRau/status/1473184397729882119
 ---
+
+export const jsonld = {
+  "@context": "https://schema.org",
+  // todo: maybe switch to [HowTo](https://developers.google.com/search/docs/advanced/structured-data/how-to)
+  "@type": "Article",
+  headline: "Bookmarks",
+  description: "A list of interesting links curated by Can Rau",
+  dateCreated: "2021-12-15T20:00:00",
+  dateModified: "2021-12-24T15:32:00",
+  datePublished: "2021-12-15T22:04:00",
+  author: [
+    {
+      "@type": "Person",
+      name: "Can Rau",
+      url: "https://twitter.com/CanRau",
+      gender: "Male",
+      birthDate: "1988-1-17",
+      birthPlace: "Berlin, Germany",
+    },
+  ],
+};
 
 {/* export { default as cover } from "./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png"; */}
 
