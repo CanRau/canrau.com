@@ -1,26 +1,25 @@
 import {
-  useLoaderData,
-  LinksFunction,
-  LoaderFunction,
-  useMatches,
+  type LinksFunction,
+  type LoaderFunction,
   json,
-} from "remix";
-import { useShouldHydrate } from "remix-utils";
-import { useState, useEffect, ReactNode } from "react";
-import {
+  Link,
   Links,
   LiveReload,
   Meta,
+  NavLink,
   Outlet,
   Scripts,
   ScrollRestoration,
   useCatch,
-  Link,
-  NavLink,
+  useLoaderData,
+  useMatches,
   useNavigate,
   useParams,
 } from "remix";
+import { useShouldHydrate } from "remix-utils";
+import { useEffect, ReactNode } from "react";
 import clsx from "clsx";
+import { DiGithubBadge } from "react-icons/di";
 import { getDeployVersion } from "~/utils/get-fly-deploy-version";
 import { type ThrownResponses } from "~/utils/error-responses";
 import tailwindStyles from "~/styles/tailwind.css";
@@ -298,6 +297,11 @@ function Layout({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
+                  <DiGithubBadge
+                    className="inline"
+                    size="1.8rem"
+                    title="GitHub Logo"
+                  />{" "}
                   #{sha}
                 </a>
               </span>
