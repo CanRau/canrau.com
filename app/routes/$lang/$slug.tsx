@@ -119,20 +119,32 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   return json({ frontmatter, code, canonical, totalPathVisits, jsonld });
 };
 
+const headingWithClasses = (comp: FC, className: string) => (props: any) =>
+  createElement(comp, { ...props, className });
+
 // note: more on [component substitution](https://github.com/wooorm/xdm#components)
 const components = {
-  h1: typography.H1,
-  h2: typography.H2,
-  h3: typography.H3,
-  h4: typography.H4,
-  h5: typography.H5,
-  h6: typography.H6,
-  p: typography.Paragraph,
+  // h1: typography.H1,
+  // or use typography.H2, looks also good: dark:decoration-green-900
+  h2: headingWithClasses("h2", "decoration-skin-accent target:underline"),
+  h3: headingWithClasses("h3", "decoration-skin-accent target:underline"),
+  h4: headingWithClasses("h4", "decoration-skin-accent target:underline"),
+  h5: headingWithClasses("h5", "decoration-skin-accent target:underline"),
+  h6: headingWithClasses("h6", "decoration-skin-accent target:underline"),
+  // p: typography.Paragraph,
 };
 
-// const TableOfContents = (toc: Array<TocEntry>) => {
-//   return <li></li>
-// }
+// const components = Array(5)
+//   .fill({})
+//   .reduce((element, obj, index) => {
+//     const level = index + 2; // to start at h2
+//     obj[`h${level}`] = headingWithClasses(
+//       `h${level}`,
+//       "decoration-skin-accent target:underline",
+//     );
+//     return obj;
+//   }, {});
+
 type IGetH1 = {
   published: Date;
   updated: Date;
