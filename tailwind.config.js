@@ -90,6 +90,10 @@ module.exports = {
         "50vh": "50vh", // max height for medium size hero images
         "75vh": "75vh", // max height for giant size hero images
       },
+      borderRadius: {
+        // todo: write about the egg somewhere 🤙
+        egg: "30% 70% 70% 30% / 30% 30% 70% 70%",
+      },
       // typography: (theme) => {
       //   // some fontSizes return [size, props], others just size :/
       //   const fontSize = (size) => {

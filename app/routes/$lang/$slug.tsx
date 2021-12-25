@@ -194,8 +194,8 @@ export default function Post() {
   return (
     <>
       {/* todo: mark external links somewhow `prose-a:after:content-['_↗']` (from TW docs) is interesting but might be a little much? */}
-      <div className="prose prose-lg lg:prose-xl dark:prose-invert mx-auto space-y-20">
-        <main>
+      <div className="space-y-20">
+        <main className="prose prose-lg lg:prose-xl dark:prose-invert mx-auto">
           <Component
             components={{
               h1: GetH1({
@@ -228,6 +228,23 @@ export default function Post() {
             >
               Twitter
             </TwitterShareButton>
+          </div>
+        </div>
+
+        <div className="flex space-x-10">
+          <img
+            src="https://github.com/canrau.png"
+            alt="Can Rau"
+            className="rounded-egg w-40 h-40"
+          />
+          <div className="space-y-3">
+            <div className="text-2xl">Can Rau</div>
+            <p>
+              Doing web-development since around 2000, building my digital
+              garden with a mix of back-to-the-roots-use-the-platform and modern
+              edge-rendered-client-side-magic tech 📻🚀
+            </p>
+            <p>Living and working in the tropical rainforest of Perú 🐒</p>
           </div>
         </div>
       </div>
