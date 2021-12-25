@@ -13,6 +13,8 @@ const dontCountCookie = createCookie("dontcount", {
   path: "/",
 });
 
+// todo: [use ETags](https://sergiodxa.com/articles/use-etags-in-remix) when adding cache/caching
+
 export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
