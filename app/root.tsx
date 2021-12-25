@@ -27,10 +27,11 @@ import { UndrawNotFound } from "~/components/illustrations/undraw-not-found";
 import { UndrawBugFixing } from "~/components/illustrations/undraw-bug-fixing";
 import {
   defaultLang,
+  domain,
   languages,
   rootUrl,
   titleSeperator,
-  domain,
+  twitterHandle,
 } from "/config";
 import { repository } from "/package.json";
 import type { Lang } from "/types";
@@ -275,13 +276,17 @@ function Layout({
       <div id="content" className="remix-app__main">
         <div className="">{children}</div>
       </div>
-      <footer className="flex flex-col items-center justify-center mt-24 mb-4 mx-5vw dark:text-zinc-600 print:hidden">
+      <footer className="flex flex-col items-center justify-center mt-24 mb-4 mx-5vw dark:text-zinc-600 print:hidden space-y-16">
         <NewsletterForm />
-        <div className="mt-20">
+        <div>
+          Get in touch via{" "}
+          <a href={`https://twitter.com/${twitterHandle}`}>{twitterHandle}</a>
+        </div>
+        <div>
           <p className="dark:text-gray-400">{totalPathVisits} visits so far</p>
         </div>
         {/* note: i like not-first:before:content-['_|_'] but those are missing when copying 😒 */}
-        <div className="mt-8">
+        <div>
           <span>&copy; 2021 Can Rau</span>
           {" | "}
           <span>
