@@ -146,18 +146,20 @@ const components = {
 //   }, {});
 
 type IGetH1 = {
-  published: Date;
-  updated: Date;
+  published: string;
+  updated: string;
+  created: string;
 };
 const GetH1 =
   ({ published, updated, created }: IGetH1) =>
-  (props) => {
+  (props: any) => {
     // todo: why is parseISO necessary??
+    // console.log({ created, published, updated }, typeof updated);
     // note: [schema.org/Date](https://schema.org/Date)
     return (
       <>
         <typography.H1 {...props} />
-        <div className="flex space-x-4 text-sm text-zinc-400">
+        <div className="flex space-x-4 text-sm text-zinc-400 mb-10">
           {updated && (
             <div>
               Last updated:&nbsp;
@@ -169,15 +171,17 @@ const GetH1 =
               </time>
             </div>
           )}
-          {published && <div>
-            Published:&nbsp;
-            <time
-              className="ml-1"
-              // dateTime={published || created} property="datePublished"
-            >
-              {formatDate(parseISO(published), "yyyy-MM-dd")}
-            </time>
-          </div>}
+          {published && (
+            <div>
+              Published:&nbsp;
+              <time
+                className="ml-1"
+                // dateTime={published || created} property="datePublished"
+              >
+                {formatDate(parseISO(published), "yyyy-MM-dd")}
+              </time>
+            </div>
+          )}
         </div>
       </>
     );
