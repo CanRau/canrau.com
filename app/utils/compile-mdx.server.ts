@@ -74,6 +74,8 @@ export const getFilePath = (contentPath: string, filename: string) =>
 //   }
 // }
 
+// note: on Date parsing in frontmatter [gray-matter#62](https://github.com/jonschlinkert/gray-matter/issues/62) [yaml spec](https://yaml.org/spec/1.2-old/spec.html#id2761292)
+
 export const bundleMDX = async ({ cwd, source }: IBundleMdx) => {
   // const source = await readFile(file, { encoding: "utf-8" });
   // note: alternative https://github.com/stefanprobst/rehype-extract-toc/

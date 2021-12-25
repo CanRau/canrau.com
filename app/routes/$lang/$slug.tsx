@@ -25,6 +25,7 @@ import prismTheme from "~/styles/prism-theme.css";
 import { rootUrl, domain, titleSeperator, twitterHandle } from "/config";
 import type { Lang } from "/types";
 import { NotFoundError } from "~/utils/error-responses";
+import { Frontmatter } from "~/utils/mdx.server";
 // import type { TocEntry } from "@stefanprobst/rehype-extract-toc";
 
 const isProd = process.env.NODE_ENV === "production";
@@ -67,7 +68,7 @@ export const links: LinksFunction = () => {
 };
 
 type LoaderData = {
-  frontmatter: { [key: string]: any };
+  frontmatter: Frontmatter;
   code: string;
   canonical: string;
   totalPathVisits: number;
@@ -77,7 +78,9 @@ type LoaderData = {
 //   canonical: (pathname: string) => pathname,
 // };
 
-export const handle: RouteHandle = { hydrate: ({frontmatter}: LoaderData) => frontmatter?.hydrate };
+export const handle: RouteHandle = {
+  hydrate: ({ frontmatter }: LoaderData) => frontmatter?.hydrate,
+};
 
 // https://remix.run/api/conventions#loader
 export const loader: LoaderFunction = async ({ params, request }) => {
@@ -108,7 +111,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   }
 
   // todo: wait for [kentcdodds/mdx-bundler#70](https://github.com/kentcdodds/mdx-bundler/issues/70)
-  const {jsonld} = getMDXExport(code);
+  const { jsonld } = getMDXExport(code);
 
   const canonical =
     frontmatter.canonical ||

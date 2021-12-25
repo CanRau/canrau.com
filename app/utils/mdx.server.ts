@@ -15,6 +15,7 @@ type IGetPostsList = {
 export type Frontmatter = {
   status: string;
   slug: string;
+  hydrate?: boolean;
   lang: Lang;
   title: string;
   description: string;
@@ -30,7 +31,7 @@ export type Frontmatter = {
   mdx: string;
   // text: string; // todo: add text version to Frontmatter
   excerpt?: string;
-  tableOfContents: Array<TocEntry>;
+  tableOfContents?: Array<TocEntry>;
 };
 
 export async function stripHtml(htmlString: string) {

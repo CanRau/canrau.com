@@ -6,7 +6,7 @@ export type IGetTotalPathVisits = {
   isVerbose: boolean;
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: { request: Request }) => {
   const DB_ENDPOINT = process.env.DB_ENDPOINT ?? "";
   const url = new URL(request.url);
   const visitsConf: IGetTotalPathVisits = {
