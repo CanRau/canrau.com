@@ -3,30 +3,7 @@
 @tailwind utilities;
 /* @tailwind variants; https://tailwindcss.com/docs/functions-and-directives#tailwind */
 
-/* todo: try out swyx's [100 bytes of CSS](https://twitter.com/swyx/status/1449472712720601088) [blog with explanation](https://dev.to/swyx/100-bytes-of-css-to-look-great-everywhere-19pd) */
-/*
-  html {
-    max-width: 38rem;
-    max-width: 70ch;
-    padding: 3em 1em;
-    margin: auto;
-    line-height: 1.75;
-    font-size: 24px;
-    font-size: 1.25em;
-  }
-
-  optional
-  h1,h2,h3,h4,h5,h6 {
-    margin: 3em 0 1em;
-  }
-
-  p,ul,ol {
-    margin-bottom: 2em;
-    color: #1d1d1d;
-    font-family: sans-serif;
-  }
-
-} */
+/* done: try out swyx's [100 bytes of CSS](https://twitter.com/swyx/status/1449472712720601088) [blog with explanation](https://dev.to/swyx/100-bytes-of-css-to-look-great-everywhere-19pd) */
 
 @layer base {
   /* from https://open-props.style */

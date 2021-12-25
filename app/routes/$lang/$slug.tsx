@@ -153,7 +153,7 @@ type IGetH1 = {
 const GetH1 =
   ({ published, updated, created }: IGetH1) =>
   (props: any) => {
-    // todo: why is parseISO necessary??
+    // note: why is parseISO necessary?? - switched to dates being string anyway 🤷🏻‍♂️
     // console.log({ created, published, updated }, typeof updated);
     // note: [schema.org/Date](https://schema.org/Date)
     return (

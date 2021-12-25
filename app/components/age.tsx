@@ -16,7 +16,7 @@ export const Age = ({ year, month, day }: Props) => {
   // done: get birthday from some config or sthg?
   const birthday = new Date(year, month, day);
   const years = differenceInYears(new Date(), birthday);
-  // todo: could use rdfa, though using json-ld makes it probably unnecessary 🤔
+  // note: could use rdfa, though using json-ld makes it probably unnecessary 🤔
   // return (
   //   <time property="birthDate" dateTime={`${year}-${month}-${day}`}>
   //     {years}

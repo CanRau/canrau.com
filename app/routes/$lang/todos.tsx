@@ -1,4 +1,5 @@
 // todo: Twitter profile banner like [Prateek Surana](https://twitter.com/psuranas) using [API](https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_banner)
+// todo: when adding caching check out [Loader vs Route Cache Headers in Remix](https://sergiodxa.com/articles/loader-vs-route-cache-headers-in-remix)
 
 import {
   readdir,
