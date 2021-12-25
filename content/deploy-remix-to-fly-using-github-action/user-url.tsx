@@ -20,7 +20,7 @@ type IWrapper = {
 // ReactNode via https://www.carlrippon.com/react-children-with-typescript/
 const Wrapper = ({ children, ...props }: IWrapper) => (
   <div
-    className="space-y-2 px-4 py-5 dark:bg-black rounded-xl shadow-md shadow-zinc-800"
+    className="space-y-2 px-4 py-5 dark:bg-black rounded-xl shadow-md shadow-zinc-800 print:hidden"
     {...props}
   >
     {children}

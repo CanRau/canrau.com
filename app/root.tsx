@@ -234,7 +234,7 @@ function Layout({
         className,
       )}
     >
-      <header className="py-9 lg:py-12">
+      <header className="py-9 lg:py-12 print:hidden">
         <div className="lg:max-w-3xl mx-auto md:flex item-center justify-between dark:text-zinc-400">
           <Link to="/" title={domain} className="flex items-center">
             {/* <RemixLogo /> */}
@@ -267,7 +267,7 @@ function Layout({
       <div className="remix-app__main">
         <div className="">{children}</div>
       </div>
-      <footer className="flex flex-col items-center justify-center mt-24 mb-4 mx-5vw dark:text-zinc-600">
+      <footer className="flex flex-col items-center justify-center mt-24 mb-4 mx-5vw dark:text-zinc-600 print:hidden">
         <NewsletterForm />
         <div className="mt-20">
           <p className="dark:text-gray-400">{totalPathVisits} visits so far</p>
