@@ -1,3 +1,5 @@
+// todo: Twitter profile banner like [Prateek Surana](https://twitter.com/psuranas) using [API](https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_banner)
+
 import {
   readdir,
   readFile,

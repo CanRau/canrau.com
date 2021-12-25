@@ -6,7 +6,8 @@ import {
   json,
   useLoaderData,
 } from "remix";
-import { useMemo } from "react";
+import { createElement, useMemo, type FC } from "react";
+import TwitterShareButton from "react-share/lib/TwitterShareButton";
 import parseISO from "date-fns/parseISO";
 import formatDate from "date-fns/format";
 import { readFile } from "~/utils.server";
@@ -174,18 +175,43 @@ export default function Post() {
   return (
     <>
       {/* todo: mark external links somewhow `prose-a:after:content-['_↗']` (from TW docs) is interesting but might be a little much? */}
-      <main className="prose prose-lg lg:prose-xl dark:prose-invert mx-auto">
-        <Component
-          components={{
-            h1: GetH1({
-              updated: frontmatter.updated,
-              published: frontmatter.published,
-              created: frontmatter.created,
-            }),
-            /*components*/
-          }}
-        />
-      </main>
+      <div className="prose prose-lg lg:prose-xl dark:prose-invert mx-auto space-y-20">
+        <main>
+          <Component
+            components={{
+              h1: GetH1({
+                updated: frontmatter.updated,
+                published: frontmatter.published,
+                created: frontmatter.created,
+              }),
+              ...components,
+            }}
+          />
+        </main>
+
+        <div className="flex items-center text-sm space-x-8">
+          <a
+            href={`https://twitter.com/search?q=${encodeURIComponent(
+              frontmatter.canonical,
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Discuss on Twitter
+          </a>
+          <div className="mx-auto flex-grow mt-1 border-t-2 border-black/10 dark:border-white/10" />
+          <div className="flex space-x-4">
+            <div className="font-bold">Share</div>
+            <TwitterShareButton
+              title={`${frontmatter.title} via ${twitterHandle}\n`}
+              // via={twitterHandle.substring(1)}
+              url={frontmatter.canonical}
+            >
+              Twitter
+            </TwitterShareButton>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
