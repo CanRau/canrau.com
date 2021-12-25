@@ -186,10 +186,10 @@ const TodoList = ({ todos }: ITodoProps) =>
             );
             return (
               <li key={todo.text}>
-                <div className="font-boldX">
+                <div className="prose dark:prose-invert">
                   <Component />
                 </div>
-                <div className="text-xs dark:text-zinc-400">
+                <div className="text-xs dark:text-zinc-500">
                   {todo.ref ? `Ref: ${todo.ref} - ` : ""}
                   {todo.file}
                 </div>
