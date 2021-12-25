@@ -34,6 +34,8 @@ jobs:
       #     COMMIT_SHA: ${{ github.sha }}
 
       # This step runs `flyctl deploy`.
+
+      # todo: optimize to use prebuilt image like KCD?
       - name: 🚀 Deploy
         uses: superfly/flyctl-actions@master
         env:

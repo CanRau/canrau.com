@@ -1,3 +1,4 @@
+# TODO: if I can fix memory usage by yarn switch back to `flyctl scale memory 256` ? [ref](https://community.fly.io/t/using-yarn-2-causes-enomem/999)
 # BASE
 FROM node:16-bullseye-slim as base
 

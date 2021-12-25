@@ -75,9 +75,5 @@ export const loader: LoaderFunction = async ({ params }) => {
     items,
   };
 
-  return json(feed, {
-    // headers: {
-    //   "Content-Type": "text/xml; charset=utf-8",
-    // },
-  });
+  return json(feed);
 };
