@@ -234,6 +234,15 @@ function Layout({
         className,
       )}
     >
+      <div id="accessibility-menu">
+        <a
+          id="skip-link"
+          href="#content"
+          className="sr-only focus:not-sr-only target:not-sr-only"
+        >
+          Skip to content
+        </a>
+      </div>
       <header className="py-9 lg:py-12 print:hidden">
         <div className="lg:max-w-3xl mx-auto md:flex item-center justify-between dark:text-zinc-400">
           <Link to="/" title={domain} className="flex items-center">
@@ -264,7 +273,7 @@ function Layout({
           </nav>
         </div>
       </header>
-      <div className="remix-app__main">
+      <div id="content" className="remix-app__main">
         <div className="">{children}</div>
       </div>
       <footer className="flex flex-col items-center justify-center mt-24 mb-4 mx-5vw dark:text-zinc-600 print:hidden">
