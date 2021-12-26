@@ -54,8 +54,8 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   // note: Schema.org [WebSite](https://schema.org/WebSite)
   const jsonld = {
     "@context": "https://schema.org",
-      "@type": "WebSite",
-      "url": canonical,
+    "@type": "WebSite",
+    url: canonical,
   };
   return json({ hero, posts, canonical, totalPathVisits, jsonld });
 };
