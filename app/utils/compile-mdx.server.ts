@@ -79,21 +79,33 @@ export const getFilePath = (contentPath: string, filename: string) =>
 export const bundleMDX = async ({ cwd, source }: IBundleMdx) => {
   // const source = await readFile(file, { encoding: "utf-8" });
   // note: alternative https://github.com/stefanprobst/rehype-extract-toc/
-  const { default: remarkToc } = await import("remark-toc");
-  const { default: remarkGfm } = await import("remark-gfm");
-  const { default: remarkGithub } = await import("remark-github");
-  const { default: remarkBreaks } = await import("remark-breaks");
-  const { default: remarkFootnotes } = await import("remark-footnotes");
-  const { default: rehypeExternalLinks } = await import(
-    "rehype-external-links"
-  );
-  const { default: rehypeSlug } = await import("rehype-slug");
-  const { default: linkHeadings } = await import("rehype-autolink-headings");
-  // todo: maybe use Ryan's syntax highlighter [like KCD](https://github.com/kentcdodds/kentcdodds.com/commit/9d853711ed0bf985c0dbda1981184f47965a41b9)
-  // todo: or look into [stitch.dev's highlighter](https://github.com/modulz/stitches-site/tree/master/lib)
-  // note: useClipboard Hook by [stitches-site](https://github.com/modulz/stitches-site/blob/master/lib/useClipboard.ts)
-  const { default: rehypePrism } = await import("rehype-prism-plus");
-  const { visit, EXIT } = await import("unist-util-visit");
+  const [
+    remarkToc,
+    remarkGfm,
+    remarkGithub,
+    remarkBreaks,
+    remarkFootnotes,
+    rehypeExternalLinks,
+    rehypeSlug,
+    linkHeadings,
+    rehypePrism,
+    { visit, EXIT },
+  ] = await Promise.all([
+    // as seen in https://www.drk.wtf/g/digital-garden-with-obsidian-and-remix
+    import("remark-toc").then((mod) => mod.default),
+    import("remark-gfm").then((mod) => mod.default),
+    import("remark-github").then((mod) => mod.default),
+    import("remark-breaks").then((mod) => mod.default),
+    import("remark-footnotes").then((mod) => mod.default),
+    import("rehype-external-links").then((mod) => mod.default),
+    import("rehype-slug").then((mod) => mod.default),
+    import("rehype-autolink-headings").then((mod) => mod.default),
+    // todo: maybe use Ryan's syntax highlighter [like KCD](https://github.com/kentcdodds/kentcdodds.com/commit/9d853711ed0bf985c0dbda1981184f47965a41b9)
+    // todo: or look into [stitch.dev's highlighter](https://github.com/modulz/stitches-site/tree/master/lib)
+    // note: useClipboard Hook by [stitches-site](https://github.com/modulz/stitches-site/blob/master/lib/useClipboard.ts)
+    import("rehype-prism-plus").then((mod) => mod.default),
+    import("unist-util-visit"),
+  ]);
   // const { headingRank } = await import("hast-util-heading-rank");
   // const { valueToEstree } = await import("estree-util-value-to-estree");
   // const { default: rehypeToc } = await import(

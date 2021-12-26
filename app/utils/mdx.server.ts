@@ -35,12 +35,12 @@ export type Frontmatter = {
 };
 
 export async function stripHtml(htmlString: string) {
-  const [{ unified }, { default: rehypeParse }, { toString: hastToString }] =
-    await Promise.all([
-      import("unified"),
-      import("rehype-parse"),
-      import("hast-util-to-string"),
-    ]);
+  const [unified, rehypeParse, hastToString] = await Promise.all([
+    // as seen in https://www.drk.wtf/g/digital-garden-with-obsidian-and-remix
+    import("unified").then((mod) => mod.unified),
+    import("rehype-parse").then((mod) => mod.default),
+    import("hast-util-to-string").then((mod) => mod.toString),
+  ]);
   const result = unified().use(rehypeParse).parse(htmlString);
 
   return hastToString(result);
