@@ -6,7 +6,7 @@
 /* done: try out swyx's [100 bytes of CSS](https://twitter.com/swyx/status/1449472712720601088) [blog with explanation](https://dev.to/swyx/100-bytes-of-css-to-look-great-everywhere-19pd) */
 
 @layer base {
-  /* from https://open-props.style */
+  /* note: from https://open-props.style */
   :root {
     --color-accent: 108 99 255;
 

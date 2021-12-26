@@ -16,6 +16,15 @@ jobs:
       # This step checks out a copy of your repository.
       - uses: actions/checkout@v2
 
+      #
+      #
+      #
+      # when building here again consider https://github.com/actions/cache
+      # or https://github.com/c-hive/gha-yarn-cache
+      #
+      # or just the built-in cache: 'yarn' below
+      #
+
       # - name: ⎔ Setup node
       #   uses: actions/setup-node@v1
       #   with:

@@ -18,6 +18,7 @@ const customVariants = plugin(({ addVariant, e }) => {
 
 // done: find better name? allows to target all (list) elements except the first
 // todo: Get tailwind.config.js [types](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/tailwindcss) working for plugins [tailwindlabs/tailwindcss#1077](https://github.com/tailwindlabs/tailwindcss/discussions/1077)
+// note: mentioned in [tailwindlabs/tailwindcss/#2466](https://github.com/tailwindlabs/tailwindcss/discussions/2466#discussioncomment-1871027)
 /** @type {import('tailwindcss/plugin')} */
 const notFirst = plugin(({ addVariant, e }) => {
   addVariant("not-first", ({ modifySelectors, separator }) => {

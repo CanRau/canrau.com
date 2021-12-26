@@ -286,6 +286,7 @@ function Layout({
           <p className="dark:text-gray-400">{totalPathVisits} visits so far</p>
         </div>
         {/* note: i like not-first:before:content-['_|_'] but those are missing when copying 😒 */}
+        {/* note: alternative could be [react-add-space](https://github.com/AGMETEOR/react-add-space) */}
         <div>
           <span>&copy; 2021 Can Rau</span>
           {" | "}
