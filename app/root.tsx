@@ -164,7 +164,7 @@ function Document({
   // note: use `export const handle = { hydrate: true };` in any route to enable JS
   const includeScripts = useShouldHydrate();
   const matches = useMatches();
-  // todo: last item in useMatches always correct? get canonical from here as well?
+  // done: last item in useMatches always correct? get canonical from here as well?
   const currentRoute = matches?.[matches.length - 1];
   const { canonical, jsonld } = currentRoute?.data ?? {};
   // const match = matches.find((match) => match.handle && match.handle.canonical);
