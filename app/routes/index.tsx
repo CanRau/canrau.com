@@ -5,6 +5,7 @@ export const action: ActionFunction = async () => {
   return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ", 307);
 };
 
+// todo: once using express redirect e.g. /accessibility to <prefered language>/accessibility or sthg 🤔
 export const loader: LoaderFunction = async () => {
   /**
    * sends a 302 by default
