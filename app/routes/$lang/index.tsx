@@ -38,10 +38,15 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const postsPromise = getPostsList({ lang }).catch(() => {
     throw NotFoundError(lang);
   });
-  const [allPosts, totalPathVisits] = await Promise.all([
-    postsPromise,
-    getTotalPathVisitsLoader({ request }), // todo: fix visits and `catch` here
-  ]);
+  // done: fix visits and `catch` here
+  const visitsPromise = getTotalPathVisitsLoader({ request }).catch((error) => {
+    console.error(">>>>> ERROR in `$lang/index.tsx` for", request.url);
+    console.error({ error });
+    console.error("<<<<< ERROR in `$lang/index.tsx`");
+  });
+  // prettier-ignore
+  const [allPosts, totalPathVisits] = await Promise.all([postsPromise, visitsPromise]);
+
   const hero = allPosts.find((p) => p.slug === "/welcome");
   const posts = allPosts.filter((p) => p.slug !== "/welcome");
   const canonical = `${rootUrl}/${lang}`;
