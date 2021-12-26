@@ -16,9 +16,12 @@ import { useLoaderData, type LoaderFunction, type MetaFunction } from "remix";
 import { useMemo } from "react";
 import { getMDXComponent } from "mdx-bundler/client";
 import type { TodoComment } from "leasot/dist/definitions";
+import { DiGithubBadge } from "react-icons/di";
 import { bundleMDX } from "~/utils/compile-mdx.server";
 import { loader as getTotalPathVisitsLoader } from "~/utils/get-total-path-visits";
 import { rootUrl, titleSeperator, domain } from "/config";
+import { repository } from "/package.json";
+
 const sortArray = ["FIXME", "TODO", "DONE", "NOTE"];
 
 export const meta: MetaFunction = () => ({
@@ -191,7 +194,18 @@ const TodoList = ({ todos }: ITodoProps) =>
                 </div>
                 <div className="text-xs dark:text-zinc-500">
                   {todo.ref ? `Ref: ${todo.ref} - ` : ""}
-                  {todo.file}
+                  <a
+                    href={`${repository.url}/blob/main/${todo.file}#L${todo.line}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <DiGithubBadge
+                      className="inline"
+                      size="1.1rem"
+                      title="GitHub Logo"
+                    />{" "}
+                    {todo.file}
+                  </a>
                 </div>
               </li>
             );
