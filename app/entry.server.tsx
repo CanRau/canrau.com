@@ -79,12 +79,11 @@ export default async function handleRequest(
     });
   }
 
-  const match = remixContext.matches.find((m) => m.route.id !== "root");
+  const { matches, routeData } = remixContext;
 
-  const canonical =
-    (match?.route?.id &&
-      remixContext?.routeData?.[match.route.id]?.canonical) ||
-    "";
+  const match = matches.find((m) => m.pathname === url.pathname);
+
+  const canonical = match?.route?.id && routeData?.[match.route.id]?.canonical;
 
   let markup = renderToString(
     <RemixServer context={remixContext} url={request.url} />,
@@ -103,7 +102,7 @@ export default async function handleRequest(
 
   responseHeaders.set("Content-Type", "text/html");
   if (canonical) {
-    responseHeaders.set("Link", `Link: <${canonical}>; rel="canonical"`);
+    responseHeaders.set("Link", `<${canonical}>; rel="canonical"`);
   }
 
   const response = new Response("<!DOCTYPE html>" + markup, {
