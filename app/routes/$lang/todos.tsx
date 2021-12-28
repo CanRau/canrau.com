@@ -58,6 +58,11 @@ const getAllFiles = async (
       filePathRelative.endsWith(".png") ||
       filePathRelative.endsWith(".jpg") ||
       filePathRelative.endsWith(".jpeg") ||
+      filePathRelative.endsWith(".mp3") ||
+      filePathRelative.endsWith(".mp4") ||
+      filePathRelative.endsWith(".wav") ||
+      filePathRelative.endsWith(".mpeg") ||
+      filePathRelative.endsWith(".mpg") ||
       filePathRelative.endsWith(".ico") ||
       filePathRelative.endsWith(".DS_Store") ||
       filePathRelative.endsWith(".env")
