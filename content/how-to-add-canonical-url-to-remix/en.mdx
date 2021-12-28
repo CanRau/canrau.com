@@ -6,7 +6,7 @@ title: How to add canonical URL to Remix 💿
 description: Add canonical urls to you Remix website to avoid duplicate content penalties for better SEO
 version: 1
 created: 2021-12-06T14:00:00
-updated: 2021-12-26T14:45:00
+updated: 2021-12-27T23:58:00
 published: 2021-12-06T14:00:00
 meta:
   - name: og:type
@@ -14,7 +14,7 @@ meta:
   - name: article:published_time
     content: 2021-12-06T14:00:00
   - name: article:modified_time
-    content: 2021-12-26T14:45:00
+    content: 2021-12-27T23:58:00
   - name: article:author
     content: CanRau
   - name: article:section
@@ -43,7 +43,7 @@ export const jsonld = {
   },
   image: [coverImage],
   dateCreated: "2021-12-06T14:00:00",
-  dateModified: "2021-12-26T14:45:00",
+  dateModified: "2021-12-27T23:58:00",
   datePublished: "2021-12-06T14:00:00",
   author: [
     {
@@ -75,7 +75,7 @@ As a best practice I tend to redirect my pages to always use `https` so no-one g
 
 To help search engines desice which of all those various versions is your prefered URL they redirect to, it's better to provide one and make sure you don't get any duplicate content issue.
 
-So make sure, whatever way you use or prefer, to be consistent and always serve the same canonical URL so it won't change during renders and choose first if you want the canonical URL to be [with or without a trailing slash](/en/with-or-without-trailing-slash)
+So make sure, whatever way you use or prefer, to be consistent and always serve the same canonical URL so it won't change during renders and choose first if you want the canonical URL to be [with or without a trailing slash](/en/with-or-without-trailing-slash) and always use the absolute URL including the host like `https://www.canrau.com/en/how-to-add-canonical-url-to-remix` instead of `/en/how-to-add-canonical-url-to-remix`.
 
 Also I read that some suggest to just add the canonical `<link/>` tag to the body within the routes component, which is actually [disallowed by Google](https://developers.google.com/search/blog/2013/04/5-common-mistakes-with-relcanonical#mistake-5:-rel=canonical-in-the-body)
 
