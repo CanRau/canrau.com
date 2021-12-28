@@ -5,8 +5,9 @@ lang: en
 title: Welcome to the digital garden of Can Rau
 description: Let me give you a little background story of myself.
 version: 1
-created: 2021-10-20
-updated: 2021-10-20
+created: 2021-10-20T00:29:00 -5
+updated: 2021-10-20T00:29:00 -5
+published: 2021-10-20T00:29:00 -5
 meta:
   - name: og:type
     content: article
@@ -42,6 +43,7 @@ import { Age } from "~/components/age";
 import coverImage from "./canrau-waving-in-front-of-andean-mountains.jpg";
 import secondImage from "./canrau-smiling-on-rainforest-path.jpg";
 export const cover = coverImage;
+import pronunciation from "./can-rau_pronunciation.mp3";
 
 export const jsonld = {
   "@context": "https://schema.org",
@@ -52,12 +54,13 @@ export const jsonld = {
     "@context": "https://schema.org",
     "@type": "ImageObject",
     contentUrl: coverImage,
-    description: "Me waving & smiling hilariously into the cam, being way up in the andean mountains at more than 3000m"
+    description:
+      "Me waving & smiling hilariously into the cam, being way up in the andean mountains at more than 3000m",
   },
   image: [coverImage, secondImage],
-  dateCreated: "2021-10-20",
-  datePublished: "2021-10-20",
-  dateModified: "2021-10-20",
+  dateCreated: "2021-10-20T00:29:00 -5",
+  datePublished: "2021-10-20T00:29:00 -5",
+  dateModified: "2021-12-27T00:30:00 -5",
   author: [
     {
       "@type": "Person",
@@ -116,6 +119,24 @@ The idea is that it's more about living documents (pages) which grow over time a
 That's why I'm planning to have the pages versioned so in the future you'll be able to view not only the current state, but also all the former versions 📜 as well as subscribe not only to the complete [newsletter](#newsletter) but also specific topics and documents, to get notified about document updates 🔔
 
 I got the inspiration to a digital garden by [Joel Hooks](https://joelhooks.com/digital-garden) and later stumbled upon more examples by [Chris Biscardi](https://www.christopherbiscardi.com/what-is-a-digital-garden) and [Tom Critchlow](https://tomcritchlow.com/2018/10/10/of-gardens-and-wikis/), theres also a video by Chris Biscardi, Joel Hooks, Kurt Kemple and John Otander on [egghead.io](https://egghead.io/lessons/egghead-sector-the-future-of-mdx-and-digital-gardens)
+
+## How to pronounce Can Rau?
+
+{/* https://github.com/sindresorhus/stuff/ */}
+
+I'm really glad you ask 🥰 My given name is actually turkish ([dʒan]), so no it's not pronounced like the english modal verb "can" or a can of tomatoes 🥫.
+
+I was born a little earlier than expected and my parents didn't came up with a name yet 😅 As my turkish-born dad used to call me "my canım", yes that's an i without the dot, which translates to "my dear" or "my life", they figured why not just name me Can 🤷🏻‍♂️ which means: spirit, life, soul or heart.
+
+There's also a [Wikipedia page](<https://en.wikipedia.org/wiki/Can_(name)>) for my name 😎
+
+My surname on the other hand is german, which back then in Middle High German used to mean something like hairy, ragged or rough 😳😅
+
+To answer the pronunciation question, I just recorded it to make it easier for everyone curious 🤓
+
+<audio controls src={pronunciation} />
+
+I'm actually a little "pronunciation nerd" 😇 more on that later though 👀
 
 So, that's all for now, though remember that I'm coming back to update this very [welcome page](/en/welcome) whenever I see fit 😉
 
