@@ -117,8 +117,18 @@ const leasotExtensionSupported = (ext: string) =>
 type Todos = Record<string, TodoCommentWithMDX[]>;
 type LoaderData = { canonical: string; todos: Todos; totalPathVisits: number };
 
+const cached: Record<Lang, any> = {};
+
 export const loader: LoaderFunction = async ({ params, request }) => {
+  const start = performance.now();
   const lang = params.lang || "en";
+
+  if (cached[lang]) {
+    const stop = performance.now();
+    console.log(`todos.tsx time: ${Number((stop - start) / 1000).toFixed(3)}s`);
+    return cached[lang];
+  }
+
   const canonical = `${rootUrl}/${lang}/todos`;
   const rootDir = process.cwd();
   const todosUngrouped: TodoComment[] = [];
@@ -160,9 +170,13 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
   const todos = groupBy(todosWithMDX, "tag");
 
-  // console.log(todos);
+  const loaderOutput = { canonical, todos, totalPathVisits };
+  cached[lang] = loaderOutput;
 
-  return { canonical, todos, totalPathVisits };
+  const stop = performance.now();
+  console.log(`todos.tsx time: ${Number((stop - start) / 1000).toFixed(3)}s`);
+
+  return loaderOutput;
 };
 
 const getEmoji = (tag: string, num: number) => {
