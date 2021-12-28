@@ -32,7 +32,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.7.6":
+"@babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.7.6":
   version: 7.16.5
   resolution: "@babel/runtime@npm:7.16.5"
   dependencies:
@@ -846,6 +846,15 @@ __metadata:
   version: 0.4.0
   resolution: "asynckit@npm:0.4.0"
   checksum: 7b78c451df768adba04e2d02e63e2d0bf3b07adcd6e42b4cf665cb7ce899bedd344c69a1dcbce355b5f972d597b25aaa1c1742b52cffd9caccb22f348114f6be
+  languageName: node
+  linkType: hard
+
+"autolinker@npm:3.14.3":
+  version: 3.14.3
+  resolution: "autolinker@npm:3.14.3"
+  dependencies:
+    tslib: ^1.9.3
+  checksum: 4a2bce8d7a77cfb8386ce10b4fb0f8267256af3dbc216c016ba4b970bfd1c9afcd70c2a17f3bc8f81c3de414f8690dbee71eb767519f07f3d6c03c15a9264260
   languageName: node
   linkType: hard
 
@@ -3866,6 +3875,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"match-sorter@npm:6.3.1":
+  version: 6.3.1
+  resolution: "match-sorter@npm:6.3.1"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    remove-accents: 0.4.2
+  checksum: a4b02b676ac4ce64a89a091539ee4a70a802684713bcf06f2b70787927f510fe8a2adc849f9288857a90906083ad303467e530e8723b4a9756df9994fc164550
+  languageName: node
+  linkType: hard
+
 "mdast-util-definitions@npm:^5.0.0":
   version: 5.1.0
   resolution: "mdast-util-definitions@npm:5.1.0"
@@ -6150,6 +6169,7 @@ __metadata:
     "@types/react": 17.0.37
     "@types/react-dom": 17.0.11
     "@types/tailwindcss": 2.2.4
+    autolinker: 3.14.3
     autoprefixer: 10.4.0
     clsx: 1.1.1
     concurrently: 6.5.1
@@ -6164,6 +6184,7 @@ __metadata:
     hast-util-to-string: 2.0.0
     is-whitespace-character: 2.0.1
     leasot: 12.0.0
+    match-sorter: 6.3.1
     mdx-bundler: 8.0.1
     postcss: 8.4.5
     postcss-cli: 9.1.0
@@ -6215,6 +6236,13 @@ __metadata:
   dependencies:
     fs-extra: ^10.0.0
   checksum: dc5b36e4cf077fbdfefd95d18e973b02cf6538165d1cf76c66e8600aafe7e8ce78c98bf88a4fa35448a86e31080d1b5f959feb4957190aefb4c2aad42b93e81b
+  languageName: node
+  linkType: hard
+
+"remove-accents@npm:0.4.2":
+  version: 0.4.2
+  resolution: "remove-accents@npm:0.4.2"
+  checksum: 84a6988555dea24115e2d1954db99509588d43fe55a1590f0b5894802776f7b488b3151c37ceb9e4f4b646f26b80b7325dcea2fae58bc3865df146e1fa606711
   languageName: node
   linkType: hard
 
@@ -6887,7 +6915,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^1.9.0":
+"tslib@npm:^1.9.0, tslib@npm:^1.9.3":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: dbe628ef87f66691d5d2959b3e41b9ca0045c3ee3c7c7b906cc1e328b39f199bb1ad9e671c39025bd56122ac57dfbf7385a94843b1cc07c60a4db74795829acd
