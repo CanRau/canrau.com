@@ -19,7 +19,6 @@ published_at:
 
 export const jsonld = {
   "@context": "https://schema.org",
-  // todo: maybe switch to [HowTo](https://developers.google.com/search/docs/advanced/structured-data/how-to)
   "@type": "Article",
   headline: "Bookmarks",
   description: "A list of interesting links curated by Can Rau",
@@ -39,6 +38,35 @@ export const jsonld = {
 };
 
 export const bookmarks = [
+  {
+    title: `CSS Utility Classes and "Separation of Concerns"`,
+    url: "https://adamwathan.me/css-utility-classes-and-separation-of-concerns/",
+    description: "by Adam Wathan founder of TailwindCSS",
+    timeAdded: "2021-12-28T00:47:00 -5",
+    tags: ["css"],
+  },
+  {
+    title: "margin-bottom or margin-top",
+    url: "https://css-tricks.com/margin-bottom-margin-top/",
+    description: "by Chris Coyier",
+    timeAdded: "2021-12-28T00:09:00 -5",
+    tags: ["css"],
+  },
+  {
+    title: "What You Should Know About Collapsing Margins",
+    url: "https://css-tricks.com/what-you-should-know-about-collapsing-margins/",
+    description: "Removing margins from components by Max Stoiber",
+    timeAdded: "2021-12-28T00:08:00 -5",
+    tags: ["css"],
+  },
+  {
+    title: "Margin considered harmful",
+    url: "https://mxstbr.com/thoughts/margin/",
+    // alternative using grid with gap https://news.ycombinator.com/item?id=22678510 https://codepen.io/tychi-nflx/pen/OJVBZzV
+    description: "Removing margins from components by Max Stoiber",
+    timeAdded: "2021-12-28T00:05:00 -5",
+    tags: ["css", "react"],
+  },
   {
     title: "Your code can be polluted, here's how.",
     url: "https://www.youtube.com/watch?v=XS_UMqQalLI",
