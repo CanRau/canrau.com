@@ -1,6 +1,15 @@
 // todo: Twitter profile banner like [Prateek Surana](https://twitter.com/psuranas) using [API](https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_banner)
 // todo: when adding cache/caching check out [Loader vs Route Cache Headers in Remix](https://sergiodxa.com/articles/loader-vs-route-cache-headers-in-remix)
 
+// todo: broken link checker?
+// https://www.npmjs.com/package/broken-link-checker
+// https://www.npmjs.com/package/hyperlink
+
+import { useLoaderData, type LoaderFunction, type MetaFunction } from "remix";
+import { useMemo } from "react";
+import { getMDXComponent } from "mdx-bundler/client";
+import type { TodoComment } from "leasot/dist/definitions";
+import { DiGithubBadge } from "react-icons/di";
 import {
   readdir,
   readFile,
@@ -12,11 +21,7 @@ import {
   leasot,
   leasotExtSupported,
 } from "~/utils.server";
-import { useLoaderData, type LoaderFunction, type MetaFunction } from "remix";
-import { useMemo } from "react";
-import { getMDXComponent } from "mdx-bundler/client";
-import type { TodoComment } from "leasot/dist/definitions";
-import { DiGithubBadge } from "react-icons/di";
+import { Link } from "~/components/link";
 import { bundleMDX } from "~/utils/compile-mdx.server";
 import { loader as getTotalPathVisitsLoader } from "~/utils/get-total-path-visits";
 import { rootUrl, titleSeperator, domain } from "/config";
@@ -209,7 +214,7 @@ const TodoList = ({ todos }: ITodoProps) =>
             return (
               <li key={todo.text}>
                 <div className="prose dark:prose-invert">
-                  <Component />
+                  <Component components={{ a: Link, Link }} />
                 </div>
                 <div className="text-xs dark:text-zinc-500">
                   {todo.ref ? `Ref: ${todo.ref} - ` : ""}

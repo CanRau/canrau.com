@@ -20,6 +20,7 @@ import {
 } from "~/utils/compile-mdx.server";
 import { loader as getTotalPathVisitsLoader } from "~/utils/get-total-path-visits";
 import * as typography from "~/components/typography";
+import { Link } from "~/components/link";
 import prismPlus from "~/styles/prism-plus.css";
 import prismTheme from "~/styles/prism-theme.css";
 import { rootUrl, domain, titleSeperator, twitterHandle } from "/config";
@@ -119,8 +120,9 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   return json({ frontmatter, code, canonical, totalPathVisits, jsonld });
 };
 
-const headingWithClasses = (comp: FC, className: string) => (props: any) =>
-  createElement(comp, { ...props, className });
+const headingWithClasses =
+  (comp: FC | string, className: string) => (props: any) =>
+    createElement(comp, { ...props, className });
 
 // note: more on [component substitution](https://github.com/wooorm/xdm#components)
 const components = {
@@ -131,6 +133,8 @@ const components = {
   h4: headingWithClasses("h4", "decoration-skin-accent target:underline"),
   h5: headingWithClasses("h5", "decoration-skin-accent target:underline"),
   h6: headingWithClasses("h6", "decoration-skin-accent target:underline"),
+  a: Link,
+  Link,
   // p: typography.Paragraph,
 };
 
