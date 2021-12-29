@@ -298,11 +298,7 @@ function Layout({
             <>
               {" | "}
               <span>
-                <a
-                  href={`${repository.url}/commit/${commitSha}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href={`${repository.url}/commit/${commitSha}`}>
                   <DiGithubBadge
                     className="inline"
                     size="1.8rem"
@@ -354,14 +350,7 @@ export function CatchBoundary() {
         </h1>
         <UndrawNotFound className="max-w-xl mx-auto" />
         <p className="text-sm text-right">
-          Illustration by{" "}
-          <a
-            href="https://undraw.co/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Undraw.co
-          </a>
+          Illustration by <a href="https://undraw.co/">Undraw.co</a>
         </p>
         <p className="mt-4 text-lg text-center">{message}</p>
       </Layout>

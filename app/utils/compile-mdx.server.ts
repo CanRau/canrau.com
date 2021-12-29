@@ -119,242 +119,253 @@ export const bundleMDX = async ({ cwd, source }: IBundleMdx) => {
 
   // todo: use [@remark-embedder/core](https://github.com/remark-embedder/core) and/or mdx-embed.com
   // also https://github.com/remark-embedder/transformer-oembed & https://github.com/remark-embedder/cache
-  const mdx = await mdxBundler.bundleMDX({
-    cwd,
-    source,
-    // bundleDirectory: resolve("public", "build"),
-    // bundlePath: resolve("public"),
-    grayMatterOptions: (options) => {
-      // todo: possibly improve [excerpt](https://github.com/jonschlinkert/gray-matter#optionsexcerpt)?
-      // options.excerpt = (file, options) => {
-      //   file.excerpt = file.content.split("\n").slice(0, 4).join(" ");
-      //   return file.excerpt;
-      // };
-      return options;
-    },
-    xdmOptions: (options) => {
-      options.remarkPlugins = [
-        ...(options.remarkPlugins ?? []),
-        [
-          remarkToc,
-          {
-            heading: "table[ -]of[ -]contents?|inhaltsverzeichnis",
-            tight: true,
-          },
-        ],
-        remarkMdxImages,
-        // [remarkTocHeadings, { exportRef: toc }],
-        remarkGfm,
-        // remarkKbd,
-        [remarkGithub, { repository: "canrau/canrau.com" }],
-        remarkBreaks,
-        // remarkCodeTitles,
-        [remarkFootnotes, { inlineNotes: true }],
-        [
-          rehypeExternalLinks,
-          {
-            target: "_blank", // default
-            // ref: ["nofollow", "noopener", "noreferrer"], // default
-            ref: ["noopener", "noreferrer"],
-            protocols: ["http", "https"], // default
-            contentProperties: { className: ["alpha", "bravo"] },
-            // note: [Giving users advanced warning when opening a new window](https://www.w3.org/WAI/WCAG21/Techniques/general/G201)
-            content: { type: "text", value: " (opens in a new window)" },
-            // alternative
-            // content: [
-            //   {type: 'text', value: ' ('},
-            //   {
-            //     type: 'element',
-            //     tagName: 'em',
-            //     properties: {},
-            //     children: [{type: 'text', value: 'opens in a new window'}]
-            //   },
-            //   {type: 'text', value: ')'}
-            // ],
-          },
-        ],
-        // remarkMath,
-        // remarkImgToJsx,
-        // note: trying to set the cover to the first image
-        // () => {
-        //   return (tree) => {
-        //     // console.log(JSON.stringify(tree.children.slice(0, 10), null, 2));
-        //     let frontmatter = { value: "" };
-        //     const isFrontmatter = { type: "yaml" };
-        //     visit(tree, isFrontmatter, (node, index, parent) => {
-        //       frontmatter = node;
-        //     });
-        //     const isImg = { type: "image" };
-        //     // console.log(frontmatter);
-        //     visit(tree, isImg, (node, index, parent) => {
-        //       frontmatter.value = `${frontmatter.value}\nfirstImage: ${node.url}`;
-        //       return EXIT;
-        //     });
-        //     // console.log(JSON.stringify(tree, null, 2));
+  const mdx = await mdxBundler
+    .bundleMDX({
+      cwd,
+      source,
+      // bundleDirectory: resolve("public", "build"),
+      // bundlePath: resolve("public"),
+      grayMatterOptions: (options) => {
+        // todo: possibly improve [excerpt](https://github.com/jonschlinkert/gray-matter#optionsexcerpt)?
+        // options.excerpt = (file, options) => {
+        //   file.excerpt = file.content.split("\n").slice(0, 4).join(" ");
+        //   return file.excerpt;
+        // };
+        return options;
+      },
+      xdmOptions: (options) => {
+        options.remarkPlugins = [
+          ...(options.remarkPlugins ?? []),
+          [
+            remarkToc,
+            {
+              heading: "table[ -]of[ -]contents?|inhaltsverzeichnis",
+              tight: true,
+            },
+          ],
+          remarkMdxImages,
+          // [remarkTocHeadings, { exportRef: toc }],
+          remarkGfm,
+          // remarkKbd,
+          [remarkGithub, { repository: "canrau/canrau.com" }],
+          remarkBreaks,
+          // remarkCodeTitles,
+          [remarkFootnotes, { inlineNotes: true }],
+          // remarkMath,
+          // remarkImgToJsx,
+          // note: trying to set the cover to the first image
+          // () => {
+          //   return (tree) => {
+          //     // console.log(JSON.stringify(tree.children.slice(0, 10), null, 2));
+          //     let frontmatter = { value: "" };
+          //     const isFrontmatter = { type: "yaml" };
+          //     visit(tree, isFrontmatter, (node, index, parent) => {
+          //       frontmatter = node;
+          //     });
+          //     const isImg = { type: "image" };
+          //     // console.log(frontmatter);
+          //     visit(tree, isImg, (node, index, parent) => {
+          //       frontmatter.value = `${frontmatter.value}\nfirstImage: ${node.url}`;
+          //       return EXIT;
+          //     });
+          //     // console.log(JSON.stringify(tree, null, 2));
 
-        //     // const isYamlOrImg = (node: any) =>
-        //     //   node.type === "yaml" ||
-        //     //   (node.type === "mdxJsxTextElement" && node.name === "img");
-        //     // visit(tree, isYamlOrImg, (node, index, parent) => {
-        //     //   // node.value = node.value + "\ncover: blabla";
-        //     //   console.log(node);
-        //     // });
-        //   };
-        // },
-      ];
+          //     // const isYamlOrImg = (node: any) =>
+          //     //   node.type === "yaml" ||
+          //     //   (node.type === "mdxJsxTextElement" && node.name === "img");
+          //     // visit(tree, isYamlOrImg, (node, index, parent) => {
+          //     //   // node.value = node.value + "\ncover: blabla";
+          //     //   console.log(node);
+          //     // });
+          //   };
+          // },
+        ];
 
-      options.rehypePlugins = [
-        ...(options.rehypePlugins ?? []),
-        rehypeSlug,
-        // rehypeToc,
-        // rehypeTocExport,
-        linkHeadings,
-        [rehypePrism, { ignoreMissing: true, showLineNumbers: true }],
-        () => {
-          // const tokenClassNames: Record<string, string> = {
-          //   tag: "text-code-red",
-          //   "attr-name": "text-code-yellow",
-          //   "attr-value": "text-code-green",
-          //   deleted: "text-code-red",
-          //   inserted: "text-code-green",
-          //   punctuation: "text-code-white",
-          //   keyword: "text-code-purple",
-          //   string: "text-code-green",
-          //   function: "text-code-blue",
-          //   boolean: "text-code-red",
-          //   comment: "text-gray-400 italic",
-          // };
-          return (tree, vfile) => {
-            const headings: Array<any> = [];
-            // todo: Extend counter to add #ids to all figures like images, videos, tweets etc
-            let noOfCodeBlocks = 0;
-            // const isImg = {type: "mdxJsxTextElement", name: "img"}
-            // visit(tree, isImg, (node, index, parent) => {
-            //   console.log(node);
-            // });
-            visit(tree, "element", (node, index, parent) => {
-              // if (node.tagName === "p") {
-              //   console.log(node.children);
-              // }
-              // const headingLevel = headingRank(node);
-              // if (headingLevel === 1) {
-              //   console.log(JSON.stringify(node, null, 2));
-              // }
-              // if (headingLevel !== null) {
-              //   const heading: any = {
-              //     depth: headingLevel,
-              //     value: node,
-              //   };
-              //   if (
-              //     node.properties !== undefined &&
-              //     node.properties.id != null
-              //   ) {
-              //     heading.id = node.properties.id;
-              //   }
-              //   headings.push(heading);
-              // }
+        options.rehypePlugins = [
+          ...(options.rehypePlugins ?? []),
+          rehypeSlug,
+          // rehypeToc,
+          // rehypeTocExport,
+          linkHeadings,
+          [rehypePrism, { ignoreMissing: true, showLineNumbers: true }],
+          // [
+          //   rehypeExternalLinks,
+          //   {
+          //     target: "_blank", // default
+          //     // ref: ["nofollow", "noopener", "noreferrer"], // default
+          //     ref: ["noopener", "noreferrer"],
+          //     protocols: ["http", "https"], // default
+          //     // contentProperties: { className: ["alpha", "bravo"] },
+          //     // note: [Giving users advanced warning when opening a new window](https://www.w3.org/WAI/WCAG21/Techniques/general/G201)
+          //     // content: { type: "text", value: " (opens in a new window)" },
+          //     // alternative
+          //     // content: [
+          //     //   {type: 'text', value: ' ('},
+          //     //   {
+          //     //     type: 'element',
+          //     //     tagName: 'em',
+          //     //     properties: {},
+          //     //     children: [{type: 'text', value: 'opens in a new window'}]
+          //     //   },
+          //     //   {type: 'text', value: ')'}
+          //     // ],
+          //   },
+          // ],
+          () => {
+            // const tokenClassNames: Record<string, string> = {
+            //   tag: "text-code-red",
+            //   "attr-name": "text-code-yellow",
+            //   "attr-value": "text-code-green",
+            //   deleted: "text-code-red",
+            //   inserted: "text-code-green",
+            //   punctuation: "text-code-white",
+            //   keyword: "text-code-purple",
+            //   string: "text-code-green",
+            //   function: "text-code-blue",
+            //   boolean: "text-code-red",
+            //   comment: "text-gray-400 italic",
+            // };
+            return (tree, vfile) => {
+              const headings: Array<any> = [];
+              // todo: Extend counter to add #ids to all figures like images, videos, tweets etc
+              let noOfCodeBlocks = 0;
+              // const isImg = {type: "mdxJsxTextElement", name: "img"}
+              // visit(tree, isImg, (node, index, parent) => {
+              //   console.log(node);
+              // });
+              visit(tree, "element", (node, index, parent) => {
+                if (!node) return;
+                // if (
+                //   node.tagName === "a" &&
+                //   node.properties &&
+                //   typeof node.properties.href === "string"
+                // ) {
+                //   node.properties.class = "external-link";
+                //   console.log(node);
+                // }
+                // if (node.tagName === "p") {
+                //   console.log(node.children);
+                // }
+                // const headingLevel = headingRank(node);
+                // if (headingLevel === 1) {
+                //   console.log(JSON.stringify(node, null, 2));
+                // }
+                // if (headingLevel !== null) {
+                //   const heading: any = {
+                //     depth: headingLevel,
+                //     value: node,
+                //   };
+                //   if (
+                //     node.properties !== undefined &&
+                //     node.properties.id != null
+                //   ) {
+                //     heading.id = node.properties.id;
+                //   }
+                //   headings.push(heading);
+                // }
 
-              let [token, type] = node.properties.className || [];
-              // console.log({ token, type });
+                let [token, type] = node?.properties?.className || [];
+                // console.log({ token, type });
 
-              if (node.tagName === "pre") {
-                noOfCodeBlocks++;
-                const [lang] = node.properties.className || [];
-                if (lang) {
-                  node.properties.dataLang = lang.replace("language-", "");
+                if (node?.tagName === "pre") {
+                  noOfCodeBlocks++;
+                  const [lang] = node.properties.className || [];
+                  if (lang) {
+                    node.properties.dataLang = lang.replace("language-", "");
+                  }
                 }
-              }
 
-              if (token === "code-line" && type === "line-number") {
-                // done: not working for multiple code-blocks on the same page (yet)
-                const figureId = `F${noOfCodeBlocks}`;
-                const lineNo = `L${node.properties.line}`;
-                node.properties.id = `${figureId}${lineNo}`;
-              }
+                if (token === "code-line" && type === "line-number") {
+                  // done: not working for multiple code-blocks on the same page (yet)
+                  const figureId = `F${noOfCodeBlocks}`;
+                  const lineNo = `L${node.properties.line}`;
+                  node.properties.id = `${figureId}${lineNo}`;
+                }
 
-              if (token === "token") {
-                // node.properties.className = [tokenClassNames[type]];
-              }
-            });
+                if (token === "token") {
+                  // node.properties.className = [tokenClassNames[type]];
+                }
+              });
 
-            // vfile.data.cantoc = createTree(headings) || []; // { test: "foo" };
-            // tree.children.unshift({
-            //   type: "mdxjsEsm",
-            //   data: {
-            //     estree: {
-            //       type: "Program",
-            //       sourceType: "module",
-            //       body: [
-            //         {
-            //           type: "ExportNamedDeclaration",
-            //           source: null,
-            //           specifiers: [],
-            //           declaration: {
-            //             type: "VariableDeclaration",
-            //             kind: "const",
-            //             declarations: [
-            //               {
-            //                 type: "VariableDeclarator",
-            //                 id: { type: "Identifier", name: "cantoc" },
-            //                 init: "valueToEstree(vfile.data.cantoc)",
-            //               },
-            //             ],
-            //           },
-            //         },
-            //       ],
-            //     },
-            //   },
-            // });
+              // vfile.data.cantoc = createTree(headings) || []; // { test: "foo" };
+              // tree.children.unshift({
+              //   type: "mdxjsEsm",
+              //   data: {
+              //     estree: {
+              //       type: "Program",
+              //       sourceType: "module",
+              //       body: [
+              //         {
+              //           type: "ExportNamedDeclaration",
+              //           source: null,
+              //           specifiers: [],
+              //           declaration: {
+              //             type: "VariableDeclaration",
+              //             kind: "const",
+              //             declarations: [
+              //               {
+              //                 type: "VariableDeclarator",
+              //                 id: { type: "Identifier", name: "cantoc" },
+              //                 init: "valueToEstree(vfile.data.cantoc)",
+              //               },
+              //             ],
+              //           },
+              //         },
+              //       ],
+              //     },
+              //   },
+              // });
 
-            // function createTree(headings: Array<any>) {
-            //   const root = { depth: 0, children: [] };
-            //   const parents: Array<any> = [];
-            //   let previous = root;
+              // function createTree(headings: Array<any>) {
+              //   const root = { depth: 0, children: [] };
+              //   const parents: Array<any> = [];
+              //   let previous = root;
 
-            //   headings.forEach((heading) => {
-            //     if (heading.depth > previous.depth) {
-            //       if (previous.children === undefined) {
-            //         previous.children = [];
-            //       }
-            //       parents.push(previous);
-            //     } else if (heading.depth < previous.depth) {
-            //       while (parents[parents.length - 1].depth >= heading.depth) {
-            //         parents.pop();
-            //       }
-            //     }
+              //   headings.forEach((heading) => {
+              //     if (heading.depth > previous.depth) {
+              //       if (previous.children === undefined) {
+              //         previous.children = [];
+              //       }
+              //       parents.push(previous);
+              //     } else if (heading.depth < previous.depth) {
+              //       while (parents[parents.length - 1].depth >= heading.depth) {
+              //         parents.pop();
+              //       }
+              //     }
 
-            //     parents[parents.length - 1].children.push(heading);
-            //     previous = heading;
-            //   });
+              //     parents[parents.length - 1].children.push(heading);
+              //     previous = heading;
+              //   });
 
-            //   return root.children;
-            // }
-          };
-        },
-      ];
+              //   return root.children;
+              // }
+            };
+          },
+        ];
 
-      return options;
-    },
-    esbuildOptions: (options) => {
-      // Set the `outdir` to a public location for this bundle.
-      // options.outdir = resolve("public", "build", "_assets");
-      options.outdir = resolve("public/build/_assets");
-      options.loader = {
-        ...loaders, // note: esbuild loaders for png, jpe?g imported from remix
-        ...options.loader,
-        ".ico": "file",
-      };
-      options.publicPath = join("/build/_assets");
+        return options;
+      },
+      esbuildOptions: (options) => {
+        // Set the `outdir` to a public location for this bundle.
+        // options.outdir = resolve("public", "build", "_assets");
+        options.outdir = resolve("public/build/_assets");
+        options.loader = {
+          ...loaders, // note: esbuild loaders for png, jpe?g imported from remix
+          ...options.loader,
+          ".ico": "file",
+        };
+        options.publicPath = join("/build/_assets");
 
-      // Set write to true so that esbuild will output the files.
-      options.write = true;
+        // Set write to true so that esbuild will output the files.
+        options.write = true;
 
-      return options;
-    },
-  });
+        return options;
+      },
+    })
+    .catch((e) => console.log(e, { cwd }));
 
   // note: commented this solution in https://github.com/kentcdodds/mdx-bundler/issues/70
-  const { cover, tableOfContents } = getMDXExport(mdx.code);
+  const { cover, tableOfContents } = getMDXExport(mdx?.code);
   mdx.frontmatter = {
     ...mdx.frontmatter,
     cover,

@@ -220,8 +220,6 @@ const TodoList = ({ todos }: ITodoProps) =>
                   {todo.ref ? `Ref: ${todo.ref} - ` : ""}
                   <a
                     href={`${repository.url}/blob/main/${todo.file}#L${todo.line}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
                   >
                     <DiGithubBadge
                       className="inline"

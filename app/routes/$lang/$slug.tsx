@@ -217,8 +217,6 @@ export default function Post() {
             href={`https://twitter.com/search?q=${encodeURIComponent(
               frontmatter.canonical,
             )}`}
-            target="_blank"
-            rel="noopener noreferrer"
           >
             Discuss on Twitter
           </a>
