@@ -42,6 +42,7 @@ export default async function handleRequest(
     return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ", 307);
   }
 
+  // Coding4GaiAma
   if (url.host === "coding4.gaiama.org") {
     url.host = domain.toLowerCase();
     console.log(">>>>>>>>>>>>> Coding4GaiAma", request.url, url.toString());
@@ -68,6 +69,12 @@ export default async function handleRequest(
   // strip trailing slash
   if (url.pathname.endsWith("/")) {
     url.pathname = url.pathname.replace(/\/$/, "");
+    shouldRedirect = true;
+  }
+
+  // Coding4GaiAma
+  if (url.pathname.startsWith("/en/roadmap")) {
+    url.pathname = "/en/todos";
     shouldRedirect = true;
   }
 
