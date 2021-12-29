@@ -226,7 +226,7 @@ const TodoList = ({ todos }: ITodoProps) =>
                       size="1.1rem"
                       title="GitHub Logo"
                     />{" "}
-                    {todo.file}
+                    {todo.file}#L{todo.line}
                   </a>
                 </div>
               </li>
