@@ -2,7 +2,8 @@ export const NewsletterForm = () => {
   return (
     <div id="revue-embed">
       <h2 className="text-2xl dark:text-zinc-100">
-        Follow the progress of this site
+        Follow my coding journey, developing this digital garden, learning new
+        thinks and sharing my favorite links of the week - no spam promised 🤝
       </h2>
 
       <form
