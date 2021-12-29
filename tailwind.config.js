@@ -30,6 +30,53 @@ const notFirst = plugin(({ addVariant, e }) => {
   });
 });
 
+/** @type {import('tailwindcss/plugin')} */
+const externalLink = plugin(({ addComponents }) => {
+  addComponents({
+    ".with-icon-left > i": {
+      marginLeft: "0.3rem",
+      marginRight: "0.5rem",
+    },
+    ".with-icon-right > i": {
+      marginLeft: "0.5rem",
+      marginRight: "0.3rem",
+    },
+    // code by https://css.gg/external
+    ".gg-external": {
+      boxSizing: "border-box",
+      position: "relative",
+      display: "inline-block",
+      transform: "scale(var(--ggs,1))",
+      width: "12px",
+      height: "12px",
+      boxShadow: "-2px 2px 0 0,-4px -4px 0 -2px,4px 4px 0 -2px",
+      marginLeft: "-2px",
+      marginTop: "1px",
+      "&:before,&:after": {
+        content: `""`,
+        display: "block",
+        boxSizing: "border-box",
+        position: "absolute",
+        right: "-4px",
+      },
+      "&:before": {
+        background: "currentColor",
+        transform: "rotate(-45deg)",
+        width: "12px",
+        height: "2px",
+        top: "1px",
+      },
+      "&:after": {
+        width: "8px",
+        height: "8px",
+        borderRight: "2px solid",
+        borderTop: "2px solid",
+        top: "-4px",
+      },
+    },
+  });
+});
+
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
   content: ["./{app,content}/**/*.{ts,tsx}"],
@@ -42,6 +89,7 @@ module.exports = {
     require("@tailwindcss/aspect-ratio"),
     require("@tailwindcss/line-clamp"),
     notFirst,
+    externalLink,
   ],
   theme: {
     // screens: {
