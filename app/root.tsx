@@ -246,8 +246,7 @@ function Layout({
       </div>
       <header className="py-9 lg:py-12 print:hidden">
         <div className="lg:max-w-3xl mx-auto md:flex item-center justify-between dark:text-zinc-400">
-          <Link to="/" title={domain} className="flex items-center">
-            {/* <RemixLogo /> */}
+          <Link to={`/${lang}`} title={domain} className="flex items-center">
             <h2 className="text-2xl">Can Rau</h2>{" "}
             <span
               title="Work-in-Progress"
