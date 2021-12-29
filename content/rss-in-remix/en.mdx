@@ -22,6 +22,7 @@ published_at:
   - https://discord.com/channels/770287896669978684/859547103780929547/921901894379659274
   - https://remix.guide/resources/zkupQNOThXKg
   - https://gist.github.com/andrelandgraf/0112631dcdf6640e4bd44360d3e7a08e#gistcomment-4007674
+  - https://github.com/edmundhung/remix-guide/pull/9
 ---
 
 export { default as cover } from "./cover_rss-in-remix_s.png";
@@ -610,6 +611,8 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 This is the most basic sitemap, though actually even `<lastmod>` is optional. At [sitemaps.org](https://www.sitemaps.org/protocol.html) you'll find the full specification and at [Build and submit a sitemap (by Google)](https://developers.google.com/search/docs/advanced/sitemaps/build-sitemap#extensions) you'll find info on all available extensions to include images and videos as well as News Feed items and in generall all the exact requirements and how to submit it.
 
 Example result at [/en/sitemap.xml](/en/sitemap.xml)
+
+[Kent](https://twitter.com/kentcdodds) is doing it pretty similar [on his website](https://github.com/kentcdodds/kentcdodds.com/blob/main/app/other-routes.server.ts#L10).
 
 ## All mentioned links
 
