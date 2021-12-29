@@ -481,10 +481,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:17.0.2":
-  version: 17.0.2
-  resolution: "@types/node@npm:17.0.2"
-  checksum: a827d2542ef7adba5c79ba7f85b7c2ba8256d317bd99d77ed7af237cfebae0034dff5c4182e1845e6fbef29ae4c78186c4b4a7dbf236037a04120783aa30ba74
+"@types/node@npm:17.0.5":
+  version: 17.0.5
+  resolution: "@types/node@npm:17.0.5"
+  checksum: 105535e78722515c26cfdc1b0cbf1b19f55fe53b814e2e90d8b1e653bc63136d4760c7efc102eca111c6d124a291e37d60d761d569a3f4afb3fba05bad5d9ade
   languageName: node
   linkType: hard
 
@@ -532,7 +532,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:17.0.37":
+"@types/react@npm:*":
   version: 17.0.37
   resolution: "@types/react@npm:17.0.37"
   dependencies:
@@ -540,6 +540,17 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: e68b0d59aa69577fc6a6d654b25d5d8408625498f4c483f160b557fac21e840f6e8807cbde93e9f039949b6d624a019b1990d18499c1d65aecf3605c25e30242
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:17.0.38":
+  version: 17.0.38
+  resolution: "@types/react@npm:17.0.38"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": "*"
+    csstype: ^3.0.2
+  checksum: 4079f4f959cd4a4bfaeda8b89fe8a1b1f8bdc9d87acfdc5f74a0b39cec9ec6a470724357c62778c0f063180b360c250e920c5a142f1dbcda67d9cc25a6d43a85
   languageName: node
   linkType: hard
 
@@ -566,10 +577,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/tailwindcss@npm:2.2.4":
-  version: 2.2.4
-  resolution: "@types/tailwindcss@npm:2.2.4"
-  checksum: 024fb3cfc63164390db9a1d10f4bd65c06a280f115394106dc5085db5fef9a0679c3cc45ec1196c79aaa3b45cedab101ac49767b409eb49b0ee9e16dd6aed3e7
+"@types/tailwindcss@npm:3.0.0":
+  version: 3.0.0
+  resolution: "@types/tailwindcss@npm:3.0.0"
+  checksum: b41c86137b6fa1d0a129748586c13e8a33e26c6e2d975770a19c26397203a72da53a604773153f7fa2b8c2da8f6dbf2f532ce41fb82787433965f7e3944ef934
   languageName: node
   linkType: hard
 
@@ -1563,7 +1574,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:2.27.0, date-fns@npm:^2.16.1":
+"date-fns@npm:2.28.0":
+  version: 2.28.0
+  resolution: "date-fns@npm:2.28.0"
+  checksum: a0516b2e4f99b8bffc6cc5193349f185f195398385bdcaf07f17c2c4a24473c99d933eb0018be4142a86a6d46cb0b06be6440ad874f15e795acbedd6fd727a1f
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^2.16.1":
   version: 2.27.0
   resolution: "date-fns@npm:2.27.0"
   checksum: db62036b3816eb0322c9532b353beac7f660a91e1a55dbd21c14893c621ebb8509f21c66ba287844dabd34dee0207edd54a9537bce6bb7cab9383dedc6b8bc90
@@ -6172,16 +6190,16 @@ __metadata:
     "@tailwindcss/line-clamp": 0.3.0
     "@tailwindcss/typography": 0.5.0
     "@types/mdx": 2.0.1
-    "@types/node": 17.0.2
-    "@types/react": 17.0.37
+    "@types/node": 17.0.5
+    "@types/react": 17.0.38
     "@types/react-dom": 17.0.11
-    "@types/tailwindcss": 2.2.4
+    "@types/tailwindcss": 3.0.0
     autolinker: 3.14.3
     autoprefixer: 10.4.0
     clsx: 1.1.1
     concurrently: 6.5.1
     cssnano: 5.0.14
-    date-fns: 2.27.0
+    date-fns: 2.28.0
     dotenv: 10.0.0
     esbuild: 0.13.15
     estree-util-is-identifier-name: 2.0.0
@@ -6214,8 +6232,8 @@ __metadata:
     remark-mdx-images: 1.0.3
     remark-toc: 8.0.1
     remix: 1.1.1
-    remix-utils: 2.2.0
-    tailwindcss: 3.0.7
+    remix-utils: 2.3.0
+    tailwindcss: 3.0.8
     tiny-invariant: 1.2.0
     typescript: 4.5.4
     unified: 10.1.1
@@ -6224,9 +6242,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"remix-utils@npm:2.2.0":
-  version: 2.2.0
-  resolution: "remix-utils@npm:2.2.0"
+"remix-utils@npm:2.3.0":
+  version: 2.3.0
+  resolution: "remix-utils@npm:2.3.0"
   dependencies:
     type-fest: ^2.5.2
     uuid: ^8.3.2
@@ -6234,7 +6252,7 @@ __metadata:
     "@remix-run/react": ^1.1.1
     "@remix-run/server-runtime": ^1.1.1
     react: ^17.0.2
-  checksum: 8d73ee2ac50082e9bc00628d0d2292b7905035e6af42094c18cde15e9b7b148acd2bb9f627d3e6f054054280587e8276b5b23bee45030818eb6aeca95e202482
+  checksum: 1828e51ab8414a2d3c268860fe72b47a3a1d11aefcf35e78f73ba3d4dd6216bd5654535d7ee56b695edbed342b245307ed20a746e2d9d0770a078009ff81b849
   languageName: node
   linkType: hard
 
@@ -6784,9 +6802,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:3.0.7":
-  version: 3.0.7
-  resolution: "tailwindcss@npm:3.0.7"
+"tailwindcss@npm:3.0.8":
+  version: 3.0.8
+  resolution: "tailwindcss@npm:3.0.8"
   dependencies:
     arg: ^5.0.1
     chalk: ^4.1.2
@@ -6815,7 +6833,7 @@ __metadata:
   bin:
     tailwind: lib/cli.js
     tailwindcss: lib/cli.js
-  checksum: 0b33d7c6a0860fae22bce9efbbd990ac635e1fc1a616eaca9ca5e7d3ed78c6efed5ca10ebcc186289cf731ece0769329eef715ca2cb641134550780e6ae39b39
+  checksum: 7a3215e2d9e121d5cf465cede3204c02740792659200e87b0c0344fea3092415581eedf0ccf70e79bc9270396a8aac9e049566e372f10ce646e15e196273e35e
   languageName: node
   linkType: hard
 
