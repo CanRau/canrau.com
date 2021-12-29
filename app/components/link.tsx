@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
-import { Link as RemixLink, type RemixLinkProps } from "remix";
+import { Link as RemixLink } from "remix";
+import { type RemixLinkProps } from "@remix-run/react/components";
 import isAbsolute from "is-absolute-url";
 
 // from coding4.gaiama
