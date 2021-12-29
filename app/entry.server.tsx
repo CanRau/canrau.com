@@ -1,5 +1,6 @@
 import { renderToString } from "react-dom/server";
 import { createCookie, RemixServer, redirect, type EntryContext } from "remix";
+import { domain } from "/config";
 // import { generateStyles } from "~/generate-styles.server";
 // const cachedStyles: Record<string, boolean> = {};
 const isProd = process.env.NODE_ENV === "production";
@@ -39,6 +40,12 @@ export default async function handleRequest(
     url.pathname.startsWith("/wp-admin")
   ) {
     return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ", 307);
+  }
+
+  if (url.host === "coding4.gaiama.org") {
+    url.host = domain.toLowerCase();
+    console.log(">>>>>>>>>>>>> Coding4GaiAma", request.url, url.toString());
+    return redirect(url.toString(), { headers, status: 301 });
   }
 
   // redirect to https:
