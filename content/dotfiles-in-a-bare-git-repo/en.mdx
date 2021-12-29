@@ -1,0 +1,92 @@
+---
+status: draft
+slug: /dotfiles-in-a-bare-git-repo
+lang: en
+hydrate: false
+title: dotfiles in a bare git repo
+description: Query all repository files using GitHub's GraphQL API and gatsby-source-graphql
+created: 2020-02-05T20:00:00 -5
+updated: 2020-02-05T16:49:00 -5
+published: 2020-02-05T22:04:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+tags:
+  - git
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+# {frontmatter.title}
+
+While finally trying to find a more convenient way to handle my dotfiles I stumbled upon the video [Git Bare Repository - A Better Way To Manage Dotfiles
+](https://www.youtube.com/watch?v=tBoLDpTWVOM) by DistroTube which is based on an [Atlassian tutorial](https://www.atlassian.com/git/tutorials/dotfiles).
+
+Before that I was almost about to give gnu stow a try, but I must say the bare repo feels kinda better to me than symlinking. In addition to that I learned interesting git stuff along the way. Especially using a bare repo like this 🤩
+
+I'm tracking the steps I did for future reference and possibly others. Actually especially myself as I just realized I don't even remember how and when I installed the Go CLI, that happens way to often without documentation 😅
+
+## Get Started
+
+The Atlassian tutorial suggests the following
+
+```bash
+git init --bare $HOME/.cfg
+alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+config config --local status.showUntrackedFiles no
+echo "alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'" >> $HOME/.bashrc
+```
+
+I store my dotfiles in `$HOME/.dotfiles`, skipped steps 2 & 3 and stored my alias manually in my [aliases] file and named it `dotfiles`.
+
+After that I ran the `zsh` command to re-start it and make the aliases work right away.
+
+Also I added more [aliases][aliases] as needed.
+
+## iTerm setting to use
+
+1. Open Preferences ||cmd+,||
+2. General -> Preferences
+3. Select the dotfiles iTerm directory
+4. Check "Save changes to folder when iTerm2 quits"
+
+My only issue right now is that `dotfiles add` won't auto-complete file/path names 🙁
+I googled around yet sadly none of the "solutions" worked. [^completions]
+
+My current [dotfiles](https://github.com/CanRau/dotfiles) situation is still not exactly where I want it to be, but I'm happy I finally updated and therefore backuped some config files.
+
+I'm super in love with [Karabiner Elements](https://pqrs.org/osx/karabiner/) which was the main driver to update them 😃
+
+Still missing are install scripts for apps, homebrew, macOS settings etc. I have them but not yet in the repo, I'll update this post when I update my dotfiles.
+
+## Useful dotfile Links
+
+- [dotfiles.github.io/inspiration](https://dotfiles.github.io/inspiration/) - List of peoples dotfiles repos [[page source](https://github.com/dotfiles/dotfiles.github.com)]
+- [yadr](https://github.com/skwp/dotfiles) - Yet Another Dotfile Repo v1.1, Now with Prezto and Vundle!
+- [macOS bot](https://github.com/atomantic/dotfiles) - Automated Configuration, Preferences and Software Installation for macOS
+- [Managing your dotfiles](https://www.reddit.com/r/commandline/comments/3cw2w5/managing_your_dotfiles/) - in Subreddit /r/commandline
+
+## Alternatives
+
+- [gnu stow](https://www.gnu.org/software/stow/) - A general purpose symlink farm manager
+- [Manage Your Dotfiles With Style!](https://www.youtube.com/watch?v=MJBVA4LeJKA) - How to use gnu stow
+- [homeshick](https://github.com/andsens/homeshick) - git dotfiles synchronizer written in bash
+- [dotfiles.github.io/utilities](https://dotfiles.github.io/utilities/) - extensive list of dotfile utilities
+
+[^completions]:
+
+Solutions I tried to get file/path name auto completion to work with my custom git alias
+
+- [Git completion with aliases](https://superuser.com/a/445491/817900)
+- [Tab completion for aliased sub commands in zsh: alias gco='git checkout'](https://stackoverflow.com/a/20643204/3484824)
+- [Git completion not working in zsh on OS X Yosemite with Homebrew](https://stackoverflow.com/a/26479426/3484824)
+- [Git tab completion not working in zsh on mac](https://stackoverflow.com/questions/24513873/git-tab-completion-not-working-in-zsh-on-mac)
+- [zsh path/file name completion on -file= arguments](https://unix.stackexchange.com/a/333543)
+- [oh-my-zsh style completion for directory/file paths without oh my zsh](https://unix.stackexchange.com/a/168745)
+- [How to force filename completion under oh-my-zsh?](https://stackoverflow.com/a/33191364/3484824)
+
+[aliases]: https://github.com/CanRau/dotfiles/blob/master/.shellrc/rc.d/aliases.sh#L28

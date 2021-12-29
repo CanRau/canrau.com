@@ -1,0 +1,568 @@
+---
+status: draft
+type: post
+title: Using ReasonML in GatsbyJS along JavaScript
+# title: ReasonML & Render Props for type safe Logic while keeping Non-Reason Styling solution
+layout: Article
+date: 2020-04-12
+author: can
+description:
+showTableOfContents: false
+tags:
+  - ReasonML
+  - ReasonReact
+  - GatsbyJS
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+For weeks I'm romanticizing ReasonML but didn't find an opportunity so far to actually try it out 😭
+
+I started working on the contact form of a new project I'm doing in GatsbyJS, which I started using `useState` hooks but then decided to use `useReducer` for the first time, I started to remember Reason's beautiful [Pattern Matching](https://reasonml.github.io/docs/en/pattern-matching) I couldn't resist any longer 😁
+
+## Before
+
+```js
+/** @jsx jsx */
+import { jsx } from "theme-ui";
+import { useReducer } from "react";
+import isEmail from "validator/es/lib/isEmail";
+import { InputField } from "./input-field";
+
+const initialValue = {
+  status: "idle",
+  errors: {},
+  values: { email: "", message: "", consent: false },
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "touched":
+      return {
+        ...state,
+        status: "touched",
+        values: { ...state.values, ...action.values },
+      };
+    case "submitting":
+      return { ...state, status: "submitting", errors: {} };
+    case "error":
+      return {
+        ...state,
+        status: "error",
+        errors: { ...state.errors, ...action.errors },
+      };
+    // or reset to "idle" ?
+    case "success":
+      return { ...initialValue, status: "success" };
+    default:
+      throw new Error();
+  }
+}
+
+export const ContactForm = () => {
+  const [{ status, values, errors }, dispatch] = useReducer(
+    reducer,
+    initialValue,
+  );
+  const collectErrors = {};
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    dispatch({ type: "submitting" });
+
+    const cleaned = {
+      email: values.email.trim(),
+      message: values.message.trim(),
+    };
+
+    if (!isEmail(cleaned.email)) {
+      collectErrors.email = "Please provide your best e-mail address";
+    }
+
+    if (!cleaned.message) {
+      collectErrors.message = "Please provide a message";
+    } else if (cleaned.message.length < 20) {
+      collectErrors.message = "Please be more specific";
+    }
+
+    if (!values.consent) {
+      collectErrors.consent = "You have to agree to submit";
+    }
+
+    if (Object.keys(collectErrors).length > 0) {
+      dispatch({ type: "error", errors: collectErrors });
+      return;
+    }
+
+    setTimeout(() => {
+      dispatch({ type: "success" });
+    }, 2000);
+  };
+
+  const setEmail = (_, value) => {
+    dispatch({ type: "touched", values: { email: value } });
+  };
+
+  const setMessage = (_, value) => {
+    dispatch({ type: "touched", values: { message: value } });
+  };
+
+  const setConsent = (_, value) => {
+    dispatch({ type: "touched", values: { consent: value } });
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.metaKey && (event.key === "Enter" || event.keyCode === 13)) {
+      handleSubmit(event);
+    }
+  };
+
+  return (
+    <form
+      action=""
+      method="post"
+      key="ContactForm"
+      onSubmit={handleSubmit}
+      onKeyDown={handleKeyDown}
+    >
+      <fieldset disabled={status === "submitting"} sx={{ border: 0 }}>
+        <InputField
+          type="email"
+          label="E-Mail-Address"
+          value={values.email}
+          placeholder="mail@example.com"
+          onChange={setEmail}
+          errorMessage={errors.email}
+          required
+        />
+
+        <InputField
+          type="textarea"
+          label="Message"
+          value={values.message}
+          placeholder="Say hi 👋"
+          onChange={setMessage}
+          errorMessage={errors.message}
+          sx={{ marginTop: "1rem" }}
+          required
+        />
+
+        <InputField
+          type="checkbox"
+          label="I agree to my e-mail address and message being stored and used to review the request Privacy policy"
+          value={values.consent}
+          onChange={setConsent}
+          errorMessage={errors.consent}
+          disabled={status === "submitting"}
+          sx={{ marginTop: "1rem" }}
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={status === "submitting"}
+          sx={{ variant: "buttons.primary", marginTop: "1rem" }}
+        >
+          Submit
+        </button>
+      </fieldset>
+    </form>
+  );
+};
+
+ContactForm.defaultProps = {};
+
+ContactForm.propTypes = {};
+```
+
+## Initial ContactForm.re
+
+I thought I'd "just" write the following in ReasonML and keep the rest in JS.
+
+```re
+type status =
+  | Idle
+  | Touched
+  | Submitting
+  | Success
+  | Error;
+
+type record = {
+  email: string,
+  message: string,
+  consent: bool,
+};
+
+type error = {
+  email: string,
+  message: string,
+  consent: string,
+};
+
+type state = {
+  status,
+  errors: error,
+  values: record,
+};
+
+let initialValue = {
+  status: Idle,
+  errors: {
+    email: "",
+    message: "",
+    consent: "",
+  },
+  values: {
+    email: "",
+    message: "",
+    consent: false,
+  },
+};
+
+type action =
+  | Touched(record)
+  | Submitting
+  | Success
+  | Error(error);
+
+let reducer = (state, action) => {
+  switch (action) {
+  | Touched(values) => {...state, status: Touched, values}
+  | Submitting => {...state, status: Submitting, errors: initialValue.errors}
+  | Error(errors) => {...state, status: Error, errors}
+  | Success => {...initialValue, status: Success} // or reset to "idle" ?
+  };
+};
+
+[@react.component]
+let make = (~children) => {
+  let (state, dispatch) = React.useReducer(reducer, initialValue);
+
+  children({
+    "status": state.status,
+    "values": state.values,
+    "errors": state.errors,
+    "setTouched": x => dispatch(Touched(x)),
+    "setSubmitting": () => dispatch(Submitting),
+    "setSuccess": () => dispatch(Success),
+    "setError": x => dispatch(Error(x)),
+  });
+}
+```
+
+Then I realized that it works, but why not pull all the logic into Reason?! 🧐
+
+```re
+open ReactEvent.Keyboard;
+
+// %bs.raw
+// {|/** @jsx jsx */|};
+// [@bs.module "theme-ui"] external jsx: ReasonReact.createElement => ReasonReact.element = "jsx";
+
+[@bs.module "validator/es/lib/isEmail"]
+external isEmail: string => bool = "default";
+
+// [@bs.val] external setTimeout: (unit => unit, int) => float = "setTimeout"; // original
+[@bs.val] external setTimeout: (unit => unit, int) => unit = "setTimeout"; // used to prevent an error
+
+type status =
+  | Idle
+  | Touched
+  | Submitting
+  | Success
+  | Error;
+
+type record = {
+  email: string,
+  message: string,
+  consent: bool,
+};
+
+type error = {
+  mutable email: string,
+  mutable message: string,
+  mutable consent: string,
+};
+
+type state = {
+  status,
+  errors: error,
+  values: record,
+};
+
+let initialValue = {
+  status: Idle,
+  errors: {
+    email: "",
+    message: "",
+    consent: "",
+  },
+  values: {
+    email: "",
+    message: "",
+    consent: false,
+  },
+};
+
+type action =
+  | Touched(record)
+  // | SetMail(string)
+  // | SetMessage(string)
+  // | SetConsent(bool)
+  | Submitting
+  | Success
+  | Error(error);
+
+let reducer = (state, action) => {
+  switch (action) {
+  | Touched(values) => {...state, status: Touched, values}
+  // | SetMail(email) => {...state, }
+  // | SetMessage(string)
+  // | SetConsent(bool)
+  | Submitting => {...state, status: Submitting, errors: initialValue.errors}
+  | Error(errors) => {...state, status: Error, errors}
+  | Success => {...initialValue, status: Success} // or reset to "idle" ?
+  };
+};
+
+[@react.component]
+let make = (~children) => {
+  let (state, dispatch) = React.useReducer(reducer, initialValue);
+
+  let handleSubmit = event => {
+    ReactEvent.Synthetic.preventDefault(event);
+    let collectErrors = {email: "", message: "", consent: ""};
+
+    dispatch(Submitting);
+
+    let email = Js.String.trim(state.values.email);
+    let message = Js.String.trim(state.values.message);
+
+    if (!isEmail(email)) {
+      collectErrors.email = "Please provide your best e-mail address";
+    };
+
+
+    // let msgLength = String.length(message);
+    // if (msgLength === 0) {
+    //   collectErrors.message = "Please provide a message";
+    // } else if (msgLength < 20) {
+    //   collectErrors.message = "Please be more specific";
+    // };
+
+    switch (String.length(message)) {
+    | 0 => collectErrors.message = "Please provide a message"
+    | (x) when x < 20 => collectErrors.message = "Please be more specific"
+    | x => ignore(x)
+    };
+
+    if (!state.values.consent) {
+      collectErrors.consent = "You have to agree to submit";
+    };
+
+    // Not my best work 😂
+    // showing alternative syntax |> & ->
+    // I'm using the latter in my "real" code
+    // it's in this case a little more concise as it formats nicer
+    // a little bit confusing maybe 🤔, also I don't like this formatting actually 🤷‍♂️
+    if (String.length(collectErrors.email) > 0
+        || collectErrors.message
+        |> String.length > 0
+        || collectErrors.consent->String.length > 0) {
+      dispatch(Error(collectErrors));
+    } else {
+      // Submit logic has yet to come as I'm focusing on UI first
+      setTimeout(() => dispatch(Success), 2000);
+    };
+  };
+
+  let handleKeyDown = event =>
+    if (event->metaKey && (event->key === "Enter" || event->keyCode === 13)) {
+      handleSubmit(event);
+    };
+
+  let status =
+    switch (state.status) {
+    | Idle => "idle"
+    | Touched => "touched"
+    | Submitting => "submitting"
+    | Success => "success"
+    | Error => "error"
+    };
+
+  let props = {
+    "status": status,
+    "values": state.values,
+    "errors": state.errors,
+    "setTouched": x => dispatch(Touched(x)),
+  };
+
+  <form
+    action=""
+    method="post"
+    key="ContactForm"
+    onSubmit=handleSubmit
+    onKeyDown=handleKeyDown>
+    {children(props)}
+  </form>;
+};
+
+let default = make;
+```
+
+Most stuff looks more or less okay I guess. Only thing I'm reeaally not sure but didn't manage to find another solution right away is all the `collectErrors` stuff.
+There's probably, hopefully, better ways I just don't know yet 🙏🤷‍♂️ Once I do, maybe because of nice feedback (via [Twitter](https://twitter.com/CanRau)) I'll come back to improve it.
+
+Uh and I tried to pass more specific helper functions like `setMail` down to `children` but couldn't get it working so far.
+
+## JS file just for styling purpose
+
+I'm using [Theme-UI](https://theme-ui.com/) but have no idea so far how to use it in ReasonML or if it's even doable without messing too much as it brings its
+
+```js
+/** @jsx jsx */
+import { jsx } from "theme-ui";
+// import PropTypes from "prop-types";
+import { InputField } from "components/input-field.js";
+import { make as ContactFormLogic } from "components/ContactForm.bs.js";
+
+export const ContactForm = () => (
+  <ContactFormLogic>
+    {({ status, values, errors, setTouched }) => (
+      <fieldset disabled={status === "submitting"} sx={{ border: 0 }}>
+        <InputField
+          type="email"
+          label="E-Mail-Address"
+          value={values.email}
+          placeholder="mail@example.com"
+          onChange={(_, value) => setTouched({ ...values, email: value })}
+          errorMessage={errors.email}
+          required
+        />
+
+        <InputField
+          type="textarea"
+          label="Message"
+          value={values.message}
+          placeholder="Say hi 👋"
+          onChange={(_, value) => setTouched({ ...values, message: value })}
+          errorMessage={errors.message}
+          sx={{ marginTop: "1rem" }}
+          required
+        />
+
+        <InputField
+          type="checkbox"
+          label="I agree to my e-mail address and message being stored and used to review the request Privacy policy"
+          value={values.consent}
+          onChange={(_, value) => setTouched({ ...values, consent: value })}
+          errorMessage={errors.consent}
+          disabled={status === "submitting"}
+          sx={{ marginTop: "1rem" }}
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={status === "submitting"}
+          sx={{ variant: "buttons.primary", marginTop: "1rem" }}
+        >
+          Submit
+        </button>
+      </fieldset>
+    )}
+  </ContactFormLogic>
+);
+
+ContactForm.defaultProps = {};
+
+ContactForm.propTypes = {};
+```
+
+## How I do ReasonML in GatsbyJS
+
+I started with the help [gatsby-plugin-reason](https://github.com/jtberglund/gatsby-plugin-reason) only to discover it's pretty outdated and `bs-loader` is not even recommended anymore.
+Took me a while to figure this out though while trying to understand why nothing was working^^
+
+### Installing ReasonML & ReasonReact in an existing GatsbyJS project
+
+```sh
+yarn install reason-react && yarn install -D bs-plattform
+```
+
+> I'm on reason-react@0.7.0 & bs-platform@7.2.2
+
+```json tite=bsconfig.json
+{
+  "name": "PACKAGE_NAME",
+  "reason": { "react-jsx": 3 },
+  "bsc-flags": ["-bs-super-errors"],
+  "sources": [
+    {
+      "dir": "src",
+      "subdirs": true
+    }
+  ],
+  "package-specs": [
+    {
+      "module": "es6",
+      "in-source": true
+    }
+  ],
+  "suffix": ".bs.js",
+  "namespace": true,
+  "bs-dependencies": ["reason-react"],
+  "ppx-flags": [],
+  "refmt": 3
+}
+```
+
+```json title=package.json
+{
+  "scripts": {
+    "re:build": "bsb -make-world -clean-world",
+    "re:start": "bsb -make-world -clean-world -w",
+    "re:clean": "bsb -clean-world"
+  }
+}
+```
+
+That's actually it.
+
+## Pretty useful links
+
+### Official
+
+- [ReasonML website](https://reasonml.github.io/)
+- [ReasonReact website](https://reasonml.github.io/reason-react/)
+- [BuckleScript website](https://bucklescript.github.io/)
+- [Reason Discord](https://reasonml.chat/)
+
+### By Dr. Axel Rauschmayer ([@rauschma](https://twitter.com/rauschma))
+
+- [Pattern matching in ReasonML: destructuring, switch, if expressions](https://2ality.com/2017/12/pattern-matching-reasonml.html)
+- [ReasonML: records](https://2ality.com/2018/01/records-reasonml.html)
+- [Archive of all #ReasonML articles](https://2ality.com/archive.html#tags=reasonml)
+
+### By others ^^
+
+- [Reason Testing Library](https://testing-library.com/docs/bs-react-testing-library/intro)
+- [The BuckleScript Cookbook](https://github.com/glennsl/bucklescript-cookbook) — by glennsl
+- [Gist explaingin pipe-first (->) vs pipe-last (|>)](https://gist.github.com/ryuheechul/c8b74cace8b2ae4a87c3b553b7759529#file-pipe-first-md) — by Heechul Ryu ([@ryuheechul](http://twitter.com/ryuheechul)) found in [Reason Discord](https://reasonml.chat/t/a-simple-note-on-pipe-first-and-pipe-last/2301)
+- [Data-first and data-last: a comparison](https://www.javierchavarri.com/data-first-and-data-last-a-comparison/) (mentioned in the former Gist) — by Javier Chávarri ([@javierwchavarri](https://twitter.com/javierwchavarri/))
+- [Best convention/style for pattern matching](https://reasonml.chat/t/best-convention-style-for-pattern-matching/864) topic in Reason's Discord
+- [ReasonML for production React Apps? 🤔 (Part 1)](https://dev.to/seif_ghezala/reasonml-for-production-react-apps-part-1-3nfk) — by Seif Ghezala ([@seif_ghezala](https://twitter.com/seif_ghezala))
+- [Higher Order Function signature](https://reasonml.chat/t/higher-order-function-signature/1570) in Reason Discord
+- [Exploring Bucklescript’s Interop with JavaScript (in Reason)](https://medium.com/@davidgomes/exploring-bucklescripts-interop-with-javascript-in-reason-a00ad3e6d81b) Somewhat old but still valuable — by David Gomes ([@Munchor](https://twitter.com/Munchor))
+- [Learning ReasonReact Step by Step Part: 4](https://www.rockyourcode.com/learning-reason-react-step-by-step-part-4/) — by rockyourcode.com
+- [ReasonReact + useReducer hooks](https://gist.github.com/ryyppy/e7a74889cc1b1c2c7754d3909a525d5c) — Gist by Patrick Stapfer ([@ryyppy](https://twitter.com/ryyppy))
+- [reason-hooks-lib](https://github.com/beizhedenglong/reason-hooks-lib) as inspiration — by Victor Wang ([@HelloVictorWang](https://twitter.com/HelloVictorWang))
+- [Use ReasonMLs Variant & Record types with ReasonReact's useReducer hook to Manage State](https://egghead.io/lessons/reason-use-reasonmls-variant-record-types-with-reasonreact-s-usereducer-hook-to-manage-state) — by Thomas Greco ([@tgrecojs](https://twitter.com/tgrecojs)) on egghead.io
+- [ReasonML with React Hooks Tutorial — Building a Pomodoro Timer](https://dev.to/iwilsonq/reasonml-with-react-hooks-tutorial-building-a-pomodoro-timer-57h0) — by Ian Wilson ([@iwilsonq](https://twitter.com/iwilsonq))
+- [ReasonML PPX](https://blog.hackages.io/reasonml-ppx-8ecd663d5640) — by Grégoire Vda ([@gregoirevda](https://twitter.com/gregoirevda))
+- [Vanilla JSX in Reason](https://reasonml.chat/t/vanilla-jsx-in-reason/1865/7) in Reason Discord
+- [TDD A REASONML FUNCTION](https://jaketrent.com/post/tdd-reasonml-function/) — by Jake Trent ([@jaketrent](https://twitter.com/jaketrent))
+- [Next.js, but in ReasonML and Bucklescript!](https://github.com/mrmurphy/reason-nextjs) if you're using NextJS — by Murphy Randle
+- [re-tailwind](https://github.com/phthhieu/re-tailwind) — by Hieu Pham ([@phthhieu](https://twitter.com/phthhieu/))

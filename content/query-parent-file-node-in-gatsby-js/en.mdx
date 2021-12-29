@@ -1,0 +1,54 @@
+---
+status: published
+slug: /query-parent-file-node-in-gatsby-js
+lang: en
+hydrate: false
+title: Query parent File node in GatsbyJS
+description: Accessing file informations from Markdown/MDX nodes using GraphQL's inline fragments
+created: 2019-05-06T20:00:00 -5
+updated: 2019-05-06T16:49:00 -5
+published: 2019-05-06T22:04:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+  - https://twitter.com/Coding4GaiAma/status/1213525820662321152
+tags:
+  - graphql
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+# {frontmatter.title}
+
+{/* fixme: get line highlighting working */}
+
+```graphql{7-10}
+{
+  mdx {
+    frontmatter {
+      title
+    }
+    parent {
+      ... on File {
+        relativePath
+        changeTime
+      }
+    }
+  }
+}
+```
+
+When querying a Markdown/MDX node in GatsbyJS I always wondered how to get information of the parent file and why only `file.absolutePath` has been included as `mdx.fileAbsolutePath`. Then one day I came across some GraphQL magic I didn't fully understand and sadly couldn't remember nor find again. 😅
+
+That's the main reason for this post. It serves as a note to myself and hopefully serves others as well as I think it's quite usefull.
+
+Thanks to a [video about the new Facebook.com](https://developers.facebook.com/videos/2019/building-the-new-facebookcom-with-react-graphql-and-relay/) using GraphQL and [Relay](https://facebook.github.io/relay/) which showed **inline fragments**, leading me to the right syntax 🙏. By the way, I found the video pretty informative to watch including cool techniques to build a more accessible and user friendly web.
+
+Why has only `absolutePath` been added to the md/mdx node?  
+I think it's for filtering, because AFAIK you can't use the inline fragment syntax in filters.
+
+More about inline fragments in the [GraphQL Docs](https://graphql.org/learn/queries/#inline-fragments).

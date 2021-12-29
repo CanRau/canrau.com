@@ -1,0 +1,53 @@
+---
+status: published
+slug: /css-only-fluid-typography
+lang: en
+hydrate: false
+title: CSS-Only Fluid Typography
+description: Responsive font-size using vw (viewport width), calc() and media queries to set boundaries
+created: 2019-05-03T20:00:00 -5
+updated: 2019-05-03T16:49:00 -5
+published: 2019-05-03T22:04:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+  - https://twitter.com/Coding4GaiAma/status/1213522630768238598
+tags:
+  - css
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+# {frontmatter.title}
+
+> Update 2020-01-04 Currently not re-implemented after moving to Theme UI
+
+Just came across this awesome piece of CSS by [madebymike.com](https://www.madebymike.com.au/writing/fluid-type-calc-examples/)
+
+```css{7}
+:root {
+  font-size: 0.875rem;
+}
+
+@media screen and (min-width: 20rem) {
+  :root {
+    font-size: calc(0.875rem + 0.5 * ((100vw - 20rem) / 60));
+  }
+}
+
+@media screen and (min-width: 80rem) {
+  :root {
+    font-size: 1.1rem;
+  }
+}
+```
+
+Line 7 is where all the magic happens. 🦄
+The rest ensure minimum and maximum sizes so it won't shrink or grow infinitely.
+
+I'm using this exact piece of CSS on this page, so please let me know if you encounter any font-size related issues.
+Hopefully you can read this note 🤞

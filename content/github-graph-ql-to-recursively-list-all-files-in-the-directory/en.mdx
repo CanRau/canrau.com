@@ -1,0 +1,63 @@
+---
+status: published
+slug: /github-graph-ql-to-recursively-list-all-files-in-the-directory
+lang: en
+hydrate: false
+title: Github GraphQL to recursively list all files in the directory
+description: Query all repository files using GitHub's GraphQL API and gatsby-source-graphql
+created: 2019-05-04T20:00:00 -5
+updated: 2019-05-04T16:49:00 -5
+published: 2019-05-04T22:04:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+  - https://twitter.com/Coding4GaiAma/status/1213522784535633920
+shortSlug: query-all-github-files
+tags:
+  - graphql
+  - gatsbyjs
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+# {frontmatter.title}
+
+Thanks to this amazing SO (StackOverflow) [answer to the question "Github GraphQL to recursively list all files in the directory"](https://stackoverflow.com/a/46683303/3484824) I finally got my query working 😃
+
+The query works only using the [gatsby-source-graphql](https://www.gatsbyjs.org/packages/gatsby-source-graphql/) plugin.  
+If you want to use it outside Gatsby remove the `GitHub_` prefixes so it becomes `GitObjectID`, `Tree` and `Blob`, haven't tested it elsewhere though.
+
+```graphql
+query ($branch: GitHub_GitObjectID) {
+  github {
+    viewer {
+      repository(name: "Coding4GaiAma") {
+        name
+        object(expression: "master:", oid: $branch) {
+          ... on GitHub_Tree {
+            entries {
+              name
+              object {
+                ... on GitHub_Blob {
+                  text
+                }
+              }
+            }
+          }
+        }
+        issues(first: 10, filterBy: { states: OPEN }) {
+          nodes {
+            title
+            url
+            bodyText
+          }
+        }
+      }
+    }
+  }
+}
+```

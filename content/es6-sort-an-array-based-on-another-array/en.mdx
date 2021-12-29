@@ -1,0 +1,117 @@
+---
+status: published
+slug: /es6-sort-an-array-based-on-another-array
+lang: en
+hydrate: false
+title: "ES6: Sort an array based on another array"
+description: Sorting an array of numbers & an array of objects based on another array of numbers/strings in JavaScript.
+created: 2020-02-03T20:00:00 -5
+updated: 2020-02-29T16:49:00 -5
+published: 2020-02-03T22:04:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+  - https://twitter.com/Coding4GaiAma/status/1224487877498806272
+  - https://stackoverflow.com/a/60467584
+coverBackground: ./assets/84550542_2906342339423403_8541808304386273208_n.jpg
+tags:
+  - javascript
+  - es6
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+# {frontmatter.title}
+
+## Table of contents
+
+## Array of Numbers
+
+This is more to show the basic idea
+
+```js size=content
+const array = [1, 2, 3, 4, 5];
+const sortArray = [3, 5, 2, 4, 1];
+
+const arrayMap = array.reduce(
+  (accumulator, currentValue) => ({
+    ...accumulator,
+    [currentValue]: currentValue,
+  }),
+  {},
+);
+
+const result = sortArray.map((key) => arrayMap[key]);
+// [3, 5, 2, 4, 1]
+```
+
+## Array of Strings
+
+This is actually the same, only changing both inputs. Just to show possibilities 😉
+
+```js size=content
+const array = ["jackfruit", "pineapple", "papaya", "watermelon", "banana"];
+const sortArray = ["papaya", "banana", "pineapple", "watermelon", "jackfruit"];
+
+const arrayMap = array.reduce(
+  (accumulator, currentValue) => ({
+    ...accumulator,
+    [currentValue]: currentValue,
+  }),
+  {},
+);
+
+const result = sortArray.map((key) => arrayMap[key]);
+// ['papaya', 'banana', 'pineapple', 'watermelon', 'jackfruit']
+```
+
+## Array of Objects
+
+That's the case I needed it for and am using it to sort the `TODO` comments on the [Roadmap page](/en/roadmap).
+
+It's almost the same, note how only the key `[currentValue.key]` differs and has to be present in the array objects.
+
+```js size=content
+const array = [
+  { key: "banana", value: "A curved yellow fruit" },
+  { key: "pineapple", value: "That sour-sweet thing wearing a crown" },
+  { key: "durian", value: "The smelly king of fruits" },
+];
+const sortArray = ["pineapple", "durian", "banana"];
+
+const arrayMap = array.reduce(
+  (accumulator, currentValue) => ({
+    ...accumulator,
+    [currentValue.key]: currentValue,
+  }),
+  {},
+);
+
+const result = sortArray.map((key) => arrayMap[key]);
+// [
+//   { key: 'pineapple', value: 'That sour-sweet thing wearing a crown' },
+//   { key: 'durian', value: 'The smelly king of fruits' },
+//   { key: 'banana', value: 'A curved yellow fruit'}
+// ]
+```
+
+{/* render(<Result result={result} />) */}
+
+Here's the relevant code on GitHub [Roadmap.js#L48], [Roadmap.js#L63-L64] and the nav [Roadmap.js#L111]
+
+## Alternatives
+
+Check out this exhaustive article on StackOverflow showing loads of alternatives 📚 [Javascript - sort array based on another array](https://stackoverflow.com/questions/13304543/javascript-sort-array-based-on-another-array). Theres a similar one [using Map](https://stackoverflow.com/a/53084399/3484824).
+
+## Related reads
+
+- [wikipedia../Metasyntactic_variable](https://en.wikipedia.org/wiki/Metasyntactic_variable)
+- [catb.org../jargon/../foo](http://www.catb.org/~esr/jargon/html/F/foo.html)
+
+[roadmap.js#l48]: https://github.com/GaiAma/Coding4GaiAma/blob/master/sites/coding4.gaiama.org/src/templates/Roadmap.js#L48
+[roadmap.js#l63-l64]: https://github.com/GaiAma/Coding4GaiAma/blob/master/sites/coding4.gaiama.org/src/templates/Roadmap.js#L63-L64
+[roadmap.js#l111]: https://github.com/GaiAma/Coding4GaiAma/blob/master/sites/coding4.gaiama.org/src/templates/Roadmap.js#L111

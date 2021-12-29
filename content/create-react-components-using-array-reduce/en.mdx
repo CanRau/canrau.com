@@ -1,0 +1,44 @@
+---
+status: draft
+slug: /create-react-components-using-array-reduce
+lang: en
+hydrate: false
+title: Create React Components using Array.reduce
+description: Use Array.reduce to generate multiple similar React components like headings
+created: 2019-05-02T20:00:00 -5
+updated: 2019-05-02T16:49:00 -5
+published: 2019-05-02T22:04:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+tags:
+  - reactjs
+shortSlug: create-react-components-using-reduce
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+# {frontmatter.title}
+
+```js
+const elements = [
+  [`h1`, ``],
+  [`h2`, ``],
+  [`h3`, ``],
+  [`h4`, ``],
+  [`h5`, ``],
+  [`h6`, ``],
+].reduce(
+  (acc, [Tag, classes]) => ({
+    ...acc,
+    [Tag]: (props) => (
+      <Tag {...(classes ? { className: classes } : {})} {...props} />
+    ),
+  }),
+  {},
+);
+```

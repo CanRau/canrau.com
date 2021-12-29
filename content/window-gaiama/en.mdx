@@ -1,0 +1,52 @@
+---
+status: published
+slug: /window-gaiama
+lang: en
+hydrate: false
+title: window.GaiAma
+description: A little easter egg exposing internals/meta data via the console for enthusiasts 🤓
+created: 2020-01-30T20:00:00 -5
+updated: 2020-01-30T16:49:00 -5
+published: 2020-01-30T22:04:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+  - https://twitter.com/Coding4GaiAma/status/1222987656356859904
+  - https://www.reddit.com/r/gatsbyjs/comments/ewg90x/little_nerdy_easter_egg_on_my_fairly_new_coding/
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+# {frontmatter.title}
+
+This website exposes `window.GaiAma` accessible via the console. It's not really anything useful (yet 🤔) but I kinda liked the idea to share some internals/meta data.
+
+Most interesting right now, I think, is the `ThemeUI` object, containing data from `useThemeUI` hook, it even let's you change the color mode via `window.GaiAma.ThemeUI.setColorMode()` 😁 and `perf` providing some performance metrics.
+
+By the way, the console is worth a look anyway 😎
+
+I used to define almost all of those via [gatsby-browser.js] until I came across the SSR hook `onRenderBody` which lets me predefine `window.GaiAma` at build time so I don't have to always
+
+```js
+window.GaiAma = {
+  ...window.GaiAma,
+  foo: "bar",
+};
+```
+
+Now I can just attach whatever data from wherever I want to the already existing object like in the [layout file]
+
+Now I just spoiled my little easter egg 😅
+
+I think I'll add more data to it, now that I'm writing about it, why isn't it already sharing stuff like Gatsby and other dependency versions etc 🧐😅 Couldn't help myself, so this paragraph is already obsolete 😎.
+
+Uh and if you've wondered what that weird mess at the top of [gatsby-browser.js] is all about, check out [babel-plugin-preval] by [Kent C. Dodds]. It's a nifty little babel plugin which "Pre-evaluate code at build-time" as the the repo description states correctly.
+
+[gatsby-browser.js]: https://github.com/GaiAma/Coding4GaiAma/blob/master/sites/coding4.gaiama.org/gatsby-browser.js
+[layout file]: https://github.com/GaiAma/Coding4GaiAma/blob/master/sites/coding4.gaiama.org/src/layouts/index.js#L27
+[babel-plugin-preval]: https://github.com/kentcdodds/babel-plugin-preval
+[kent c. dodds]: https://twitter.com/kentcdodds

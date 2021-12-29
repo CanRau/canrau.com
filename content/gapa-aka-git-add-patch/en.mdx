@@ -1,0 +1,239 @@
+---
+status: published
+slug: /gapa-aka-git-add-patch
+lang: en
+hydrate: false
+title: gapa - aka git add --patch
+description: How to keep your Git commits clean & atomic even if your workflow might be as messy as mine 😁
+created: 2020-01-08T20:00:00 -5
+updated: 2020-01-08T16:49:00 -5
+published: 2020-01-08T22:04:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+  - https://twitter.com/Coding4GaiAma/status/1215360268160716800
+tags:
+  - git
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+# {frontmatter.title}
+
+> `gapa` is seriously one of my most favorite Git features 🚀
+
+You may wonder what `gapa` is?
+Haha, I think it's a pretty funny word and an alias (shortcut) for `git add -p` (which is short for `git add --patch` 😉) provided by Oh My ZSH's [git plugin](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git/).
+So if you don't use ZSH you can define those aliases yourself. More on that later.
+
+## What's actually the problem?
+
+Right, so when you want to stage files for your next commit you can either `git add .` which stages all files in the current working directory or of course selectively add files by providing their paths like so `git add index.js cool-component.jsx`. And in my opinion that's already much better then the first version as it helps to get more conscious and therefore cleaner commits.
+
+If you're well focused and disciplined that might be all you need to have atomic changes.
+
+But if you're more like me hacking around the whole repo like a hurricane before finally deciding to commit then read on.
+
+One reason for my chaotic workflow is that I don't want to commit code I'm not happy with. Commits, as mentioned, should be atomic, self contained changes I could turn into a [patch][git patch] without it containing unrelated stuff.
+
+## git add \-\-patch to the rescue
+
+So running `git add -p` will bring you in an interactive staging mode showing all changes not only per file but per hunk.
+So you get to decide line-by-line what you want your commit to include.
+
+{/* inspired by https://nuclearsquid.com/writings/git-add/ */}
+
+```bash
+~/CoolCodeProject dev ❯ gapa
+diff --git a/packages/gatsby-transformer-leasot/package.json b/packages/gatsby-transformer-leasot/package.json
+index dd36bda..f322da8 100644
+--- a/packages/gatsby-transformer-leasot/package.json
++++ b/packages/gatsby-transformer-leasot/package.json
+@@ -13,7 +13,8 @@
+   "license": "MIT",
+   "scripts": {
+     "build": "tsc",
+-    "watch": "yarn build --watch"
++    "watch": "yarn build --watch",
++    "prepublishOnly": "yarn build"
+   },
+   "keywords": [
+     "gatsby",
+Stage this hunk [y,n,q,a,d,e,?]? ?
+y - stage this hunk
+n - do not stage this hunk
+q - quit; do not stage this hunk or any of the remaining ones
+a - stage this hunk and all later hunks in the file
+d - do not stage this hunk or any of the later hunks in the file
+e - manually edit the current hunk
+? - print help
+@@ -13,7 +13,8 @@
+   "license": "MIT",
+   "scripts": {
+     "build": "tsc",
+-    "watch": "yarn build --watch"
++    "watch": "yarn build --watch",
++    "prepublishOnly": "yarn build"
+   },
+   "keywords": [
+     "gatsby",
+Stage this hunk [y,n,q,a,d,e,?]?
+```
+
+> Using an actual code block here cause images are not really accessible and I think [a11y](https://developer.chrome.com/apps/a11y) is important.
+
+That's what you get after running your new alias `gapa`, then entering ||?|| and pressing ||Enter||, which will print the usage instructions.
+
+## All possible commands
+
+```
+y - stage this hunk
+n - do not stage this hunk
+a - stage this and all the remaining hunks in the file
+d - do not stage this hunk nor any of the remaining hunks in the file
+g - select a hunk to go to
+/ - search for a hunk matching the given regex
+j - leave this hunk undecided, see next undecided hunk
+J - leave this hunk undecided, see next hunk
+k - leave this hunk undecided, see previous undecided hunk
+K - leave this hunk undecided, see previous hunk
+s - split the current hunk into smaller hunks
+e - manually edit the current hunk
+? - print help
+```
+
+This list from the [official Git docs] is confusingly much longer than in my previous example 😅 so I just looked it up and [Stackoverflow][why is split option missing in git add -p?] confirmed that ||?|| will only show options useful for the current hunk.
+
+> By the way a **hunk** is in this context essentially just another word for chunk, part or piece.
+
+So now I get not only to see and recall what I did but can decide exactly what I want to commit. And if you remember, where I said "line-by-line", we've got two options to "shrink" the shown hunk.
+
+1. **s** to split the hunk, which is only available if the hunk is splittable, usually it needs at least an empty line somewhere for Git to split, but that's not always sufficient.
+2. **e** to manually edit, which works always, yet is a little more complicated, yet powerful though, at least that's my own experience and many seem to agree^^.
+
+## Manually editing a hunk
+
+So in case I want to only stage `position: sticky` for now I have to enter ||e|| and press ||Enter|| to get into edit mode, which opens in your Git editor.
+
+> The editor Git uses for certain tasks can be set in the config, I'm using [VS Code as my Git editor]
+
+```bash
+# Manual hunk edit mode -- see bottom for a quick guide.
+@@ -49,5 +58,7 @@
+      display: `flex`,
+      justifyContent: `space-between`,
+      alignItems: `start`,
++     position: `sticky`,
++     top: 0,
+    }}
+  >
+# ---
+# To remove '-' lines, make them ' ' lines (context).
+# To remove '+' lines, delete them.
+# Lines starting with # will be removed.
+#
+# If the patch applies cleanly, the edited hunk will immediately be
+# marked for staging.
+# If it does not apply cleanly, you will be given an opportunity to
+# edit again.  If all lines of the hunk are removed, then the edit is
+# aborted and the hunk is left unchanged.
+```
+
+Git gives usage instructions within the editor, make sure to follow them exacty, especially the first one.
+If you remove `-` you have to replace it with a space `' '`. Otherwise the indentation will get messed up which breaks the whole edit. Luckily Git, as most times, won't apply a broken edit as explained in the last lines.
+
+```bash
+@@ -49,5 +58,7 @@
+      display: `flex`,
+      justifyContent: `space-between`,
+      alignItems: `start`,
++     position: `sticky`,
+    }}
+  >
+```
+
+In this case I can remove the entire line to not stage it.
+
+That's why I love my `gapa` alias so much and use it almost always. Uh thanks for reminding me 😃
+
+## Important note
+
+`Git add --patch` won't show untracked files as there's nothing to diff against yet, meaning files you have newly created and never staged/commited before, which are indicated by `??` in `git status -s`.
+
+That's why I try to remember to always run `gss` my alias for `git status -s` before and after `gapa` to keep the overview and especially after I've decided on all hunks I make sure there's no related files untracked. If so I manually add them using `git add /path/and/name-of-file.md`.
+
+## My only issue with gapa
+
+Sadly this workflow doesn't work properly when installing dependencies. At least if that involves some kind of lock file like `yarn.lock`, `package-lock.json` or I believe `npm-shrinkwrap.json`. The issue here is, I can easily decide which dependencies to include in the `package.json`, editing a hunk if necessary. Lock files on the other hand are way bigger and, because they list sub-dependencies, much more complicated to follow allong. In rare cases, at least for me, when a package has only a few or ideally no dependencies itself it's easy, but once it has multiple and they have dependencies, too it's almost impossible or very time consuming to figure out what to add and what to leave out.
+
+For now I live with it so my lock file might not always be as clean as it should be, making commits not as 100% predictable. I noticed though that, at the moment, that's what works best for me, otherwise I stop being productive, leading to a worse case for me.
+
+I asked for help, tipps, ideas on Stackoverflow, titled [git add --patch and yarn.lock], more than a year ago yet received not even a comment 😂
+
+So now you know 🤓
+
+## Defining aliases
+
+I won't go too much into detail as it differs between the various shells and how it's set up, but following is a list for the common ones.
+
+### Git's build-in
+
+One not as short but shell agnostic way is Git's build-in [alias][official git aliases docs] config. So an equivalent could be `git config --global alias.apa 'add --patch'` which would let you type `git apa`.
+
+### Bash
+
+1. `code ~/.bash_profile` `code` opens the file in VS Code, so replace it by your fav file editor, could be `nano`, `vim` or whaever 😉
+2. Paste `alias='git add --patch' on a new line
+3. Save the file
+4. Back in the command line enter `source ~/.bash_profile`
+5. Now you can use `gapa`
+
+### ZSH
+
+If you use Oh My ZSH as I do I'd recomment just installing the git plugin.
+Stand alone ZSH uses the same syntax you have to put it in another config file, usually `~/.zshrc`
+
+### Fish
+
+Same syntax but uses `~/.config/fish/config.fish`
+
+### Windows
+
+Sorry I don't know and figured it might be better to not copy paste some random stuff off of Stackoverflow as they seem to differ a lot. So please search for yourself and if you want [let me know][twitter] so I can include some working example here as well.
+
+## Additional tip
+
+Going through too many hunks can be overwhelming, so sometimes I do it multiple times.
+It can help to do a quick `git diff` beforehand to get an overview and in case I loose track of what I staged I do a `git diff --staged` before commiting to be able to write a meaningful commit message.
+
+## Bonus: Alias expansion
+
+Uh and by the way I can highly recommend the [globalias] plugin for ZSH to automatically expand aliases. It helps me to be confident I don't accidentally use the wrong alias by just hitting ||Space|| after writing an alias in the prompt, followed by ||Enter||.
+
+## Related reads by 3rd parties
+
+- [Official Git docs]
+- [Official Git Aliases docs]
+- [Git Alias by Atlassian](https://www.atlassian.com/git/tutorials/git-alias)
+- [Clean GIT history — a Step by Step Guide](https://medium.com/@catalinaturlea/clean-git-history-a-step-by-step-guide-eefc0ad8696d) by [@CatalinaTurlea](https://twitter.com/CatalinaTurlea)
+- [Terminal Aliases for Git: Two Simple Steps](https://www.viget.com/articles/terminal-aliases-for-git/) by [@graphicsgirl](https://twitter.com/graphicsgirl)
+- [Git Command-Line Shortcuts](https://jonsuh.com/blog/git-command-line-shortcuts/) by [@jonsuh](https://twitter.com/jonsuh)
+- [git add -p is your friend](https://gist.github.com/mattlewissf/9958704) by [@mattlewissf](https://github.com/mattlewissf)
+- [An intro to Git Aliases: a faster way of working with Git](https://www.freecodecamp.org/news/an-intro-to-git-aliases-a-faster-way-of-working-with-git-b1eda81c7747/) by [@_boudhayan_](https://twitter.com/_boudhayan_)
+- [The A11Y Project](https://a11yproject.com/)
+- [a11y - Wiktionary](https://en.wiktionary.org/wiki/a11y)
+
+Greetings from the jungle 🌴
+
+[official git docs]: https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging#_staging_patches
+[why is split option missing in git add -p?]: https://stackoverflow.com/a/49215261/3484824
+[vs code as my git editor]: https://code.visualstudio.com/docs/editor/versioncontrol#_vs-code-as-git-editor
+[git add --patch and yarn.lock]: https://stackoverflow.com/questions/53486867/git-add-patch-and-yarn-lock
+[globalias]: https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/globalias
+[official git aliases docs]: https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases
+[git patch]: https://stackoverflow.com/questions/8279602/what-is-a-patch-in-git-version-control
+[twitter]: https://twitter.com/coding4gaiama

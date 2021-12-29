@@ -1,0 +1,46 @@
+---
+status: published
+slug: /es6-object-destructuring-mandatory-parameters
+lang: en
+hydrate: false
+title: ES6 object destructuring mandatory parameters
+description: Use a small utility function in ES6 default function properties to throw error on missing required props
+created: 2019-05-05T20:00:00 -5
+updated: 2019-05-05T16:49:00 -5
+published: 2019-05-05T22:04:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+  - https://twitter.com/Coding4GaiAma/status/1213525422132080644
+shortSlug: es6-required-fields
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+# ES6 object destructuring mandatory parameters
+
+Couple of days ago I came across this cool trick to validate required fields using ES6 default function parameters.
+
+```js{8}
+function throwRequired(name) {
+  throw new Error(`'${name}' is required`)
+}
+
+function name({
+  id = null,
+  name = 'user',
+  password = throwRequired('password'),
+}) {
+  console.log('All is good, password is: ' + password)
+}
+```
+
+I haven't actually used it so far, just tested in Chrome DevTools.
+
+Check out the [StackOverflow question](https://stackoverflow.com/questions/41536118/es6-object-destructuring-mandatory-parameters) all this originates from.
+
+Great article about this by Kent C. Dodds [JavaScript default parameters](https://kentcdodds.com/blog/javascript-default-parameters)

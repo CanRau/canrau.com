@@ -1,0 +1,70 @@
+---
+status: published
+slug: /link-a-universal-gatsby-link-wrapper
+lang: en
+hydrate: false
+title: "<Link/> a universal gatsby-link wrapper"
+description: Automatically uses gatsby-link or <a> depending on the url and adds default props accordingly. Prevents 'reverse tabnapping'
+created: 2020-01-31T20:00:00 -5
+updated: 2020-01-31T16:49:00 -5
+published: 2020-01-31T22:04:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+  - https://twitter.com/Coding4GaiAma/status/1223388051818405889
+tags:
+  - gatsby
+imported_from: coding4.gaiama.org
+---
+
+export { default as cover } from "./assets/boris-misevic-kjH2m_tl7Pg-unsplash.jpg";
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+![https://unsplash.com/photos/kjH2m_tl7Pg](./assets/boris-misevic-kjH2m_tl7Pg-unsplash.jpg "Photo by boris misevic (unsplash.com/photos/kjH2m_tl7Pg)")
+
+# {frontmatter.title}
+
+I made a `<Link/>` component cause I didn't want to have to switch between `gatsby-link` and `<a/>` nor remember all the props like `target="_blank"` and `rel="noopener noreferrer"`.
+
+Basically it's doing automagical stuff so I don't have to think 🤓
+
+- Uses Gatsby's `<Link/>` for all internal links otherwise a normal `<a/>`.
+- Sets the `activeClassName` prop if it's internal and well active 😉
+- External links will automatically open in a new tab via `target="_blank"`.
+- And to safe us all `rel="noopener noreferrer"` will be set as well 🙌
+- The url can be defined via `href` or `to`, so I don't have to think again 🤯
+- Lets me define a `title` otherwise uses the url.
+- Ensures an external link is not just an anchor.
+- Accepts a variant string, used to style the link via [Theme UI].
+- I can manually set a link to be external or not.
+- Passes all other props to the html element.
+- All props can be overriden as `{...props}` are passed last.
+
+🚀
+
+All links in markdown will use my `<Link/>` component via [gatsby-plugin-theme-ui](https://theme-ui.com/packages/gatsby-plugin/#components)
+
+```js title=components.js size=content
+import { Link } from "components/Link";
+export default {
+  a: Link,
+  Link,
+};
+```
+
+Now you may understand why it accepts both `href` and `to` 😉
+
+It used to also set `nofollow`, I just removed it tho. I don't remember when nor why I added it actually and currently I think it's nice to share link juice. Even tho this blog is still not relevant^^
+
+Would it make sense to have such a component available via npm, or is it too specific? I mean I think I'm going to publish it someday anyway, most probably scoped, as I don't want to miss it anymore. 💛 Now that I've remembered myself, I'll probably publish it sooner than later 😅
+
+I wish everyone a beautiful and relaxing weekend 😘
+
+## More info on reverse tabnapping
+
+- [stackoverflow.com/[..]/link-with-target-blank-and-rel-noopener-noreferrer-still-vulnerable](https://stackoverflow.com/questions/50709625/link-with-target-blank-and-rel-noopener-noreferrer-still-vulnerable)
+- https://www.owasp.org/index.php/Reverse_Tabnabbing

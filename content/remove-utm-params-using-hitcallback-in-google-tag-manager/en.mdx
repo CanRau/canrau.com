@@ -1,0 +1,69 @@
+---
+status: published
+slug: /remove-utm-params-using-hitcallback-in-google-tag-manager
+lang: en
+hydrate: false
+title: Remove UTM params using hitCallback in Google Tag Manager
+description: Use Google Analytics hitCallback in Tag Manager to clean your URLs from campaign data, so they won't end up in Bookmarks
+created: 2019-05-01T20:00:00 -5
+updated: 2019-05-01T20:00:00 -5
+published: 2019-05-01T20:00:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+  - https://twitter.com/Coding4GaiAma/status/1213519347265736707
+# currently not used, imported from Coding4GaiAma
+tags:
+  - analytics
+shortSlug: GTM remove UTM params
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+# {frontmatter.title}
+
+I love clean URIs and I enjoy analytics, even though I just started using them a little more conscious.
+Sometimes it's usefull to include those handy `UTM_` parameters in your links.
+They can add important information, make the address bar ugly and even be kind of counter usefull once people start bookmarking those links.
+
+So why not use a handy GTM Variable?!
+I called mine `cJS - replace history to remove query params`.
+Stuff the following snippet into the Custom JavaScript field:
+
+```js
+function() {
+  return function() {
+    if (!!(window.history && window.history.pushState)) {
+      if (/(\?|&)(utm_.*=|ref=)/.test(window.location.search)) {
+        window.history.replaceState({}, document.title, document.location.pathname + document.location.search.substring(1).split('&').filter(function(x) {return !/^(utm_.*=|ref=)/.test(x)}).join('&').replace(/^(.*)/, '?$1') + document.location.hash)
+      }
+      if (/\?$/.test(document.location.href)) {
+        window.history.replaceState({}, document.title, document.location.pathname)
+      }
+    }
+  }
+}
+```
+
+And add it to a Universal Analytics Tag as follows:
+
+1. **Enable overriding settings in this tag**
+2. Open **More Settings** and **Fields to Set**
+3. Hit **+ Add Field**
+4. Enter **hitCallback** as name
+5. Select your created **cJS - replace history to remove query params** variable
+6. Remember to **test** and **submit** your changes
+
+As [GitHub Gist](https://gist.github.com/CanRau/18995476d503a113697e720003d98699)
+
+More on `hitCallback`
+
+- https://developers.google.com/analytics/devguides/collection/analyticsjs/sending-hits#hitcallback
+- https://www.bounteous.com/insights/2017/01/12/four-killer-uses-for-hitcallback/
+
+Please let me know if anything is unclear or doesn't work as expected. The code should just work and as it checks for available browser APIs shouldn't break anything, yet you'll never know 😉
+Just click the Twitter button to message me.

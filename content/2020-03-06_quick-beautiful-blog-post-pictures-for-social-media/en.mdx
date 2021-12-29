@@ -1,0 +1,51 @@
+---
+status: draft
+type: post
+title: Quick & Beautiful Blog Post Pictures for Social Media
+layout: Article
+date: 2020-03-06
+author: can
+description:
+coverBackground: ./assets/83810246_103347511212947_6199239291061614700_n.jpg
+showTableOfContents: true
+tags:
+  - gatsby
+  - plugin
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+Inspired by Jason Lengstorf's post [Automatically Generate Social Images for Blog Posts](https://www.learnwithjason.dev/blog/auto-generate-social-image/), Chris Biscardi's [code snippets](https://github.com/ChristopherBiscardi/christopherbiscardi.github.com/blob/0f3344c45a7d4ed746acad7ab7076d419be1a9b1/www/plugins/gatsby-plugin-og-image/index.js) and my former work on an internal tool to generate donation certificates for GaiAma's donors, I finally had to come up with something for this blog here as it's still pretty boring 😅
+
+## TL;DR
+
+Actually I didn't use any of their methods, the text positioning is inspired by Jason 👍.
+It's a stand-alone function layering everything on top of a `<canvas/>`.
+
+## I heared canvas is pretty complicated? 🤯
+
+I think so, too. Yet neither [Jimp](https://github.com/oliver-moran/jimp) nor [Sharp](https://github.com/lovell/sharp) had to offer what I needed. Or at least in a totally different way.
+
+## Fabric.js to the rescue
+
+In the beginning [node-canvas](https://github.com/Automattic/node-canvas) was working great until I tried to make the text fit and fixed to the bottom. The more ambitious my desires became the more "low level" I had to go. I might save that for later^^
+
+Luckily I then stumbled upon [Fabric.js](http://fabricjs.com/) which provides a pretty good API to mess with `canvas` in an easier way. 👏
+
+Now I could 'declare' my text with its size, maximum width etc, then measure it, reposition it based on the results and then render it onto the canvas 🚀
+
+## With and without GatsbyJS
+
+The main function `make-image.ts` does the main work, which is framework agnostic.
+
+The Gatsby plugin runs `onCreateNode` to create images for nodes with `frontmatter.title` & `frontmatter.coverBackground`.
+
+`coverBackground` contains a relative path to my desired background image.
+The result will be placed next to it named after the slugified `frontmatter.title`, then added to `fields.generatedCover` which can be queried for `childImageSharp` and the average image color, which, slightly darkened, is used as the text color, is provided via `fields.generatedCoverAvgColor`.
+
+## 💡Ideas
+
+- Cache average color. Right now it has to rerun at least for the color.
+- More customizable. To allow for other property names, maybe using a provided function.
+- Try [createJobV2](https://www.gatsbyjs.org/docs/actions/#createJobV2) action. Maybe check out [gatsby-plugin-sharp](https://github.com/gatsbyjs/gatsby/blob/db36d6995659c190b4aefda2d60828d48a430611/packages/gatsby-plugin-sharp/src/utils.js#L38)

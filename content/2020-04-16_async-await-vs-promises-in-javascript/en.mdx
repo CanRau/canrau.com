@@ -1,0 +1,41 @@
+---
+status: draft
+type: post
+title: Async/Await vs Promises in JavaScript
+layout: Article
+date: 2020-04-16
+author: can
+description:
+showTableOfContents: false
+tags:
+  - JavaScript
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+Example from [Is async / await useless? @8:46](https://youtu.be/ho5PnBOoacw?t=526) by Fun Fun Function
+
+```js
+async function processAllUsers() {
+  const sql = "SELECT id FROM users";
+  const users = await db.query(sql, []);
+  for (const user of users) {
+    await processUser(user.id);
+  }
+}
+```
+
+```js
+const waitForEach = (processFunc, [head, ...tail]) =>
+  !head
+    ? Promise.resolve()
+    : processFunc(head).then(waitForEach(processFunc, tail));
+
+function processAllUsers() {
+  const sql = "SELECT id FROM users";
+  return db
+    .query(sql, [])
+    .then((users) => waitForEach((user) => processUser(user.id), users));
+}
+```

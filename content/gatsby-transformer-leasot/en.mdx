@@ -1,0 +1,175 @@
+---
+status: published
+slug: /gatsby-transformer-leasot
+lang: en
+hydrate: false
+title: Gatsby Transformer Leasot
+description: "Make TODO:, FIXME: (and more) source code comments GraphQL queryable in your GatsbyJS site"
+created: 2019-05-04T20:00:00 -5
+updated: 2019-05-04T16:49:00 -5
+published: 2019-05-04T22:04:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+  - https://twitter.com/Coding4GaiAma/status/1213642666640101381
+  - https://www.reddit.com/r/gatsbyjs/comments/eo294n/auto_generate_a_roadmap_from_source_code_comments/
+  - https://dev.to/coding4gaiama/gatsby-transformer-leasot-198c
+  - https://twitter.com/Coding4GaiAma/status/1223050782817300481
+tags:
+  - plugin
+  - GatsbyJS
+imported_from: coding4.gaiama.org
+---
+
+> This article has been imported from coding4.gaiama.org and is not necessarily up to date!
+
+![Cover showing GatsbyJS & Leasot Logos](assets/cover.png)
+
+# {frontmatter.title}
+
+## Table of contents
+
+> 2020-02-29 Released [gatsby-theme-leasot](https://github.com/GaiAma/Coding4GaiAma/tree/master/packages/gatsby-theme-leasot) for convenience.
+
+> 2020-02-29 v1.2.0 adds `internalType` setting
+
+I finally published [gatsby-transformer-leasot](https://www.npmjs.com/package/gatsby-transformer-leasot) 🎉 I started working on this half a year ago I believe, yet couldn't manage to bring it to a state I'd feel comfortable releasing. In the last couple of days I could spare some time improving the API, convert it to Typescript 🚀 and improve the docs.
+
+## So what does it do?
+
+It extracts all comments in provided source files like the following
+
+```js size=content
+// TODO: water the seedlings
+```
+
+and makes them available to you via GrapqhQL as accessible object containing the comment along useful information.
+
+```json size=content
+{
+  "todo": {
+    "ref": "",
+    "line": 1,
+    "value": "find a more concise way",
+    "file": {
+      "relativePath": "gatsby-config.js"
+    }
+  }
+}
+```
+
+## How to install it
+
+```bash size=content
+yarn add -D gatsby-transformer-leasot
+# or
+npm i -D gatsby-transformer-leasot
+```
+
+It **requires: [gatsby-source-filesystem](https://github.com/gatsbyjs/gatsby/tree/master/packages/gatsby-source-filesystem)**, this way you can use a separate instance to define which files to source only used by gatsby-transformer-leasot.  
+You can use [gatsby-theme-leasot](https://github.com/GaiAma/Coding4GaiAma/tree/master/packages/gatsby-theme-leasot) for convenience.  
+Alternatively, since v1.2.0, you can bring your own source plugin and set the `internalType` accordingly.
+
+## How to configure it
+
+```js title=gatsby-config.js
+module.exports = {
+  plugins: [
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        path: __dirname,
+        name: `leasot`,
+        ignore: [
+          /\.*.*\/(node_modules|\.cache|public|static|dist|\.yarn)\/./,
+          /\.*.\.(log|jpe?g|png|gif|ico|json|map|gz|pdf)/,
+        ],
+      },
+    },
+    `gatsby-transformer-leasot`,
+  ],
+};
+```
+
+That's the minimum required setup using the defaults.
+
+## How to query
+
+```graphql
+allLeasot(
+  sort: { fields: [todo___modifiedTime], order: DESC }
+) {
+  group(field: todo___tag) {
+    fieldValue
+    totalCount
+    nodes {
+      id
+      todo {
+        tag
+        line
+        ref
+        value
+        modifiedTime(formatString: "YYYY-MM-DD H:mm") # More about modifiedTime below
+        file {
+          relativePath
+        }
+      }
+    }
+  }
+}
+```
+
+> **Note:** The name `allLeasot` depends on the provided `sourceInstanceName` in the configs. So when you change it you have to change the `name` option of gatsby-source-filesystem accordingly, lets say `todo` then you query for `allTodo` or `todo` if you just want a single one.
+
+## All config options
+
+```
+| name                              | type            | default                     | description                                                                                                                                                                                                                                          |
+| --------------------------------- | --------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| sourceInstanceName                | `string`        | 'leasot'                    | Has to match the `name` prop of `gatsby-source-filesystem`.                                                                                                                                                                                          |
+| customTags                        | `array`         | []                          | Other tags to look for (besides todos and fixmes). Tags are case-insensitive and are strict matching, i.e PROD tag will match PROD but not PRODUCTS. More in [Leasot's Docs](https://pgilad.github.io/leasot/interfaces/parseconfig.html#customtags) |
+| mode                              | `string`        | 'text'                      | Supports one of: `text`, `mdx`, `html`.                                                                                                                                                                                                              |
+| truncateLinks                     | `int`\|`object` | {length: 32,style: 'smart'} | Provide `int` to change the length only. `style` can be one of: `smart`, `middle`, `end`.                                                                                                                                                            |
+| associateParser                   | `object`        | {}                          | Associate the filetypes with parsers. This allows adding support for new filetypes. More in [Leasot's Docs](https://pgilad.github.io/leasot/interfaces/parseconfig.html#associateparser)                                                             |
+| customParsers                     | `object`        | {}                          | Extend the parsers by parserName, for example override the defaultParser or add a new parser. [Leasot's Docs](https://pgilad.github.io/leasot/interfaces/parseconfig.html#customparsers)                                                             |
+| internalType <br/> (since v1.2.0) | `string`        | "File"                      | Has to match `node.internal.type`                                                                                                                                                                                                                    |
+```
+
+> All by default supported languages (file extensions) can be found in [Leasot's Readme](https://github.com/pgilad/leasot/#supported-languages)
+
+## More examples
+
+```js size=content
+// FIXME(Reference): improve example
+// TODO: you can add a reference like this as well /Reference
+// TODO: example without reference
+```
+
+> See the full supported **comment format** by Leasot in their [readme](https://github.com/pgilad/leasot/#comment-format).
+
+## Sadly
+
+Even though the `node` in GraphQL also provides `modifiedTime` of the file it's currently only locally useful as file times will all be the same on CI. I don't have an easy fix for that so far.
+
+## Alternative todo lists
+
+I've installed & tried VSCode extensions like [TODO Highlight](https://marketplace.visualstudio.com/items?itemName=wayou.vscode-todo-highlight) and some others yet never really remember to let them generate the list to see my notes. Global search could work, too. Yet I find this automatic integration much more pleasing. And making it public kinda helps at least trying to get back to those notes so they won't stick around forever 😅. Let's see how that goes 🤓.
+
+## The near future
+
+This website is not only meant as my / GaiAma's dev knowledge base, but as a playground and place to try things out before implementing on GaiAma.org 😉
+
+My next plans are improving the donation experience on GaiAma.org, then, or maybe along that, improving the various open source projects and probably releasing more stuff, not just to share them with others but with myself, too. 😁
+
+Some time in the near future I think about merging this repository with GaiAma/gaiama.org, not exactly sure about that though. 🤔 One benefit would be that the [roadmap](/en/roadmap) could then easily show GaiAma.org notes as well, without having to source it from GitHub. Just thinking out loud.
+
+## By the way
+
+`truncateLinks` uses [remark-truncate-links](https://www.npmjs.com/package/remark-truncate-links) which I open sourced separately. I use it for all MDX content as well. It'll truncate all links not manually named. Go check it out 🤩
+
+## Links
+
+Find it on [GitHub](https://github.com/GaiAma/Coding4GaiAma/tree/master/packages/gatsby-transformer-leasot#readme) & [NPM](https://www.npmjs.com/package/gatsby-transformer-leasot)
