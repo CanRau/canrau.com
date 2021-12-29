@@ -40,6 +40,7 @@
     "gray-matter": "4.0.3",
     "hast-util-heading-rank": "2.1.0",
     "hast-util-to-string": "2.0.0",
+    "is-absolute-url": "3.0.3",
     "is-whitespace-character": "2.0.1",
     "leasot": "12.0.0",
     "match-sorter": "6.3.1",

@@ -3224,6 +3224,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-absolute-url@npm:3.0.3":
+  version: 3.0.3
+  resolution: "is-absolute-url@npm:3.0.3"
+  checksum: 5159b51d065d9ad29e16a2f78d6c0e41c43227caf90a45e659c54ea6fd50ef0595b1871ce392e84b1df7cfdcad9a8e66eec0813a029112188435abf115accb16
+  languageName: node
+  linkType: hard
+
 "is-absolute-url@npm:^4.0.0":
   version: 4.0.1
   resolution: "is-absolute-url@npm:4.0.1"
@@ -6182,6 +6189,7 @@ __metadata:
     gray-matter: 4.0.3
     hast-util-heading-rank: 2.1.0
     hast-util-to-string: 2.0.0
+    is-absolute-url: 3.0.3
     is-whitespace-character: 2.0.1
     leasot: 12.0.0
     match-sorter: 6.3.1
