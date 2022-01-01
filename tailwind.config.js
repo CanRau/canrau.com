@@ -81,7 +81,7 @@ const externalLink = plugin(({ addComponents }) => {
 module.exports = {
   content: ["./{app,content}/**/*.{ts,tsx}"],
   // done: don't remove (defaults to media) until light mode has been fixed (by me 🥲)!
-  // todo: make theme toggling, based on class, default to auto (via code), be customizable but also revertible to auto [tweet](https://mobile.twitter.com/chaphasilor/status/1472142142109851652) [discord](https://discord.com/channels/770287896669978684/771068344320786452/922672997754605568)
+  // todo: make theme toggling, based on class, default to auto (via code), be customizable but also revertible to auto ([theme-change](https://github.com/saadeghi/theme-change)) [tweet](https://mobile.twitter.com/chaphasilor/status/1472142142109851652) [discord](https://discord.com/channels/770287896669978684/771068344320786452/922672997754605568)
   // darkMode: "class",
   plugins: [
     // done: TailwindCSS Typography plugins' styles, or remove it 🤨 Wait for [tailwindcss-typography#102](https://github.com/tailwindlabs/tailwindcss-typography/issues/102) and [tailwindlabs/tailwindcss/discussions/5711](https://github.com/tailwindlabs/tailwindcss/discussions/5711)
@@ -135,6 +135,10 @@ module.exports = {
         "8xl": "96rem",
         "90vw": "90vw", // page margin
       },
+      minHeight: {
+        60: "15rem",
+        "75vh": "75vh",
+      },
       maxHeight: {
         "50vh": "50vh", // max height for medium size hero images
         "75vh": "75vh", // max height for giant size hero images
@@ -142,6 +146,10 @@ module.exports = {
       borderRadius: {
         // todo: write about the egg somewhere 🤙
         egg: "30% 70% 70% 30% / 30% 30% 70% 70%",
+      },
+      gridTemplateColumns: {
+        layout:
+          "1fr 1fr minmax(auto,7rem) minmax(auto,5rem) 20px minmax(auto,34.8rem) 20px minmax(auto,5rem) minmax(auto,7rem) 1fr 1fr",
       },
       // typography: (theme) => {
       //   // some fontSizes return [size, props], others just size :/
