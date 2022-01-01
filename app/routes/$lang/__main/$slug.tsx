@@ -8,6 +8,7 @@ import {
 } from "remix";
 import { createElement, useMemo, type FC } from "react";
 import TwitterShareButton from "react-share/lib/TwitterShareButton";
+import RedditShareButton from "react-share/lib/RedditShareButton";
 import parseISO from "date-fns/parseISO";
 import formatDate from "date-fns/format";
 import { readFile } from "~/utils.server";
@@ -230,6 +231,15 @@ export default function Post() {
             >
               Twitter
             </TwitterShareButton>
+            <RedditShareButton
+              title={frontmatter.title}
+              url={frontmatter.canonical}
+            >
+              Reddit
+            </RedditShareButton>
+            {/* https://twitter.com/intent/tweet?text=[TWEET] */}
+            {/* https://news.ycombinator.com/submitlink?u=[URL] */}
+            {/* https://www.reddit.com/submit?url=[URL] */}
           </div>
         </div>
 

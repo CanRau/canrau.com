@@ -91,6 +91,7 @@ export const bundleMDX = async ({ cwd, source }: IBundleMdx) => {
     rehypePrism,
     { visit, EXIT },
   ] = await Promise.all([
+    // todo: add [remark-code-titles](https://www.npmjs.com/package/remark-code-titles) [example](https://nextjs-typescript-mdx-blog.vercel.app/posts/example-post)
     // as seen in https://www.drk.wtf/g/digital-garden-with-obsidian-and-remix
     import("remark-toc").then((mod) => mod.default),
     import("remark-gfm").then((mod) => mod.default),
