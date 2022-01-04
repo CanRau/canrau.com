@@ -1,0 +1,61 @@
+---
+status: published
+slug: /find-twitter-user-id
+lang: en
+# fixme: why does hydrate: true ERROR??
+hydrate: false
+title: Find Twitter user ID
+description: "My way of finding my Twitter UserID in 2021 & 2022"
+created: 2022-01-04T01:15:00 -5
+updated: 2022-01-04T01:15:00 -5
+published: 2022-01-04T01:15:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: website
+ideas:
+published_at:
+---
+
+export const jsonld = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "Find Twitter user ID",
+  description: "Find Twitter user ID",
+  dateCreated: "2022-01-04T01:15:00 -5",
+  dateModified: "2022-01-04T01:15:00 -5",
+  datePublished: "2022-01-04T01:15:00 -5",
+  author: [
+    {
+      "@type": "Person",
+      name: "Can Rau",
+      url: "https://twitter.com/CanRau",
+      gender: "Male",
+      birthDate: "1988-1-17",
+      birthPlace: "Berlin, Germany",
+    },
+  ],
+};
+
+# {frontmatter.title}
+
+## Using a desktop browser
+
+1. Go to your [private messages](https://twitter.com/messages/) in Twitter
+   `https://twitter.com/messages/`
+2. Click on a few chats and compare the IDs in the URL
+   `https://twitter.com/messages/id1-id2`
+3. Identify which ID stays the same
+4. Congrats, this is your personal Twitter User ID 🥳
+
+## Why?
+
+I've stumbled upon this cool link on the website https://danestves.com by [@danestves](https://twitter.com/danestves) which opens a private chat on Twitter with the specified `recipient` in this case Daniel of course.
+
+As I like the idea of using deep-links like this or direct share URLs which don't require JavaScript I decided to add it to my page.
+
+Only problem was that I didn't know my Twitter User ID 😳 and all tutorials I've found wouldn't work anymore because of design changes in the Twitter frontend.
+
+Alternatives were trusting a website with my data (I know it's public but anyway) or using the Twitter API myself, which I haven't started using yet 😅
+
+You can try it out using **PM via Twitter** link right below this post. 💬
