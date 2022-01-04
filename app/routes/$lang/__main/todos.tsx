@@ -75,7 +75,17 @@ const getAllFiles = async (
       filePathRelative.endsWith(".mpg") ||
       filePathRelative.endsWith(".ico") ||
       filePathRelative.endsWith(".DS_Store") ||
-      filePathRelative.endsWith(".env")
+      filePathRelative.endsWith(".env") ||
+      filePathRelative.endsWith(".mod") ||
+      filePathRelative.endsWith(".sum") ||
+      filePathRelative.endsWith("servedb") ||
+      filePathRelative.endsWith(".eslintignore") ||
+      filePathRelative.endsWith(".eslintrc") ||
+      filePathRelative.endsWith(".npmrc") ||
+      filePathRelative.endsWith(".gitignore") ||
+      filePathRelative.endsWith(".dockerignore") ||
+      filePathRelative.endsWith("LICENSE") ||
+      filePathRelative.endsWith(".zip")
     ) {
       continue;
     }
@@ -119,6 +129,7 @@ const associateParser = {
   ".json": { parserName: "defaultParser" },
   ".toml": { parserName: "defaultParser" },
   ".Dockerfile": { parserName: "defaultParser" },
+  ".svg": { parserName: "defaultParser" },
 };
 
 const leasotExtensionSupported = (ext: string) =>
