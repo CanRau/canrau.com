@@ -4,6 +4,7 @@ export const domain: string = "CanRau.com";
 
 export const author: string = "Can Rau";
 export const twitterHandle: string = "@CanRau";
+export const twitterId: string = "59203844";
 
 export const titleSeperator: string = " — ";
 

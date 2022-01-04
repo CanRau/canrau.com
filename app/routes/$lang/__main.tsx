@@ -13,7 +13,13 @@ import invariant from "tiny-invariant";
 import { NewsletterForm } from "~/components/newsletter-form";
 import { Link } from "~/components/link";
 import { getDeployVersion } from "~/utils/get-fly-deploy-version";
-import { defaultLang, domain, titleSeperator, twitterHandle } from "/config";
+import {
+  defaultLang,
+  domain,
+  titleSeperator,
+  twitterHandle,
+  twitterId,
+} from "/config";
 import { repository } from "/package.json";
 import { DiGithubBadge } from "react-icons/di";
 import { Document } from "~/components/document";
@@ -111,7 +117,13 @@ function Layout({
         <NewsletterForm />
         <div>
           Get in touch via{" "}
-          <a href={`https://twitter.com/${twitterHandle}`}>{twitterHandle}</a>
+          <a href={`https://twitter.com/${twitterHandle}`}>{twitterHandle}</a>{" "}
+          or{" "}
+          <a
+            href={`https://twitter.com/messages/compose?recipient_id=${twitterId}`}
+          >
+            PM
+          </a>
         </div>
         <div>
           <p className="dark:text-gray-400">{totalPathVisits} visits so far</p>

@@ -24,7 +24,13 @@ import * as typography from "~/components/typography";
 import { Link } from "~/components/link";
 import prismPlus from "~/styles/prism-plus.css";
 import prismTheme from "~/styles/prism-theme.css";
-import { rootUrl, domain, titleSeperator, twitterHandle } from "/config";
+import {
+  rootUrl,
+  domain,
+  titleSeperator,
+  twitterHandle,
+  twitterId,
+} from "/config";
 import type { Lang } from "/types";
 import { NotFoundError } from "~/utils/error-responses";
 import { Frontmatter } from "~/utils/mdx.server";
@@ -220,6 +226,11 @@ export default function Post() {
             )}`}
           >
             Discuss on Twitter
+          </a>
+          <a
+            href={`https://twitter.com/messages/compose?recipient_id=${twitterId}`}
+          >
+            PM via Twitter
           </a>
           <div className="mx-auto flex-grow mt-1 border-t-2 border-black/10 dark:border-white/10" />
           <div className="flex space-x-4">
