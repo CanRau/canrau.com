@@ -17,6 +17,8 @@ ideas:
 published_at:
 ---
 
+import audioVersion from "./find-twitter-user-id.mp3";
+
 export const jsonld = {
   "@context": "https://schema.org",
   "@type": "Article",
@@ -25,6 +27,15 @@ export const jsonld = {
   dateCreated: "2022-01-04T01:15:00 -5",
   dateModified: "2022-01-04T01:15:00 -5",
   datePublished: "2022-01-04T01:15:00 -5",
+  audio: {
+    "@context": "https://schema.org",
+    "@type": "AudioObject",
+    contentUrl: audioVersion,
+    description: "Audio version of this article",
+    duration: "T1M18S",
+    encodingFormat: "audio/mpeg",
+    name: "find-twitter-user-id.mp3",
+  },
   author: [
     {
       "@type": "Person",
@@ -38,6 +49,10 @@ export const jsonld = {
 };
 
 # {frontmatter.title}
+
+## Listen to the instructions
+
+<audio controls src={audioVersion} />
 
 ## Using a desktop browser
 
