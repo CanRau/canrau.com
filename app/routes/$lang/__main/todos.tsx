@@ -30,6 +30,7 @@ import { bundleMDX } from "~/utils/compile-mdx.server";
 import { loader as getTotalPathVisitsLoader } from "~/utils/get-total-path-visits";
 import { rootUrl, titleSeperator, domain } from "/config";
 import { repository } from "/package.json";
+import { Lang } from "/types";
 
 const sortArray = ["FIXME", "TODO", "DONE", "NOTE"];
 
@@ -126,11 +127,11 @@ const leasotExtensionSupported = (ext: string) =>
 type Todos = Record<string, TodoCommentWithMDX[]>;
 type LoaderData = { canonical: string; todos: Todos; totalPathVisits: number };
 
-const cached: Record<Lang, any> = {};
+const cached: Record<Lang, any> = { en: null };
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const start = performance.now();
-  const lang = params.lang || "en";
+  const lang = (params.lang || "en") as Lang;
 
   if (cached[lang]) {
     const stop = performance.now();
