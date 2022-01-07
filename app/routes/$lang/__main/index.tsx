@@ -112,9 +112,11 @@ const Hero = ({ post, url }: { post: Frontmatter; url: string }) => {
 const Post = ({ post, url }: { post: Frontmatter; url: string }) => {
   return (
     <a className="space-y-2" href={url}>
-      {!!post.cover && <img src={post.cover} alt={post.title} className="" />}
+      {/* {!!post.cover && <img src={post.cover} alt={post.title} className="" />} */}
       <h2 className="text-2xl">{post.title}</h2>
-      {!!post.description && <p>{post.description}</p>}
+      {!!post.description && (
+        <p className="text-skin-text-dark">{post.description}</p>
+      )}
     </a>
   );
 };
