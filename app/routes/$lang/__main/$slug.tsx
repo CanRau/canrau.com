@@ -270,7 +270,7 @@ export default function Post() {
           <img
             src="https://github.com/canrau.png"
             alt="Can Rau"
-            className="rounded-egg w-40 h-40"
+            className="rounded-egg -rotate-3 w-40 h-40 ease-in-out duration-500 motion-safe:hover:transition-all motion-safe:animate-[eggout_0.8s_ease-in-out_forwards] motion-safe:hover:animate-[eggin_0.8s_ease-in-out_forwards] motion-safe:hover:rotate-0"
           />
           <div className="space-y-3">
             <div className="text-2xl">Can Rau</div>

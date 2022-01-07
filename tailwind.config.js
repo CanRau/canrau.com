@@ -151,6 +151,14 @@ module.exports = {
         layout:
           "1fr 1fr minmax(auto,7rem) minmax(auto,5rem) 20px minmax(auto,34.8rem) 20px minmax(auto,5rem) minmax(auto,7rem) 1fr 1fr",
       },
+      keyframes: {
+        eggout: {
+          "0%": { borderRadius: ".5rem" },
+        },
+        eggin: {
+          "100%": { borderRadius: ".5rem" },
+        },
+      },
       // typography: (theme) => {
       //   // some fontSizes return [size, props], others just size :/
       //   const fontSize = (size) => {
