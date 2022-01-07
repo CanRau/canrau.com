@@ -46,10 +46,13 @@ export const meta: MetaFunction = ({ data }) => {
     slug,
     cover,
   } = data?.frontmatter ?? {};
+
   const title = `${_title || "Missing Title"}${titleSeperator}${domain}`;
   const url = `${rootUrl}/${lang}${slug}`;
   const description = _description || "Missing description";
-  const image = `${rootUrl}${cover}`;
+  const image = cover
+    ? `${rootUrl}${cover}`
+    : `${rootUrl}/${lang}/ogimage/${slug}.png`;
   // todo: make reusable function to define meta-tags
   return {
     title,
@@ -57,7 +60,9 @@ export const meta: MetaFunction = ({ data }) => {
     "og:url": url,
     "og:title": title,
     "og:description": description,
-    "og:image": image, // note: clear FB cache [Sharing Debugger](https://developers.facebook.com/tools/debug/)
+    // note: clear FB cache [Sharing Debugger](https://developers.facebook.com/tools/debug/)
+    ...(image && { "og:image": image }),
+    "og:site_name": domain,
     "twitter:card": cover ? "summary_large_image" : "summary",
     "twitter:creator": twitterHandle,
     "twitter:site": twitterHandle,

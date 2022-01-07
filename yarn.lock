@@ -591,6 +591,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/sharp@npm:0.29.5":
+  version: 0.29.5
+  resolution: "@types/sharp@npm:0.29.5"
+  dependencies:
+    "@types/node": "*"
+  checksum: 085cd5237acb06e67701e1f550d3ed4ad80ae82570a64d5fa84c941c38b14ac3ccb7db79b32def182cdbac8ca72ba9a2f5d9904222e4daeab0c4706576df9ef0
+  languageName: node
+  linkType: hard
+
 "@types/tailwindcss@npm:3.0.0":
   version: 3.0.0
   resolution: "@types/tailwindcss@npm:3.0.0"
@@ -5826,6 +5835,26 @@ __metadata:
     end-of-stream: ^1.1.0
     once: ^1.3.1
   checksum: e42e9229fba14732593a718b04cb5e1cfef8254544870997e0ecd9732b189a48e1256e4e5478148ecb47c8511dca2b09eae56b4d0aad8009e6fac8072923cfc9
+  languageName: node
+  linkType: hard
+
+"puppeteer@npm:13.0.1":
+  version: 13.0.1
+  resolution: "puppeteer@npm:13.0.1"
+  dependencies:
+    debug: 4.3.2
+    devtools-protocol: 0.0.937139
+    extract-zip: 2.0.1
+    https-proxy-agent: 5.0.0
+    node-fetch: 2.6.5
+    pkg-dir: 4.2.0
+    progress: 2.0.3
+    proxy-from-env: 1.1.0
+    rimraf: 3.0.2
+    tar-fs: 2.1.1
+    unbzip2-stream: 1.4.3
+    ws: 8.2.3
+  checksum: 2ae12dce25bac65d91e794a559f02f25adee0e254829e11972d074b08bb0801ce77dce8df678a692114332d28873451dc756241590175830940e96cf1442a7a8
   languageName: node
   linkType: hard
 

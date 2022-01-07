@@ -71,14 +71,16 @@ export const meta: MetaFunction = ({ data }) => {
   const title = `${_title || "Missing Title"}${titleSeperator}${domain}`;
   const url = `${rootUrl}/${lang}`;
   const description = _description || "Missing description";
-  const image = `${rootUrl}${cover}`;
+  const image = cover
+    ? `${rootUrl}${cover}`
+    : `${rootUrl}/${lang}/ogimage/${slug}.png`;
   return {
     title,
     description,
     "og:url": url,
     "og:title": title,
     "og:description": description,
-    "og:image": image,
+    ...(image && { "og:image": image }),
     "twitter:card": cover ? "summary_large_image" : "summary",
     "twitter:creator": twitterHandle,
     "twitter:site": twitterHandle,
