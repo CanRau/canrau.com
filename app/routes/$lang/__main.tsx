@@ -37,7 +37,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ params, request }) => {
-  const lang = params.lang || "en";
+  const lang = params.lang || defaultLang;
   const commitSha = process.env.COMMIT_SHA;
   const DB_ENDPOINT = process.env.DB_ENDPOINT;
   invariant(DB_ENDPOINT, "DB_ENDPOINT MISSING");
@@ -47,7 +47,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 };
 
 function Layout({
-  lang = "en",
+  lang = defaultLang,
   className = "",
   commitSha,
   appVersion,

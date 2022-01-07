@@ -1,4 +1,5 @@
 import { redirect, type ActionFunction, type LoaderFunction } from "remix";
+import { defaultLang } from "/config";
 
 // note: to prevent errors [like this](https://discord.com/channels/770287896669978684/771068344320786452/921025522299981914)
 export const action: ActionFunction = async () => {
@@ -16,5 +17,5 @@ export const loader: LoaderFunction = async () => {
    *
    * more on redirects https://serverfault.com/questions/391181/examples-of-302-vs-303
    */
-  return redirect("/en");
+  return redirect(`/${defaultLang}`);
 };

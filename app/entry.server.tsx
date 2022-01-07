@@ -1,6 +1,6 @@
 import { renderToString } from "react-dom/server";
 import { createCookie, RemixServer, redirect, type EntryContext } from "remix";
-import { domain } from "/config";
+import { defaultLang, domain } from "/config";
 // import { generateStyles } from "~/generate-styles.server";
 // const cachedStyles: Record<string, boolean> = {};
 const isProd = process.env.NODE_ENV === "production";
@@ -73,8 +73,8 @@ export default async function handleRequest(
   }
 
   // Coding4GaiAma
-  if (url.pathname.startsWith("/en/roadmap")) {
-    url.pathname = "/en/todos";
+  if (url.pathname.startsWith(`/${defaultLang}/roadmap`)) {
+    url.pathname = `/${defaultLang}/todos`;
     shouldRedirect = true;
   }
 
@@ -84,7 +84,7 @@ export default async function handleRequest(
 
   // todo: outsource pageview counter logic
   if (url.pathname.includes("dontcount")) {
-    url.pathname = "/en";
+    url.pathname = `/${defaultLang}`;
     return redirect(url.toString(), {
       headers: {
         // note: need to await in order for the signed cookie to work

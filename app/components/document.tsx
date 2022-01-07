@@ -49,7 +49,11 @@ export function Document({
         {/* Google Search Console */}
         {/* prettier-ignore */}
         <meta name="google-site-verification" content="KGv3z097pffnaQ1ZA4nUtkhyewpwfmUPLxAoPVlyfpw" />
-        <link rel="sitemap" type="application/xml" href="/en/sitemap.xml" />
+        <link
+          rel="sitemap"
+          type="application/xml"
+          href={`/${lang}/sitemap.xml`}
+        />
         {jsonld && (
           <script
             type="application/ld+json"

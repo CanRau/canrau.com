@@ -30,6 +30,7 @@ import {
   titleSeperator,
   twitterHandle,
   twitterId,
+  defaultLang,
 } from "/config";
 import type { Lang } from "/types";
 import { NotFoundError } from "~/utils/error-responses";
@@ -95,10 +96,8 @@ export const handle: RouteHandle = {
   hydrate: ({ frontmatter }: LoaderData) => frontmatter?.hydrate,
 };
 
-// https://remix.run/api/conventions#loader
 export const loader: LoaderFunction = async ({ params, request }) => {
-  // console.log({ params });
-  const lang = (params.lang || "en") as Lang;
+  const lang = (params.lang || defaultLang) as Lang;
   const slug = params.slug || "index";
   const filename = `${lang}.mdx`;
   const contentPath = getContentPath(slug);
