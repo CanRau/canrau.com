@@ -218,7 +218,7 @@ export default function Post() {
     <>
       {/* todo: mark external links somewhow `prose-a:after:content-['_↗']` (from TW docs) is interesting but might be a little much? */}
       <div className="space-y-20">
-        <main className="prose prose-lg lg:prose-xl dark:prose-invert mx-auto">
+        <main className="prose prose-lg lg:prose-xl dark:prose-invert mx-auto prose-img:ml-auto prose-img:mr-auto">
           <Component
             components={{
               h1: GetH1({
