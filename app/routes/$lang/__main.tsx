@@ -132,6 +132,10 @@ function Layout({
         {/* note: alternative could be [react-add-space](https://github.com/AGMETEOR/react-add-space) */}
         <div>
           <span>&copy; 2021 Can Rau</span>
+          {/* todo: add follow link?
+          note: more about [Twitter Web Intent](https://developer.twitter.com/en/docs/twitter-for-websites/web-intents/overview)
+          <a href={`https://twitter.com/intent/follow?screen_name=adam_greenough&original_referer=${encodeURIComponent(canonical)}`}>Follow {twitterHandle}</a>
+          */}
           {" | "}
           <span>
             running on fly.io

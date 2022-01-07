@@ -1,7 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* note: [@tailwind `screens` has been renamed to `variants`](https://tailwindcss.com/docs/upgrade-guide#screens-layer-has-been-renamed) */
 /* @tailwind variants; https://tailwindcss.com/docs/functions-and-directives#tailwind */
+/* note: If [`@tailwind variants` is] omitted, Tailwind will append these classes to the very end of your stylesheet by default. [docs](https://tailwindcss.com/docs/functions-and-directives#tailwind) */
 
 /* done: try out swyx's [100 bytes of CSS](https://twitter.com/swyx/status/1449472712720601088) [blog with explanation](https://dev.to/swyx/100-bytes-of-css-to-look-great-everywhere-19pd) */
 

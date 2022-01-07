@@ -23,6 +23,8 @@ export default async function handleRequest(
   remixContext: EntryContext,
 ) {
   const url = new URL(request.url);
+  // todo: identify url language and use instead of defaultLang
+
   let shouldRedirect = false;
   const headers: Record<string, string> = {};
 

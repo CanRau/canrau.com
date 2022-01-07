@@ -1,5 +1,6 @@
 // todo: Twitter profile banner like [Prateek Surana](https://twitter.com/psuranas) using [API](https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_banner)
 // todo: when adding cache/caching check out [Loader vs Route Cache Headers in Remix](https://sergiodxa.com/articles/loader-vs-route-cache-headers-in-remix)
+// note: [GaiAma Paypal plaintext link](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TU5GAQZHYT8NC)
 
 // todo: add [review](https://simonknott.de/articles/review-snippet) feature 🥰
 
