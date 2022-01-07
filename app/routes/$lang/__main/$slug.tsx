@@ -46,6 +46,7 @@ export const meta: MetaFunction = ({ data }) => {
     lang,
     slug,
     cover,
+    meta,
   } = data?.frontmatter ?? {};
 
   const title = `${_title || "Missing Title"}${titleSeperator}${domain}`;
@@ -69,8 +70,15 @@ export const meta: MetaFunction = ({ data }) => {
     "twitter:site": twitterHandle,
     // "twitter:title": title,
     // "twitter:description": description,
-    // "twitter:image": image, // note: validate [Twitter Cards](https://cards-dev.twitter.com/validator/)
-    "twitter:alt": title, // note: more about [Twitter Cards](https://developer.twitter.com/en/docs/twitter-for-websites/cards/guides/getting-started)
+    // note: validate [Twitter Cards](https://cards-dev.twitter.com/validator/)
+    // "twitter:image": image,
+    // note: more about [Twitter Cards](https://developer.twitter.com/en/docs/twitter-for-websites/cards/guides/getting-started)
+    "twitter:alt": title,
+    ...(Array.isArray(meta) &&
+      meta.reduce((prev, cur) => {
+        prev[cur.name] = cur.content;
+        return prev;
+      }, {})),
   };
 };
 
