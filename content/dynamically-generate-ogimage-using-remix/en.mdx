@@ -1,0 +1,263 @@
+---
+status: published
+slug: /dynamically-generate-ogimage-using-remix
+lang: en
+title: Dynamically generate OG:image using Remix 💿
+description: How to dynamically generate OG:images using Remix resource routes, React JSX, TailwindCSS & Puppeteer
+created: 2022-01-05T15:50:00 -5
+updated: 2022-01-07T15:50:00 -5
+published: 2022-01-07T15:50:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2022-01-07T15:50:00 -5
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+# {frontmatter.title}
+
+## ¿What are we generating?
+
+Social sharing images, so that when you share an article link on Twitter, Facebook or other social media it shows a nice image along the title and description, like the following
+
+![](/en/ogimage/dynamically-generate-ogimage-using-remix.png?size=small)
+
+I just have to link to `/en/ogimage/dynamically-create-ogimage-using-remix.png?size=small` which is using the same slug as the article, prefixed with `/ogimage/` and ending in `.png` 🥳
+
+There are of course alternative API designs, like allowing arbitrary values or a link to some content, those are obviously more flexible but also more easily abused.
+
+For now I just need exactly this, social images only for my articles, so it was easier to build it restricted like this, than potentially opening a whole world of possible attack vectors.
+
+Later when I've got my CMS going, I'm integrating some image generation right into the article editing ui, which is protected by authentication anyway.
+
+## Requirements
+
+You need a host where you can install [Puppeteer](https://pptr.dev), in this [issue](https://github.com/vercel/vercel/discussions/4903) people talk about using alternatively [Playwright](https://playwright.dev) instead of Puppeteer on Vercel as it's pretty similar in it's API.
+
+## Instaling dependencies
+
+```bash
+npm install puppeteer sharp
+```
+
+> sharp is optional and only needed if you want to be able to easily produce differently resized versions via a query string like in the example above
+
+## Route for the template
+
+It depends of course on your specific routing "setup", in my case I've got a `$lang` directory which houses almost everything, within it a `$slug.tsx` which renders individual posts, so I've added a directory `ogimage` within `$lang` and created `$slug.template.tsx`.
+
+So for the route `/en/deploy-remix-to-fly-using-github-action` the template lives at `/en/ogimage/deploy-remix-to-fly-using-github-action/template`
+
+```tsx
+// /app/routes/$lang/__other/ogimage/$slug.template.tsx
+import matter from "gray-matter";
+import { json, Links, LoaderFunction, useLoaderData } from "remix";
+import { readFile } from "~/utils.server";
+import { getContentPath, getFilePath } from "~/utils/compile-mdx.server";
+import { NotFoundError } from "~/utils/error-responses";
+import { Frontmatter } from "~/utils/mdx.server";
+import { defaultLang, domain } from "/config";
+import { Lang } from "/types";
+
+type LoaderData = {
+  status: string;
+  title: string;
+  lang: string;
+  author: string;
+  mdx: string;
+};
+
+export const loader: LoaderFunction = async ({ params }) => {
+  const lang = (params.lang || defaultLang) as Lang;
+  const slug = params.slug || "index";
+  const filename = `${lang}.mdx`;
+  const contentPath = getContentPath(slug);
+  const filePath = getFilePath(contentPath, filename);
+  const source = await readFile(filePath, { encoding: "utf-8" }).catch(() => {
+    throw NotFoundError(lang);
+  });
+
+  const {
+    data: { status, title, author, mdx },
+  } = matter(source) as unknown as { data: Frontmatter };
+
+  return json({ status, title, author, mdx, lang });
+};
+
+export default function OgImage() {
+  const { status, title, author, mdx, lang } = useLoaderData<LoaderData>();
+  return (
+    <>
+      <html lang="en" className="text-blue-800 border-r-4">
+        <head>
+          <meta charSet="UTF-8" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
+          <title>{title}</title>
+          <Links />
+        </head>
+        <body>
+          <div
+            id="ogimage"
+            className="w-[1200px] h-[630px] bg-black rounded-2xl"
+          >
+            <div className="bg-gradient-to-tr from-skin-accent/60 to-skin-accent p-4 rounded-2xl">
+              <div className="p-10 bg-zinc-800 text-zinc-200 h-full border border-zinc-300 rounded-lg flex flex-col justify-center items-center space-y-10">
+                <h1 className="text-8xl leading-[1.2] text-center">{title}</h1>
+                <img
+                  src="https://github.com/canrau.png"
+                  alt="Can Rau Avatar"
+                  className="rounded-egg w-40 h-40"
+                />
+                <div className="text-5xl text-center">{domain}</div>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    </>
+  );
+}
+```
+
+> Note that I'm using [Tailwind in JIT mode](https://tailwindcss.com/docs/upgrade-guide#migrating-to-the-jit-engine) that's why I can set `w-[1200px]`
+
+Some values are still not really dynamic as I don't have the actual need for ot so far. I'm the only author so my avatar is hard coded and I'm using `domain` which I've defined in `/config.ts` as `CanRau.com` instead of a dynamic author, later I'm going to make all that more dynamic, probably when I migrated to my upcoming CMS.
+
+But it's meant as a starting point anyway 😉
+
+So now that we've got the template going we need the code to take a screenshot of it.
+
+## Puppeteer using a Remix Resource Route
+
+```ts
+import { mkdir, readFile, writeFile } from "fs/promises";
+import { json, type LoaderFunction } from "remix";
+import puppeteer from "puppeteer";
+import sharp from "sharp";
+import { defaultLang } from "/config";
+import { Lang } from "/types";
+
+const sizes: Record<string, number> = {
+  small: 504,
+};
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const { slug } = params;
+  const lang = (params.lang || defaultLang) as Lang;
+  const url = new URL(request.url);
+  const querySize = url.searchParams.get("size");
+  const size = querySize ? sizes[querySize] : "";
+  const headers: HeadersInit = {
+    "Content-Type": "image/png",
+    // can be `inline` or `attachment`
+    "Content-Disposition": `inline; filename="${slug}_ogimage.png"`,
+    "x-content-type-options": "nosniff",
+  };
+  const imagePath = `.cache/ogimages/${slug}_ogimage${
+    size ? `-${querySize}` : ""
+  }.png`;
+  const cachedImage = await readFile(imagePath).catch(() => {});
+  if (cachedImage) {
+    return new Response(cachedImage, { headers });
+  }
+  const ensureCacheDir = mkdir(".cache/ogimages").catch(() => {});
+  const templateUrl = request.url.replace(".png", "/template");
+  const [browser] = await Promise.all([puppeteer.launch(), ensureCacheDir]);
+  const page = await browser.newPage();
+  await page.goto(templateUrl);
+
+  const element = await page.$("#ogimage");
+  let screenshot = await element?.screenshot({
+    omitBackground: true,
+    type: "png",
+  });
+  await browser.close();
+
+  if (size) {
+    screenshot = await sharp(screenshot)
+      .resize(size)
+      .toBuffer()
+      .catch((e) => {
+        console.error(e);
+        throw json({ lang, error: "Error creating the image" }, 500);
+      });
+  }
+
+  if (typeof screenshot === "undefined") {
+    throw json({ lang, error: "Error creating the image" }, 500);
+  }
+
+  // note: would be cool if we could `Response` without returning so we could `writeFile` after sending the response to the browser
+  await writeFile(imagePath, screenshot);
+
+  return new Response(screenshot, { headers });
+};
+```
+
+## Using the image in articles
+
+Then in my `$slug.tsx` route which renders each individual article I've got the following (stripped down) `meta` export
+
+```ts
+export const meta: MetaFunction = ({ data }) => {
+  const { title, description, lang, slug, cover, meta } =
+    data?.frontmatter ?? {};
+
+  const url = `${rootUrl}/${lang}${slug}`;
+  const image = cover
+    ? `${rootUrl}${cover}`
+    : `${rootUrl}/${lang}/ogimage/${slug}.png`;
+  return {
+    title,
+    description,
+    "og:url": url,
+    "og:title": `${title}${titleSeperator}${domain}`,
+    "og:description": description,
+    "og:image": image,
+    "og:site_name": domain,
+    "twitter:card": cover ? "summary_large_image" : "summary",
+    "twitter:creator": twitterHandle,
+    "twitter:site": twitterHandle,
+  };
+};
+```
+
+> Make sure to define the `og:image` using an [absolute url](https://stackoverflow.com/questions/9858577/open-graph-can-resolve-relative-url#comment72002620_35153563)
+
+So if an article specifies a `cover` image in its frontmatter use this instead of generating one.
+
+## Testing Social Images
+
+After deploying the code you can just paste an article's link into a Tweet, Facebook post, Whatsapp message or other service which embeds a link instead of just making it clickable.
+
+Though alternatively there's tools provided by most services like [Twitter Card Validator](https://cards-dev.twitter.com/validator), [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) or [Linkedin Post Inspector](https://www.linkedin.com/post-inspector/) which not only preview your link, but also clear the cache of former versions to ensure it's fetching the newest data.
+
+Otherwise you (or someone else) might've shared an article already on the same platform so you won't see your newly auto generated social image, which can be really confusing. 😢
+
+## Alternatives
+
+You actually don't have to create a template route, you could also take a screenshot of your actual article, or maybe just the title part, including reading time etc 🤷‍♂️
+
+There's also alternatives to taking a screenshot with a headless browser like using `node-canvas` as already well explained by [Cameron McHenry](https://twitter.com/cammchenry) in [Generating Social Images with Remix](https://camchenry.com/blog/generating-social-images-with-remix)
+
+## Related
+
+- [Your Site's Calling Card - Five Ways to add `og:image`s to your JAMstack site](https://www.swyx.io/jamstack-og-images) - Great article by [Shawn @Swyx Wang](https://twitter.com/swyx), also inspiration for this tutorial
+- [OGimage.gallery](https://www.ogimage.gallery/) - great inspiration for your social media images
+- [How to Optimize Blog Images for Social Sharing: An Intro to Open Graph Tags](https://blog.hubspot.com/marketing/open-graph-tags-facebook-twitter-linkedin)
+- [Playwright vs Puppeteer: A tester's perspective](https://wonderproxy.com/blog/playwright-vs-puppeteer/)
+- [Puppeteer vs. Playwright: One is ~25% Faster](https://devsday.ru/blog/details/47236)
+- [Everything you ever wanted to know about unfurling but were afraid to ask /or/ How to make your site previews look amazing in Slack](https://medium.com/slack-developer-blog/everything-you-ever-wanted-to-know-about-unfurling-but-were-afraid-to-ask-or-how-to-make-your-e64b4bb9254)
+- [Content-Disposition HTTP Header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition)
+
+Well, thanks for reading 🙏 As always feel free to get in touch if you've got any questions or feedback 🤝
