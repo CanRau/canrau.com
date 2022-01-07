@@ -1,13 +1,13 @@
-import * as React from "react";
 import clsx from "clsx";
+import { createElement, ElementType, ReactNode } from "react";
 
 type TitleProps = {
   variant?: "primary" | "secondary";
-  as?: React.ElementType;
+  as?: ElementType;
   className?: string;
   id?: string;
 } & (
-  | { children: React.ReactNode }
+  | { children: ReactNode }
   | {
       dangerouslySetInnerHTML: {
         __html: string;
@@ -73,11 +73,8 @@ type ParagraphProps = {
   className?: string;
   prose?: boolean;
   textColorClassName?: string;
-  as?: React.ElementType;
-} & (
-  | { children: React.ReactNode }
-  | { dangerouslySetInnerHTML: { __html: string } }
-);
+  as?: ElementType;
+} & ({ children: ReactNode } | { dangerouslySetInnerHTML: { __html: string } });
 
 // from mdx-bundler readme
 // const Paragraph: FC = (props) => {
@@ -96,7 +93,7 @@ function Paragraph({
   textColorClassName = "text-secondary",
   ...rest
 }: ParagraphProps) {
-  return React.createElement(as, {
+  return createElement(as, {
     className: clsx("max-w-full text-lg", textColorClassName, className, {
       "prose prose-light dark:prose-dark": prose,
     }),
