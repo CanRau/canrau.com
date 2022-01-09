@@ -5,7 +5,7 @@ lang: en
 title: Dynamically generate OG:image using Remix 💿
 description: How to dynamically generate OG:images using Remix resource routes, React JSX, TailwindCSS & Puppeteer
 created: 2022-01-05T15:50:00 -5
-updated: 2022-01-07T15:50:00 -5
+updated: 2022-01-08T00:50:00 -5
 published: 2022-01-07T15:50:00 -5
 version: 1
 meta:
@@ -22,6 +22,8 @@ published_at:
 ---
 
 # {frontmatter.title}
+
+## Table of contents
 
 ## ¿What are we generating?
 
@@ -41,19 +43,47 @@ Later when I've got my CMS going, I'm integrating some image generation right in
 
 You need a host where you can install [Puppeteer](https://pptr.dev), in this [issue](https://github.com/vercel/vercel/discussions/4903) people talk about using alternatively [Playwright](https://playwright.dev) instead of Puppeteer on Vercel as it's pretty similar in it's API.
 
+More about making it work in [Docker below](#dockerfile-adjustments) and general [Puppeteer troubleshooting docs](https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md)
+
 ## Instaling dependencies
 
 ```bash
 npm install puppeteer sharp
 ```
 
-> sharp is optional and only needed if you want to be able to easily produce differently resized versions via a query string like in the example above
+> sharp is optional and only needed if you want to be able to easily produce differently resized versions via a query string like in the example above.
 
 ## Route for the template
 
 It depends of course on your specific routing "setup", in my case I've got a `$lang` directory which houses almost everything, within it a `$slug.tsx` which renders individual posts, so I've added a directory `ogimage` within `$lang` and created `$slug.template.tsx`.
 
-So for the route `/en/deploy-remix-to-fly-using-github-action` the template lives at `/en/ogimage/deploy-remix-to-fly-using-github-action/template`
+So for the route `/en/deploy-remix-to-fly-using-github-action` the template lives at `/en/ogimage/deploy-remix-to-fly-using-github-action/template`.
+
+I highly recommend setting a specific webfont for all the text you want to use as the Chrome browser Puppeteer is using within the (Docker) container doesn not have all the needed fonts.
+
+I'm using [Oswald](https://fonts.google.com/specimen/Oswald) (light & bold). I downloaded the zip from Google Fonts, converted the light and bold .tts files to WOFF & WOFF2 using [cloudconvert](https://cloudconvert.com/ttf-to-woff2) (there's lots of alternatives, was just lazy 🤷🏻‍♂️), placed the downloaded files in `/public/fonts` and enabled them in my `/styles/tailwind.css` via the following css
+
+```css
+@font-face {
+  font-family: "Oswald";
+  src: url("/fonts/Oswald-Light.woff2") format("woff2"), url("/fonts/Oswald-Light.woff")
+      format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Oswald";
+  src: url("/fonts/Oswald-Bold.woff2") format("woff2"), url("/fonts/Oswald-Bold.woff")
+      format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+```
+
+Now I could've edited `tailwind.config.js` to extend my theme, or instead thanks to [JIT](https://tailwindcss.com/docs/just-in-time-mode) ([migration guide](https://tailwindcss.com/docs/upgrade-guide#migrating-to-the-jit-engine)) set the font in my theme using `font-[Oswald]` as shown below, which's also why I can use `w-[1200px]`.
 
 ```tsx
 // /app/routes/$lang/__other/ogimage/$slug.template.tsx
@@ -70,6 +100,8 @@ type LoaderData = {
   status: string;
   title: string;
   lang: string;
+  hydrate: boolean;
+  description: string;
   author: string;
   mdx: string;
 };
@@ -85,17 +117,18 @@ export const loader: LoaderFunction = async ({ params }) => {
   });
 
   const {
-    data: { status, title, author, mdx },
+    data: { status, title, hydrate, description, author, mdx },
   } = matter(source) as unknown as { data: Frontmatter };
 
-  return json({ status, title, author, mdx, lang });
+  return json({ status, title, hydrate, description, author, mdx, lang });
 };
 
 export default function OgImage() {
-  const { status, title, author, mdx, lang } = useLoaderData<LoaderData>();
+  const { status, title, hydrate, description, author, mdx, lang } =
+    useLoaderData<LoaderData>();
   return (
     <>
-      <html lang="en" className="text-blue-800 border-r-4">
+      <html lang="en">
         <head>
           <meta charSet="UTF-8" />
           <meta
@@ -105,12 +138,12 @@ export default function OgImage() {
           <title>{title}</title>
           <Links />
         </head>
-        <body>
+        <body className="font-[Oswald] font-bold">
           <div
             id="ogimage"
             className="w-[1200px] h-[630px] bg-black rounded-2xl"
           >
-            <div className="bg-gradient-to-tr from-skin-accent/60 to-skin-accent p-4 rounded-2xl">
+            <div className="h-full bg-gradient-to-tr from-skin-accent/60 to-skin-accent p-4 rounded-2xl">
               <div className="p-10 bg-zinc-800 text-zinc-200 h-full border border-zinc-300 rounded-lg flex flex-col justify-center items-center space-y-10">
                 <h1 className="text-8xl leading-[1.2] text-center">{title}</h1>
                 <img
@@ -118,7 +151,7 @@ export default function OgImage() {
                   alt="Can Rau Avatar"
                   className="rounded-egg w-40 h-40"
                 />
-                <div className="text-5xl text-center">{domain}</div>
+                <div className="text-5xl text-center font-light">{domain}</div>
               </div>
             </div>
           </div>
@@ -129,13 +162,15 @@ export default function OgImage() {
 }
 ```
 
-> Note that I'm using [Tailwind in JIT mode](https://tailwindcss.com/docs/upgrade-guide#migrating-to-the-jit-engine) that's why I can set `w-[1200px]`
+NOTE: When you design your template, I recommend using the `/template` route which has a quicker feedback loop than generating a screenshot all the time.
 
-Some values are still not really dynamic as I don't have the actual need for ot so far. I'm the only author so my avatar is hard coded and I'm using `domain` which I've defined in `/config.ts` as `CanRau.com` instead of a dynamic author, later I'm going to make all that more dynamic, probably when I migrated to my upcoming CMS.
+Some values are still not really dynamic as I don't have the actual need for it so far. I'm the only author so my avatar is hard coded and I'm using `domain` which I've defined in `/config.ts` as `CanRau.com` instead of a dynamic author, later I'm going to make all that more dynamic, probably when I migrated to my upcoming CMS.
 
 But it's meant as a starting point anyway 😉
 
 So now that we've got the template going we need the code to take a screenshot of it.
+
+> If it'd be possible to have a [Resource Route](https://remix.run/docs/en/v1/guides/resource-routes) & a UI route in the same file, providing some logic to "disable" the component rendering, e.g. if `loader` responses with some specific config, we could have the template in the same file, for now that's not possible though 🤷🏻‍♂️
 
 ## Puppeteer using a Remix Resource Route
 
@@ -144,11 +179,17 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import { json, type LoaderFunction } from "remix";
 import puppeteer from "puppeteer";
 import sharp from "sharp";
-import { defaultLang } from "/config";
+import { defaultLang, isContainer } from "/config";
 import { Lang } from "/types";
+import { join } from "path";
 
 const sizes: Record<string, number> = {
   small: 504,
+};
+
+const defaultViewport = {
+  height: 1200,
+  width: 630,
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -163,24 +204,55 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     "Content-Disposition": `inline; filename="${slug}_ogimage.png"`,
     "x-content-type-options": "nosniff",
   };
-  const imagePath = `.cache/ogimages/${slug}_ogimage${
-    size ? `-${querySize}` : ""
-  }.png`;
+  const sizeSuffix = size ? `-${querySize}` : "";
+  const ogCache = join(process.cwd(), ".cache", "ogimages");
+  const imagePath = `${ogCache}/${slug}_ogimage${sizeSuffix}.png`;
+  // note pptrCache to prevent [`ENOSPC: no space left on device`](https://github.com/puppeteer/puppeteer/issues/6414)
+  const pptrCache = join(process.cwd(), ".cache", "pptr");
+  // note: `catch`ing on `mkdir` because it errors if dir already exists
+  await Promise.all([
+    mkdir(pptrCache, { recursive: true }).catch(() => {}),
+    mkdir(ogCache, { recursive: true }).catch(() => {}),
+  ]);
   const cachedImage = await readFile(imagePath).catch(() => {});
   if (cachedImage) {
     return new Response(cachedImage, { headers });
   }
-  const ensureCacheDir = mkdir(".cache/ogimages").catch(() => {});
-  const templateUrl = request.url.replace(".png", "/template");
-  const [browser] = await Promise.all([puppeteer.launch(), ensureCacheDir]);
+  const launchBrowser = puppeteer.launch({
+    args: [
+      "--font-render-hinting=none", // from https://docs.browserless.io/blog/2020/09/30/puppeteer-print.html#use-a-special-launch-flag
+      "--disable-dev-shm-usage",
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+    ],
+    userDataDir: pptrCache,
+    ...(isContainer && { executablePath: "google-chrome-stable" }),
+  });
+  const browser = await launchBrowser;
   const page = await browser.newPage();
+  // from https://docs.browserless.io/blog/2020/09/30/puppeteer-print.html#set-a-standard-user-agent-header
+  await page.setUserAgent(
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36",
+  );
+  const templateUrl = request.url.replace(".png", "/template");
+  await page.setViewport(defaultViewport);
   await page.goto(templateUrl);
-
   const element = await page.$("#ogimage");
-  let screenshot = await element?.screenshot({
+  if (!element) {
+    console.error("Could'nt get #ogimage");
+    throw json({ lang, error: "Error creating the image" }, 500);
+  }
+  const boundingBox = await element.boundingBox();
+  if (!boundingBox) {
+    console.error("Could'nt get element.boundingBox");
+    throw json({ lang, error: "Error creating the image" }, 500);
+  }
+  let screenshot = await page?.screenshot({
     omitBackground: true,
     type: "png",
+    clip: { ...boundingBox, height: boundingBox.height },
   });
+  await element.dispose();
   await browser.close();
 
   if (size) {
@@ -197,12 +269,26 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     throw json({ lang, error: "Error creating the image" }, 500);
   }
 
-  // note: would be cool if we could `Response` without returning so we could `writeFile` after sending the response to the browser
+  // would be cool if we could `Response` without returning so we could cache after sending the response to the browser
   await writeFile(imagePath, screenshot);
 
   return new Response(screenshot, { headers });
 };
 ```
+
+NOTE: When you test the actual screenshotting disable the caching by commenting out
+
+```tsx
+// if (cachedImage) {
+//   return new Response(cachedImage, { headers });
+// }
+```
+
+and be aware that (at least in Firefox) the screenshot seems to NOT be transparent
+
+![](./ogimage-browser-preview-white-non-transparent-edges.png)
+
+note the white edges, though, after it was driving me nuts 🥜, I realized the edges are actually transparent as expected 🥳 as seen in the [example before](#what-are-we-generating)
 
 ## Using the image in articles
 
@@ -236,6 +322,134 @@ export const meta: MetaFunction = ({ data }) => {
 
 So if an article specifies a `cover` image in its frontmatter use this instead of generating one.
 
+## Dockerfile adjustments
+
+I'm using `FROM node:16-bullseye-slim`
+
+I had to adjust my `Dockerfile` from
+
+```Dockerfile
+RUN apt-get update && apt-get install -y
+```
+
+to
+
+```Dockerfile
+RUN apt-get update \
+    && apt-get install -y wget gnupg \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst \
+    fonts-noto fonts-noto-cjk fonts-noto-color-emoji fonts-freefont-ttf fonts-liberation libxss1 \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/\*
+```
+
+<details>
+  <summary>Complete Dockerfile</summary>
+  
+```Dockerfile
+# BASE
+FROM node:16-bullseye-slim as base
+
+ARG COMMIT_SHA
+
+# update linux deps & install deps needed for puppeteer, [code from](https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-in-docker)
+
+RUN apt-get update \
+ && apt-get install -y wget gnupg \
+ && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+ && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+ && apt-get update \
+ && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst \
+ fonts-noto fonts-noto-cjk fonts-noto-color-emoji fonts-freefont-ttf fonts-liberation libxss1 \
+ --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/\*
+
+# DEPS - Install all node_modules, including dev dependencies
+
+FROM base as deps
+
+ARG COMMIT_SHA
+
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+WORKDIR /home/node/app
+
+ADD package.json yarn.lock .yarnrc.yml ./
+COPY .yarn .yarn
+
+# Skip the chromium download when installing puppeteer
+
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+
+RUN yarn install
+
+# PRODUCTION-DEPS - Setup production node_modules
+
+FROM base as production-deps
+
+ARG COMMIT_SHA
+
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+WORKDIR /home/node/app
+
+COPY --from=deps /home/node/app/node_modules /home/node/app/node_modules
+COPY --from=deps /home/node/app/.yarn /home/node/app/.yarn
+ADD package.json yarn.lock .yarnrc.yml /home/node/app/
+
+RUN yarn workspaces focus --all --production
+
+# BUILD the app
+
+FROM base as build
+
+ARG COMMIT_SHA
+
+ENV NODE_ENV=production
+
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+WORKDIR /home/node/app
+USER node
+
+COPY --from=deps --chown=node:node /home/node/app/node_modules /home/node/app/node_modules
+ADD --chown=node:node . .
+
+RUN yarn build
+
+# Finally, build the production image with minimal footprint
+
+FROM base
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+WORKDIR /home/node/app
+
+ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
+ENTRYPOINT ["dumb-init", "--"]
+RUN echo "kernel.unprivileged_userns_clone=1" >> /etc/sysctl.conf
+
+ARG COMMIT_SHA
+ENV COMMIT_SHA=$COMMIT_SHA
+
+ENV NODE_ENV=production
+ENV OS_ENV=container
+
+COPY --chown=node:node --from=production-deps /home/node/app/node_modules /home/node/app/node_modules
+COPY --chown=node:node --from=build /home/node/app/build /home/node/app/build
+COPY --chown=node:node --from=build /home/node/app/public /home/node/app/public
+ADD --chown=node:node . .
+
+USER node
+
+CMD ["./node_modules/.bin/remix-serve", "build"]
+
+```
+
+> The code messes a little up within the `<details/>` element, adding unnecessary blank lines 😳 You can also find the [code in the repo](https://github.com/CanRau/canrau.com/blob/bfe35bc68af16e9ccac91776bf460f2a9929f3e7/Dockerfile), though note that it's a little messy with lots of commented stuff 😅
+</details>
+
+More tips in [Puppeteer troubleshooting docs](https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md)
+
 ## Testing Social Images
 
 After deploying the code you can just paste an article's link into a Tweet, Facebook post, Whatsapp message or other service which embeds a link instead of just making it clickable.
@@ -245,6 +459,8 @@ Though alternatively there's tools provided by most services like [Twitter Card 
 Otherwise you (or someone else) might've shared an article already on the same platform so you won't see your newly auto generated social image, which can be really confusing. 😢
 
 ## Alternatives
+
+An alternative to make it more flexible could be using *signed URLs* which is [explained in this Bannerbear example](https://github.com/yongfook/bannerbear-signed-url-examples#signing-the-url), which is also an alternative itself as it provides [social images as a service](https://www.bannerbear.com).
 
 You actually don't have to create a template route, you could also take a screenshot of your actual article, or maybe just the title part, including reading time etc 🤷‍♂️
 
@@ -259,5 +475,7 @@ There's also alternatives to taking a screenshot with a headless browser like us
 - [Puppeteer vs. Playwright: One is ~25% Faster](https://devsday.ru/blog/details/47236)
 - [Everything you ever wanted to know about unfurling but were afraid to ask /or/ How to make your site previews look amazing in Slack](https://medium.com/slack-developer-blog/everything-you-ever-wanted-to-know-about-unfurling-but-were-afraid-to-ask-or-how-to-make-your-e64b4bb9254)
 - [Content-Disposition HTTP Header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition)
+- [Docker and Node.js Best Practices](https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md#non-root-user)
 
 Well, thanks for reading 🙏 As always feel free to get in touch if you've got any questions or feedback 🤝
+```
