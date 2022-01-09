@@ -65,7 +65,7 @@ export const meta: MetaFunction = ({ data }) => {
     // note: clear FB cache [Sharing Debugger](https://developers.facebook.com/tools/debug/)
     ...(image && { "og:image": image }),
     "og:site_name": domain,
-    "twitter:card": cover ? "summary_large_image" : "summary",
+    "twitter:card": image ? "summary_large_image" : "summary",
     "twitter:creator": twitterHandle,
     "twitter:site": twitterHandle,
     // "twitter:title": title,
