@@ -54,7 +54,7 @@ export const meta: MetaFunction = ({ data }) => {
   const description = _description || "Missing description";
   const image = cover
     ? `${rootUrl}${cover}`
-    : `${rootUrl}/${lang}/ogimage/${slug}.png`;
+    : `${rootUrl}/${lang}/ogimage${slug}.png`;
   // todo: make reusable function to define meta-tags
   return {
     title,

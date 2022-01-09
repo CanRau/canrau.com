@@ -302,7 +302,7 @@ export const meta: MetaFunction = ({ data }) => {
   const url = `${rootUrl}/${lang}${slug}`;
   const image = cover
     ? `${rootUrl}${cover}`
-    : `${rootUrl}/${lang}/ogimage/${slug}.png`;
+    : `${rootUrl}/${lang}/ogimage${slug}.png`;
   return {
     title,
     description,
