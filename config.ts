@@ -1,5 +1,8 @@
 import { Lang } from "/types";
 
+export const isProd = process.env.NODE_ENV === "production";
+export const isContainer = process.env.OS_ENV === "container";
+
 export const domain: string = "CanRau.com";
 
 export const author: string = "Can Rau";

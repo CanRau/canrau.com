@@ -1,4 +1,18 @@
+# note: [8 Protips to Start Killing It When Dockerizing Node.js](https://nodesource.com/blog/8-protips-to-start-killing-it-when-dockerizing-node-js/)
 # TODO: if I can fix memory usage by yarn switch back to `flyctl scale memory 256` ? [ref](https://community.fly.io/t/using-yarn-2-causes-enomem/999)
+# check for namespacing https://github.com/puppeteer/puppeteer/issues/290#issuecomment-322885826
+# check for namespacing https://stackoverflow.com/questions/39215025/how-to-check-if-linux-user-namespaces-are-supported-by-current-os-kernel
+# # RUN sysctl -w kernel.unprivileged_userns_clone=1
+# from https://superuser.com/questions/1094597/enable-user-namespaces-in-debian-kernel#comment2256770_1122977
+# # RUN sysctl -w kernel.userns_restrict=0
+# # from https://unix.stackexchange.com/a/303214/441072
+# # RUN echo 0 > /proc/sys/kernel/userns_restrict
+# from https://unix.stackexchange.com/questions/303213/how-to-enable-user-namespaces-in-the-kernel-for-unprivileged-unshare#comment814829_303214
+# # RUN echo 'kernel.unprivileged_userns_clone=1' > /etc/sysctl.d/userns.conf
+# https://unix.stackexchange.com/a/602409/441072
+# RUN echo "kernel.unprivileged_userns_clone=1" >> /etc/sysctl.conf
+# RUN /app/namespacing.sh
+
 # BASE
 FROM node:16-bullseye-slim as base
 
@@ -10,7 +24,8 @@ RUN apt-get update \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
-    && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
+    && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst \
+        fonts-noto fonts-noto-cjk fonts-noto-color-emoji fonts-freefont-ttf fonts-liberation libxss1 \
       --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
@@ -19,12 +34,14 @@ FROM base as deps
 
 ARG COMMIT_SHA
 
-RUN mkdir /app
-WORKDIR /app
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+WORKDIR /home/node/app
 
 ADD package.json yarn.lock .yarnrc.yml ./
 # note: ADD copies the contents of a folder instead of the folder 🤷‍♂️ [SO](https://stackoverflow.com/a/54616645/3484824)
 COPY .yarn .yarn
+# Skip the chromium download when installing puppeteer
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 # RUN du -sh * | sort -h
 RUN yarn install
 # RUN du -sh * | sort -h
@@ -34,13 +51,12 @@ FROM base as production-deps
 
 ARG COMMIT_SHA
 
-RUN mkdir /app
-WORKDIR /app
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+WORKDIR /home/node/app
 
-# maybe disable next line?
-COPY --from=deps /app/node_modules /app/node_modules
-COPY --from=deps /app/.yarn /app/.yarn
-ADD package.json yarn.lock .yarnrc.yml /app/
+COPY --from=deps /home/node/app/node_modules /home/node/app/node_modules
+COPY --from=deps /home/node/app/.yarn /home/node/app/.yarn
+ADD package.json yarn.lock .yarnrc.yml /home/node/app/
 # RUN du -sh * | sort -h
 RUN yarn workspaces focus --all --production
 # RUN du -sh * | sort -h
@@ -53,41 +69,50 @@ ARG COMMIT_SHA
 # todo: KCD sets it only in last step?
 ENV NODE_ENV=production
 
-RUN mkdir /app
-WORKDIR /app
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+WORKDIR /home/node/app
+USER node
 
-COPY --from=deps /app/node_modules /app/node_modules
-# COPY --from=deps /app/package.json /app/package.json
-# COPY --from=deps /app/.yarn /app/.yarn
-# COPY --from=deps /app/yarn.lock /app/yarn.lock
-# COPY --from=deps /app/.yarnrc.yml /app/.yarnrc.yml
+# note: COPY --chown [found at DO](https://www.digitalocean.com/community/tutorials/how-to-build-a-node-js-application-with-docker)
+COPY --from=deps --chown=node:node /home/node/app/node_modules /home/node/app/node_modules
+# COPY --from=deps ./package.json ./package.json
+# COPY --from=deps ./.yarn ./.yarn
+# COPY --from=deps ./yarn.lock ./yarn.lock
+# COPY --from=deps ./.yarnrc.yml ./.yarnrc.yml
 
 # RUN du -sh * | sort -h
-ADD . .
+ADD --chown=node:node . .
 # RUN du -sh * | sort -h
 RUN yarn build
 
 # Finally, build the production image with minimal footprint
 FROM base
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+WORKDIR /home/node/app
+
+# from https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-in-docker
+ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
+ENTRYPOINT ["dumb-init", "--"]
+RUN echo "kernel.unprivileged_userns_clone=1" >> /etc/sysctl.conf
+# todo: get `USER node` working
 
 ARG COMMIT_SHA
 ENV COMMIT_SHA=$COMMIT_SHA
 # ENV CSRF_KEY=$CSRF_KEY
 
 ENV NODE_ENV=production
+ENV OS_ENV=container
 
-RUN mkdir /app
-WORKDIR /app
-
-COPY --from=production-deps /app/node_modules /app/node_modules
-COPY --from=build /app/build /app/build
-COPY --from=build /app/public /app/public
+COPY --chown=node:node --from=production-deps /home/node/app/node_modules /home/node/app/node_modules
+COPY --chown=node:node --from=build /home/node/app/build /home/node/app/build
+COPY --chown=node:node --from=build /home/node/app/public /home/node/app/public
 # RUN ls -lAFh
 # RUN du -sh * | sort -h
-ADD . .
+ADD --chown=node:node . .
 # RUN ls -lAFh
 # RUN du -sh * | sort -h
 
-# CMD ["yarn", "start"]
-CMD ["npm", "run", "start"]
-# CMD ["remix-serve", "build"] // Cannot find module '/app/remix-serve'
+USER node
+
+CMD ["./node_modules/.bin/remix-serve", "build"]

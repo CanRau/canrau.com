@@ -7,6 +7,24 @@
 
 /* done: try out swyx's [100 bytes of CSS](https://twitter.com/swyx/status/1449472712720601088) [blog with explanation](https://dev.to/swyx/100-bytes-of-css-to-look-great-everywhere-19pd) */
 
+@font-face {
+  font-family: "Oswald";
+  src: url("/fonts/Oswald-Light.woff2") format("woff2"),
+    url("/fonts/Oswald-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Oswald";
+  src: url("/fonts/Oswald-Bold.woff2") format("woff2"),
+    url("/fonts/Oswald-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   /* note: from https://open-props.style */
   :root {

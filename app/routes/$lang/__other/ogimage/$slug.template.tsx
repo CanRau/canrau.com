@@ -41,7 +41,7 @@ export default function OgImage() {
     useLoaderData<LoaderData>();
   return (
     <>
-      <html lang="en" className="text-blue-800 border-r-4">
+      <html lang="en">
         <head>
           <meta charSet="UTF-8" />
           <meta
@@ -51,13 +51,13 @@ export default function OgImage() {
           <title>{title}</title>
           <Links />
         </head>
-        <body>
+        <body className="font-[Oswald] font-bold">
           {/* <div className="w-[1280px] h-[720px] flex flex-col items-center justify-center border"> */}
           <div
             id="ogimage"
             className="w-[1200px] h-[630px] bg-black rounded-2xl"
           >
-            <div className="bg-gradient-to-tr from-skin-accent/60 to-skin-accent p-4 rounded-2xl">
+            <div className="h-full bg-gradient-to-tr from-skin-accent/60 to-skin-accent p-4 rounded-2xl">
               <div className="p-10 bg-zinc-800 text-zinc-200 h-full border border-zinc-300 rounded-lg flex flex-col justify-center items-center space-y-10">
                 <h1 className="text-8xl leading-[1.2] text-center">{title}</h1>
                 <img
@@ -65,7 +65,7 @@ export default function OgImage() {
                   alt="Can Rau Avatar"
                   className="rounded-egg w-40 h-40"
                 />
-                <div className="text-5xl text-center">{domain}</div>
+                <div className="text-5xl text-center font-light">{domain}</div>
               </div>
             </div>
           </div>
