@@ -1,6 +1,6 @@
 const { readdir, readFile, writeFile } = require("fs").promises;
 const puppeteer = require("puppeteer");
-// const sharp = require("sharp");
+const sharp = require("sharp");
 const [_, __, cmd, ...postPaths] = process.argv;
 
 let cachedBrowser;
@@ -85,13 +85,13 @@ async function takeScreenshot(slug) {
     path,
   });
 
-  // await sharp(screenshot)
-  //     .resize(size)
-  //     .toBuffer()
-  //     .catch((e) => {
-  //       console.error(e);
-  //       throw json({ lang, error: "Error creating the image" }, 500);
-  //     });
+  await sharp(path)
+    .resize(504)
+    .toFile(path.replace(".png", "_small.png"))
+    .catch((e) => {
+      console.error(e);
+      throw json({ lang, error: "Error creating the image" }, 500);
+    });
 
   await element.dispose();
   await page.close();
