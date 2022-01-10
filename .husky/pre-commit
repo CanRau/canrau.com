@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# via https://stackoverflow.com/a/2413151/3484824
+node ./utils/generate-ogimages.js pre-commit $(git diff --cached --name-status | awk '$1 != "D" { print $2 }')

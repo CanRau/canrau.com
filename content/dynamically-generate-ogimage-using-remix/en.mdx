@@ -23,13 +23,15 @@ published_at:
 
 # {frontmatter.title}
 
+> **NOTE**: I had to increase the RAM of my fly.io app from 512mb to 1024mb so I'm currently working on a slightly different approach doing the screenshots locally pre-commit because at the moment the price increase, although not a lot, is not worth it for my little blog. I'll let you know when I publish the local alternative.
+
 ## Table of contents
 
 ## ¿What are we generating?
 
 Social sharing images, so that when you share an article link on Twitter, Facebook or other social media it shows a nice image along the title and description, like the following
 
-![](/en/ogimage/dynamically-generate-ogimage-using-remix.png?size=small)
+![](./ogimage_small.png)
 
 I just have to link to `/en/ogimage/dynamically-create-ogimage-using-remix.png?size=small` which is using the same slug as the article, prefixed with `/ogimage/` and ending in `.png` 🥳
 
@@ -464,7 +466,8 @@ An alternative to make it more flexible could be using *signed URLs* which is [e
 
 You actually don't have to create a template route, you could also take a screenshot of your actual article, or maybe just the title part, including reading time etc 🤷‍♂️
 
-There's also alternatives to taking a screenshot with a headless browser like using `node-canvas` as already well explained by [Cameron McHenry](https://twitter.com/cammchenry) in [Generating Social Images with Remix](https://camchenry.com/blog/generating-social-images-with-remix)
+There's also alternatives to taking a screenshot with a headless browser like using `node-canvas` as already well explained by [Cameron McHenry](https://twitter.com/cammchenry) in [Generating Social Images with Remix](https://camchenry.com/blog/generating-social-images-with-remix).
+
 
 ## Related
 
