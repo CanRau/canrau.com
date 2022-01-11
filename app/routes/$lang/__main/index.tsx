@@ -35,7 +35,9 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     throw NotFoundError();
   }
   // invariant(params.userId, "Expected params.userId");
-  const postsPromise = getPostsList({ lang }).catch(() => {
+  const postsPromise = getPostsList({ lang }).catch((e) => {
+    console.error(e);
+    console.error("error in index.tsx for", lang);
     throw NotFoundError(lang);
   });
   // done: fix visits and `catch` here

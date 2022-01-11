@@ -111,9 +111,13 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const contentPath = getContentPath(slug);
   const filePath = getFilePath(contentPath, filename);
   const source = await readFile(filePath, { encoding: "utf-8" });
-  const bundleMdxPromise = bundleMDX({ cwd: contentPath, source }).catch(() => {
-    throw NotFoundError(lang);
-  });
+  const bundleMdxPromise = bundleMDX({ cwd: contentPath, source }).catch(
+    (e) => {
+      console.error(e);
+      console.error("error in $slug for", lang, slug);
+      throw NotFoundError(lang);
+    },
+  );
 
   const [
     {

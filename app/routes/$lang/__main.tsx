@@ -41,7 +41,10 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const commitSha = process.env.COMMIT_SHA;
   const DB_ENDPOINT = process.env.DB_ENDPOINT;
   invariant(DB_ENDPOINT, "DB_ENDPOINT MISSING");
-  const { appVersion } = await getDeployVersion();
+  const { appVersion } =
+    (await getDeployVersion().catch((e) => {
+      console.error(e, "couldn't fetch appVersion");
+    })) ?? {};
 
   return json({ lang, commitSha, appVersion });
 };
@@ -63,6 +66,10 @@ function Layout({
   const matches = useMatches();
   // const currentRoute = matches.find((m) => m?.data?.totalPathVisits > 0);
   const currentRoute = matches?.[matches.length - 1];
+  // console.log(
+  //   "canonical? for follow intent link",
+  //   currentRoute?.data?.canonical,
+  // );
   const { totalPathVisits } = currentRoute?.data ?? {};
   return (
     <div
