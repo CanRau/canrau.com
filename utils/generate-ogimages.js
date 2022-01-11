@@ -6,6 +6,7 @@ const [_, __, cmd, ...postPaths] = process.argv;
 let cachedBrowser;
 
 if (cmd === "all") {
+  console.log("taking all screenshots");
   readdir("./content")
     .then(takeScreenshotOfFiles)
     .then(() => console.log("done"));
@@ -14,6 +15,7 @@ if (cmd === "all") {
   if (contentPaths.length === 0) {
     return process.exit();
   }
+  console.log("take pre-commit screenshots of", files.join(", "));
   const files = contentPaths.map((p) =>
     p.replace("content/", "").replace("/en.mdx", ""),
   );
@@ -30,7 +32,6 @@ if (cmd === "all") {
 }
 
 async function takeScreenshotOfFiles(files) {
-  console.log("taking all screenshots");
   for (const file of files) {
     console.log(`taking screenshot of ${file}`);
     await takeScreenshot(file);
