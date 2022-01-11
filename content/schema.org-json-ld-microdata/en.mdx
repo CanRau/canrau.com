@@ -1,0 +1,61 @@
+---
+status: draft
+slug: /schema.org-json-ld-microdata
+lang: en
+title: Schema.org, JSON-LD and microdata
+description:
+created: 2021-12-21
+updated: 2021-12-21
+# fixme:
+# published: 2021-12-21
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    # fixme:
+    content: 2021-12-21
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+{/* export { default as cover } from "./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png"; */}
+
+# {frontmatter.title}
+
+In my `Document` component in `root.tsx`
+
+```jsx
+{
+  jsonld && (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }}
+    />
+  );
+}
+```
+
+## Sources
+
+- [How to find correct schema definitions for my website](https://webmasters.stackexchange.com/a/92108/119565)
+- [Complete list of data-type(@type) used in google-rich-snippets json-ld](https://stackoverflow.com/a/38805576/3484824)
+- [Explore the search gallery](https://developers.google.com/search/docs/advanced/structured-data/search-gallery)
+- [Using Structured Data for Google SEO: Don't Miss Out on the Benefits](https://www.o8.agency/blog/using-structured-data-google-seo-dont-miss-out-benefits)
+- [Rich result status reports](https://support.google.com/webmasters/answer/7552505)
+- [General structured data guidelines](https://developers.google.com/search/docs/advanced/structured-data/sd-policies)
+- [Rich Results Tester](https://search.google.com/test/rich-results)
+- [RDFa Core 1.1 - Third Edition](https://www.w3.org/TR/rdfa-core/)
+- [react-schemaorg](https://github.com/google/react-schemaorg)
+- [Microdata, RDFa or JSON-LD Appropriate or best usage?](https://stackoverflow.com/a/26913183/3484824)
+- [Microdata vs RDFa](https://stackoverflow.com/a/25888436/3484824)
+- [How does Microdata rdfa compare to JSON-LD?](https://softwareengineering.stackexchange.com/questions/328567/how-does-microdata-rdfa-compare-to-json-ld)
+- [Schema.org should have mappings to Wikidata terms where possible #280](https://github.com/schemaorg/schemaorg/issues/280)
+- [Wikidata.org](https://www.wikidata.org)
+- [Getting started with schema.org using Microdata](https://schema.org/docs/gs.html)
+- [Organization of Schemas](https://schema.org/docs/schemas.html)
+- [Provide a publication date to Google Search](https://developers.google.com/search/docs/advanced/appearance/publication-dates)

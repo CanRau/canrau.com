@@ -1,0 +1,168 @@
+---
+status: draft
+slug: /link-remixed
+lang: en
+title: Wrapping Remix <Link/> component
+description: Why and how I wrapped the <Link/> component provided by Remix.run
+created: 2021-12-28T20:21:00 -5
+updated: 2021-12-28T20:21:00 -5
+# fixme:
+# published: 2021-12-28T20:21:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    # fixme:
+    content: 2021-12-28T20:21:00 -5
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+export const jsonld = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "Wrapping Remix <Link/> component",
+  description:
+    "Why and how I wrapped the <Link/> component provided by Remix.run",
+  dateCreated: "2021-12-28T20:21:00 -5",
+  dateModified: "2021-12-28T20:21:00 -5",
+  datePublished: "2021-12-28T20:21:00 -5",
+  author: [
+    {
+      "@type": "Person",
+      name: "Can Rau",
+      url: "https://twitter.com/CanRau",
+      gender: "Male",
+      birthDate: "1988-1-17",
+      birthPlace: "Berlin, Germany",
+    },
+  ],
+};
+
+{/* export { default as cover } from "./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png"; */}
+
+# {frontmatter.title}
+
+I just added a custom `<Link />` component which wraps the one provided by Remix.
+
+Mine lets me pass it to MDX to replace `<a/>` as it maps `href` to `to` and also sets defaults on Remixs' component.
+
+I also finally stop using `target="_blank"` as it is actually kind of intrusive and as we're embracing the platform even more now using Remix I decided it's a good moment to also reconsider this one. More by [CSS-Tricks](https://css-tricks.com/use-target_blank/)
+
+And even though I'm now not opening a new tab/window on external links, it seems appropriate to still follow [Giving users advanced warning when opening a new window](https://www.w3.org/WAI/WCAG21/Techniques/general/G201) and add a little indicator if a link is going to leave to current website.
+
+I tried a couple of icons and approaches
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 20 20"
+  width="15"
+  height="15"
+  className="inline ml-1"
+>
+  <g stroke="currentColor" strokeWidth="1">
+    <line x1="5" y1="5" x2="5" y2="14" />
+    <line x1="14" y1="9" x2="14" y2="14" />
+    <line x1="5" y1="14" x2="14" y2="14" />
+    <line x1="5" y1="5" x2="9" y2="5" />
+    <line x1="10" y1="2" x2="17" y2="2" />
+    <line x1="17" y1="2" x2="17" y2="9" />
+    <line x1="10" y1="9" x2="17" y2="2" strokeWidth="1.5" />
+  </g>
+</svg>
+
+```jsx
+// found on https://instance-factory.com/?p=2083
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 20 20"
+  width="15"
+  height="15"
+  className="inline ml-1"
+>
+  <g stroke="currentColor" strokeWidth="1">
+    <line x1="5" y1="5" x2="5" y2="14" />
+    <line x1="14" y1="9" x2="14" y2="14" />
+    <line x1="5" y1="14" x2="14" y2="14" />
+    <line x1="5" y1="5" x2="9" y2="5" />
+    <line x1="10" y1="2" x2="17" y2="2" />
+    <line x1="17" y1="2" x2="17" y2="9" />
+    <line x1="10" y1="9" x2="17" y2="2" strokeWidth="1.5" />
+  </g>
+</svg>
+```
+
+<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15">
+  <path
+    fill="currentColor"
+    d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"
+  />
+  <polygon
+    fill="currentColor"
+    points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"
+  />
+</svg>
+
+```jsx
+// found on https://reactjs.org/
+<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15">
+  <path
+    fill="currentColor"
+    d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"
+  />
+  <polygon
+    fill="currentColor"
+    points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"
+  />
+</svg>
+```
+
+## Source code
+
+```tsx
+import { forwardRef } from "react";
+import { Link as RemixLink, type RemixLinkProps } from "remix";
+import isAbsolute from "is-absolute-url";
+
+type LinkProps = RemixLinkProps & {
+  href: string;
+};
+
+export const Link = forwardRef<HTMLAnchorElement, RemixLinkProps>(
+  function WrappedLink(
+    { href, to, prefetch = "intent", ...rest },
+    forwardedRef,
+  ) {
+    const destination = href ?? to;
+
+    if (isAbsolute(destination)) {
+      const { children, ...props } = rest;
+      return (
+        <a
+          {...props}
+          href={destination}
+          ref={forwardedRef}
+          className="with-icon-right [--ggs:0.8]"
+        >
+          {children}
+          <i className="gg-external" />
+        </a>
+      );
+    }
+
+    return (
+      <RemixLink
+        prefetch={prefetch}
+        {...rest}
+        to={destination}
+        ref={forwardedRef}
+      />
+    );
+  },
+);
+```

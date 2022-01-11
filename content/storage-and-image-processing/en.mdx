@@ -1,0 +1,92 @@
+---
+status: draft
+slug: /storage-and-image-processing
+lang: en
+title: Storage and image processing
+description:
+created: 2021-12-29T11:56:00 -5
+updated: 2021-12-29T11:56:00 -5
+# fixme:
+# published: 2021-12-28T20:21:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    # fixme:
+    content: 2021-12-28T20:21:00 -5
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+export const jsonld = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "Wrapping Remix <Link/> component",
+  description:
+    "Why and how I wrapped the <Link/> component provided by Remix.run",
+  dateCreated: "2021-12-28T20:21:00 -5",
+  dateModified: "2021-12-28T20:21:00 -5",
+  datePublished: "2021-12-28T20:21:00 -5",
+  author: [
+    {
+      "@type": "Person",
+      name: "Can Rau",
+      url: "https://twitter.com/CanRau",
+      gender: "Male",
+      birthDate: "1988-1-17",
+      birthPlace: "Berlin, Germany",
+    },
+  ],
+};
+
+{/* export { default as cover } from "./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png"; */}
+
+# {frontmatter.title}
+
+## Minio on Fly.io
+
+Following the tutorial at [Appkata: MinIO - S3 Compatible Storage](https://fly.io/docs/app-guides/minio/)
+
+### Test locally
+
+```bash
+docker run \
+  -v storage_volume:/data \
+  -p 9000:9000 \
+  -p 9001:9001 \
+  minio/minio server /data --console-address ":9001"
+```
+
+> or use `-v $PWD/data.ignored:/data` to use a relative directory to mount
+
+### Dockerfile
+
+```Dockerfile
+FROM minio/minio
+
+CMD [ "server", "/data", "--console-address", ":9001"]
+```
+
+### Launch Fly.io app
+
+```bash
+fly launch --name "canrau-storage" --dockerfile ./Dockerfile --org personal
+```
+
+## Image component
+
+https://nextjs.org/docs/api-reference/next/image#loader
+
+## Alternatives
+
+- https://github.com/OKNoah/minio-wormhole
+- https://github.com/MilanMisak/pixlserv
+- https://developpaper.com/building-independent-picture-service-based-on-minio-and-thumbor/
+- https://cloudinary.com/
+- https://imgix.com/
+- https://imageengine.io/

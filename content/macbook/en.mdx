@@ -1,0 +1,184 @@
+---
+status: draft
+slug: /macbook
+lang: en
+title: My MacBook Settings
+description: Sharing my MacBook settings, what and how I've installed stuff, how to upgrade things and what to look out for 👀
+created: 2021-12-21
+updated: 2021-12-21
+# fixme:
+# published: 2021-12-21
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    # fixme:
+    content: 2021-12-21
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+{/* export { default as cover } from "./cover_gracefully-close-sub-subprocess-using-signals-in-deno_s.png"; */}
+
+# {frontmatter.title}
+
+## NPM
+
+### Install
+
+### Update / Upgrade
+
+## Yarn
+
+### Install
+
+#### With Yarn 1.x installed
+
+```bash
+yarn policies set-version berry
+```
+
+### Disable PnP
+
+```bash
+yarn config set nodeLinker node-modules
+```
+
+#### Enable `yui` aka `upgrade-interctive`
+
+```bash
+yarn plugin import interactive-tools
+```
+
+### Enable workspace-tools
+
+```bash
+yarn plugin import workspace-tools
+```
+
+to be able to install only --production dependencies
+
+```bash
+yarn workspaces focus --all --production
+```
+
+More at [[Feature] v2 equivalent of v1's "yarn install --production --frozen-lockfile" #2253](https://github.com/yarnpkg/berry/issues/2253)
+
+### Update / Upgrade
+
+#### With Yarn 1.x
+
+```bash
+yarn policies set-version berry
+```
+
+#### With Yarn 2.x
+
+```bash
+yarn set version stable
+```
+
+### Clear caches
+
+```bash
+sudo rm -r ~/Library/Caches/Yarn/
+```
+
+## NVM: Node Version Manager
+
+### Install and update
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+```
+
+### Occasional cleanup
+
+Remember to remove unused NodeJS versions every now and then to free up space
+
+```bash
+# list locally installed versions
+nvm ls
+# uninstall specified version
+nvm uninstall <version>
+```
+
+> Note: Maybe find or make a script like `npkill` to simplify removal of unused nvm versions
+
+## Typescript
+
+### Clear caches
+
+```bash
+sudo rm -r ~/Library/Caches/typescript/<old versions>
+```
+
+## Docker
+
+### `docker build` output to stdout
+
+to get the results of for example
+
+```Dockerfile
+RUN ls -lAFh
+```
+
+run
+
+```bash
+docker build -t IMAGE_NAME --progress=plain --no-cache .
+```
+
+### cleanup
+
+```bash
+# list all containers (use the q for only ids)
+docker container ls -aq
+```
+
+#### Stop
+
+```bash
+# single container by id
+docker container stop [container_id]
+```
+
+```bash
+# all containers
+docker container stop $(docker container ls -aq)
+```
+
+#### delete
+
+```bash
+# single container by id
+docker container rm [container_id]
+```
+
+```bash
+# all containers
+docker container rm $(docker container ls -aq)
+```
+
+> WARNING! This will remove all local volumes not used by at least one container.
+
+```bash
+docker volume prune
+```
+
+> More commands at [phoenixnap.com](https://phoenixnap.com/kb/remove-docker-images-containers-networks-volumes)
+
+## Protocol Buffers
+
+```bash
+brew install protobuf
+```
+
+```bash
+brew upgrade protobuf
+```
