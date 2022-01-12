@@ -54,26 +54,42 @@ export const getPostsList = async ({ lang }: IGetPostsList) => {
   for (const postDir of postDirs) {
     const contentPath = join(contentDir, postDir);
     const postPath = join(contentPath, `${lang}.mdx`);
-    const source = await readFile(postPath, { encoding: "utf-8" });
+    const slug = `/${lang}/${postDir}`;
+
+    // todo: check if this works!
+
+    const source = await readFile(postPath, { encoding: "utf-8" }).catch(() => {
+      console.error(`Missing .mdx for "${slug}"`);
+    });
+    if (!source) continue;
     // const { content, data, excerpt } = matter(source, { excerpt: true });
     // console.log(content);
     // posts.push({ ...data, excerpt } as Frontmatter);
-    const { frontmatter, code } = await bundleMDX({
+    const mdx = await bundleMDX({
       cwd: contentPath,
       source,
-    });
-    const fm = frontmatter as Frontmatter;
+    }).catch((e) => console.error(e, `\n\nError bundleMDX for "${slug}"`));
+    if (!mdx) {
+      console.error(`Couldn't bundleMDX for "${slug}"`);
+      continue;
+    }
+    const fm = mdx.frontmatter as Frontmatter;
     const isPublished = fm.status === "published";
     if (isProd && !isPublished) {
       continue;
     } else if (!isPublished) {
       fm.title = `${fm.status.toUpperCase()}: ${fm.title}`;
     }
-    const { cover, tableOfContents } = getMDXExport(code);
-    // console.log({ cover });
-    // console.log({ meta });
-    const canonical = `${rootUrl}/${frontmatter?.lang}${frontmatter?.slug}`;
-    posts.push({ ...fm, canonical, cover, tableOfContents, author, mdx: code });
+    const { cover, tableOfContents } = getMDXExport(mdx.code);
+    const canonical = `${rootUrl}/${fm?.lang}${fm?.slug}`;
+    posts.push({
+      ...fm,
+      canonical,
+      cover,
+      tableOfContents,
+      author,
+      mdx: mdx.code,
+    });
   }
 
   return posts.sort((a, z) => {
