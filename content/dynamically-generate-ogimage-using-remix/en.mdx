@@ -181,7 +181,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import { json, type LoaderFunction } from "remix";
 import puppeteer from "puppeteer";
 import sharp from "sharp";
-import { defaultLang, isContainer } from "/config";
+import { defaultLang } from "/config";
 import { Lang } from "/types";
 import { join } from "path";
 
@@ -195,6 +195,7 @@ const defaultViewport = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
+  const isContainer = process.env.OS_ENV === "container";
   const { slug } = params;
   const lang = (params.lang || defaultLang) as Lang;
   const url = new URL(request.url);

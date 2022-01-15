@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import { json, type LoaderFunction } from "remix";
 // import puppeteer from "puppeteer";
 // import sharp from "sharp";
-import { defaultLang, isContainer } from "/config";
+import { defaultLang } from "/config";
 import { Lang } from "/types";
 import { join } from "path";
 
@@ -37,6 +37,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     throw json({ lang, error: "missing image" }, 500);
   }
   return new Response(cachedImage, { headers });
+  // const isContainer = process.env.OS_ENV === "container";
   // const launchBrowser = puppeteer.launch({
   //   // note(Puppeteer): [--disable-dev-shm-usage](https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#tips)
   //   // note(Puppeteer): --no-sandbox as mentionded on [SO](https://stackoverflow.com/a/59154049/3484824)
