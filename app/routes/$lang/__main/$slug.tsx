@@ -283,9 +283,9 @@ export default function Post() {
             <p>
               Doing web-development since around 2000, building my digital
               garden with a mix of back-to-the-roots-use-the-platform and modern
-              edge-rendered-client-side-magic tech 📻🚀
+              edge-rendered-client-side-magic tech <span role="img" aria-label="radio emoji">📻</span><span role="img" aria-label="rocket emoji">🚀</span>
             </p>
-            <p>Living and working in the tropical rainforest of Perú 🐒</p>
+            <p>Living and working in the tropical rainforest of Perú <span role="img" aria-label="squatting monkey emoji">🐒</span></p>
           </div>
         </div>
       </div>
