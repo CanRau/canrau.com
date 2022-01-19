@@ -235,20 +235,22 @@ export default function Post() {
           />
         </main>
 
-        <div className="flex items-center text-sm space-x-8">
-          <a
-            href={`https://twitter.com/search?q=${encodeURIComponent(
-              frontmatter.canonical,
-            )}`}
-          >
-            Discuss on Twitter
-          </a>
-          <a
-            href={`https://twitter.com/messages/compose?recipient_id=${twitterId}`}
-          >
-            PM via Twitter
-          </a>
-          <div className="mx-auto flex-grow mt-1 border-t-2 border-black/10 dark:border-white/10" />
+        <div className="md:flex items-center text-sm space-y-6 md:space-x-8 md:space-y-0">
+          <div className="space-x-4">
+            <a
+              href={`https://twitter.com/search?q=${encodeURIComponent(
+                frontmatter.canonical,
+              )}`}
+            >
+              Discuss on Twitter
+            </a>
+            <a
+              href={`https://twitter.com/messages/compose?recipient_id=${twitterId}`}
+            >
+              PM via Twitter
+            </a>
+          </div>
+          <div className="hidden md:block mx-auto flex-grow mt-1 border-t-2 border-black/10 dark:border-white/10" />
           <div className="flex space-x-4">
             <div className="font-bold">Share</div>
             <TwitterShareButton
@@ -270,14 +272,14 @@ export default function Post() {
           </div>
         </div>
 
-        <div className="flex space-x-10">
+        <div className="flex flex-col md:flex-row items-center justify-center space-y-10 md:space-y-0 md:space-x-10">
           <img
             src="https://github.com/canrau.png"
             alt="Can Rau"
             className="rounded-egg -rotate-3 w-40 h-40 ease-in-out duration-500 motion-safe:hover:transition-all motion-safe:animate-[eggout_0.8s_ease-in-out_forwards] motion-safe:hover:animate-[eggin_0.8s_ease-in-out_forwards] motion-safe:hover:rotate-0"
           />
           <div className="space-y-3">
-            <div className="text-2xl">Can Rau</div>
+            <div className="text-2xl text-center md:text-left">Can Rau</div>
             <p>
               Doing web-development since around 2000, building my digital
               garden with a mix of back-to-the-roots-use-the-platform and modern
