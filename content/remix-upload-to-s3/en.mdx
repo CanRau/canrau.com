@@ -1,0 +1,245 @@
+---
+status: published
+slug: /remix-upload-to-s3
+lang: en
+title: Remix upload to S3
+description: Upload files to S3 compatible API - I'm using Backblaze B2 - with Remix and parseMultipartFormData
+created: 2022-02-11T19:32:00 -5
+updated: 2022-02-12T21:57:00 -5
+published: 2022-02-12T21:57:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2022-02-12T21:57:00 -5
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+# {frontmatter.title}
+
+{frontmatter.description}
+
+## Required environment variables
+
+```bash
+S3_BUCKET=assets-canrau-com
+S3_REGION=us-west-004
+S3_ENDPOINT=https://s3.us-west-004.backblazeb2.com
+S3_ACCESS_KEY_ID=ADD_YOUR_ACCESS_KEY
+S3_SECRET_ACCESS_KEY=ADD_YOUR_ACCESS_SECRET
+```
+
+## Imports
+
+```tsx
+import {
+  type RouteHandle,
+  type LoaderFunction,
+  type ActionFunction,
+  useActionData,
+  useLoaderData,
+  unstable_parseMultipartFormData,
+} from "remix";
+import cuid from "cuid";
+```
+
+## Custom `uploadHandler`
+
+```tsx
+const uploadHandler: UploadHandler = async ({ name, filename, mimetype, encoding, stream }) => {
+  if (name !== "files") {
+    stream.resume();
+    return;
+  }
+
+  const key = cuid(); // or filename or whatever fits your usecase 😉;
+
+  const params: PutObjectCommandInput = {
+    Bucket: process.env.S3_BUCKET ?? "",
+    Key: key,
+    Body: stream,
+    ContentType: mimetype,
+    ContentEncoding: encoding,
+    Metadata: {
+      filename: filename,
+    },
+  };
+
+  try {
+    const { S3Client } = await import("@aws-sdk/client-s3");
+    const { Upload } = await import("@aws-sdk/lib-storage");
+    const { getApplyMd5BodyChecksumPlugin } = await import(
+      "@aws-sdk/middleware-apply-body-checksum"
+    );
+
+    const client = new S3Client({
+      endpoint: process.env.S3_ENDPOINT ?? "",
+      region: process.env.S3_REGION ?? "",
+      credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY_ID ?? "",
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? "",
+      },
+    });
+
+    client.middlewareStack.use(getApplyMd5BodyChecksumPlugin(client.config));
+
+    const upload = new Upload({ client, params });
+
+    upload.on("httpUploadProgress", (progress) => {
+      console.log({ progress });
+    });
+
+    await upload.done();
+  } catch (e) {
+    console.log(e);
+  }
+
+  return JSON.stringify({ filename, key });
+};
+```
+
+Note that type `UploadHandler` only "allows" to return a `string` a `File` or undefined, I "complained" about it in [#1139](https://github.com/remix-run/remix/issues/1139#issuecomment-1037685317)
+
+`File` has the following shape and so requires more data than I need 🤷🏻‍♂️
+
+```tsx
+interface File extends Blob {
+  readonly lastModified: number;
+  readonly name: string;
+  readonly webkitRelativePath: string;
+}
+```
+
+That's why I have to kinda awkwardly `JSON.parse` it using `.map` in my `ActionFunction` as it returns file by file so it'll return an array of `JSON.stringify`ed strings 🥲
+
+## ActionFunction
+
+```tsx
+type CustomFile = {
+  key: string;
+  filename: string;
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  const form = await unstable_parseMultipartFormData(request, uploadHandler);
+  const fileJsons = form.getAll("files");
+  const files = fileJsons.map(
+    (str) => JSON.parse((str as unknown as string) ?? "{}") as CustomFile,
+  );
+  console.log({ files });
+  return { files };
+};
+```
+
+## The React component
+
+Then I get the data via `useActionData` in my client-component and render for example a list of the uploaded files, like in this very compact example.
+
+```tsx
+const actionData = useActionData<ActionData>();
+
+return (
+  {/* Upload Form etc */}
+  <ul>
+    {actionData?.files?.length > 0 &&
+      actionData?.files?.map((f) => <li>{f.filename}</li>)}
+  </ul>
+)
+```
+
+Alright, that's it for now.
+
+Soonish I plan on sharing more details about Backblaze integration and the CMS I'm building as I advance.
+
+Let me know (e.g. via [Twitter](https://twitter.com/CanRau)) if you have any questions.
+
+Saludos from Perú 🙋🏻‍♂️
+
+Below a little "bonus" for future me and just in case someone else stumbles upon this error and could need a hint 😉
+
+## Fixing `TypeError: Cannot read properties of undefined (reading '#text')`
+
+<details>
+  <summary>Full Error stack trace</summary>
+  
+```sh
+TypeError: Cannot read properties of undefined (reading '#text')
+    at [..]/node_modules/@aws-sdk/client-s3/dist-cjs/protocols/Aws_restXml.js:12897:30
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async deserializeAws_restXmlPutObjectCommandError ([..]/node_modules/@aws-sdk/client-s3/dist-cjs/protocols/Aws_restXml.js:8246:15)
+    at async [..]/node_modules/@aws-sdk/middleware-serde/dist-cjs/deserializerMiddleware.js:7:24
+    at async [..]/node_modules/@aws-sdk/middleware-signing/dist-cjs/middleware.js:11:20
+    at async StandardRetryStrategy.retry ([..]/node_modules/@aws-sdk/middleware-retry/dist-cjs/StandardRetryStrategy.js:51:46)
+    at async [..]/node_modules/@aws-sdk/middleware-logger/dist-cjs/loggerMiddleware.js:6:22
+    at async Upload.__uploadUsingPut ([..]/node_modules/@aws-sdk/lib-storage/dist-cjs/Upload.js:45:27)
+    at async Upload.__doConcurrentUpload ([..]/node_modules/@aws-sdk/lib-storage/dist-cjs/Upload.js:74:28)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload ([..]/node_modules/@aws-sdk/lib-storage/dist-cjs/Upload.js:120:9)
+    at async Upload.done ([..]/node_modules/@aws-sdk/lib-storage/dist-cjs/Upload.js:36:16)
+    at async uploadHandler ([..]/build/index.js:3487:26)
+    at async [..]/node_modules/@remix-run/node/parseMultipartFormData.js:63:25
+    at async Promise.all (index 0) {
+  '$response': HttpResponse {
+    statusCode: 500,
+    headers: {
+      'cache-control': 'max-age=0, no-cache, no-store',
+      'content-type': 'application/json;charset=utf-8',
+      'content-length': '105',
+      date: 'Sat, 12 Feb 2022 00:09:33 GMT',
+      connection: 'close'
+    },
+    body: IncomingMessage {
+      _readableState: [ReadableState],
+      _events: [Object: null prototype],
+      _eventsCount: 2,
+      _maxListeners: undefined,
+      socket: [TLSSocket],
+      httpVersionMajor: 1,
+      httpVersionMinor: 1,
+      httpVersion: '1.1',
+      complete: true,
+      rawHeaders: [Array],
+      rawTrailers: [],
+      aborted: false,
+      upgrade: false,
+      url: '',
+      method: null,
+      statusCode: 500,
+      statusMessage: '',
+      client: [TLSSocket],
+      _consuming: false,
+      _dumped: false,
+      req: [ClientRequest],
+      [Symbol(kCapture)]: false,
+      [Symbol(kHeaders)]: [Object],
+      [Symbol(kHeadersCount)]: 10,
+      [Symbol(kTrailers)]: null,
+      [Symbol(kTrailersCount)]: 0,
+      [Symbol(RequestTimeout)]: undefined
+    }
+  },
+  '$metadata': { attempts: 1, totalRetryDelay: 0 }
+}
+```
+</details>
+
+Most of he time, at least lately thanks to all the avancements in dev, error messages and stack traces are pretty accurate pointing (almost) exactly at line and column of the file in question. While in other cases you get something like the error above which is pretty hard to debug, especially if your preferred search-engine isn't showing useful results 😢
+
+Anyway, at least in my case it was a <s>stupid</s> 🙊 comma in my `.env` file as I copied the credentials from some JS/JSON object and forgot to delete the commas and even changing `:` to `=`, which doesn't seem to make a difference though.
+
+🤦🏻‍♂️
+
+### Related to this issue
+
+[TypeError: Cannot read property '#text' of undefined - PublishCommand (@aws-sdk/client-sns) #2161](https://github.com/aws/aws-sdk-js-v3/issues/2161)
+
+## Sources and related links
+
+- [How to upload a stream to S3 with AWS SDK v3](https://stackoverflow.com/a/70159394/3484824)
