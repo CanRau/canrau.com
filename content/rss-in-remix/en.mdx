@@ -37,34 +37,59 @@ import { RssIcon } from "~/components/icons/rss";
 
 ## Why RSS, isn't it dead?
 
-I myself plan to use RSS more, as the flood of newsletters starts to get a little invasive and I feel like checking a newsreader whenever I feel like and keeping my inbox a little cleaner sounds great. I won't stop newsletters completely, though I don't have to subscribe to everything via mail anymore.
+I myself plan to use RSS more, as the flood of newsletters starts to get a little invasive and I
+feel like checking a newsreader whenever I feel like and keeping my inbox a little cleaner sounds
+great. I won't stop newsletters completely, though I don't have to subscribe to everything via mail
+anymore.
 
-And when using it myself it makes a lot of sense to me, to also provide this possibility to others, along my newsletter.
+And when using it myself it makes a lot of sense to me, to also provide this possibility to others,
+along my newsletter.
 
 While researching for this article I stumbled upon the following which I'll just quote here
 
-> Between Google Chrome experimenting with "following" sites, along with a growing frustration of how social media platforms limit a creator's reach to their fans through algorithmic feeds, there's been renewed interest in RSS feeds and they're primed for a comeback as we get into 2022. — [CSS-Tricks](https://css-tricks.com/working-with-web-feeds-its-more-than-rss/)
+> Between Google Chrome experimenting with "following" sites, along with a growing frustration of
+> how social media platforms limit a creator's reach to their fans through algorithmic feeds,
+> there's been renewed interest in RSS feeds and they're primed for a comeback as we get into 2022.
+> — [CSS-Tricks](https://css-tricks.com/working-with-web-feeds-its-more-than-rss/)
 
 And this is from the before mentioned "Google Chrome experimenting with 'following' sites".
 
-> Keeping a site’s RSS up-to-date will ensure Chrome can provide the latest content to users with this experiment. — [Chromium Blog](https://blog.chromium.org/2021/05/an-experiment-in-helping-users-and-web.html)
+> Keeping a site’s RSS up-to-date will ensure Chrome can provide the latest content to users with
+> this experiment. —
+> [Chromium Blog](https://blog.chromium.org/2021/05/an-experiment-in-helping-users-and-web.html)
 
-Also I like to add my site to [Google Search Console](https://search.google.com/search-console), which you do by providing your sitemap feed links, which also makes it much easier and quicker for Google to index your site. Those sitemaps can simply be your existing RSS 2.0 feeds — so RSS === SEO Win 🥳 [supported sitemap formats](https://developers.google.com/search/docs/advanced/sitemaps/build-sitemap#sitemapformat). Though while you're adding your RSS feed, you can also provide an additional XML sitemap, which are smaller, as you don't include the full content, just the links and they provide [extensions](https://developers.google.com/search/docs/advanced/sitemaps/build-sitemap#extensions) which allow you to tell search engines about images, videos and Google News sitemaps.
+Also I like to add my site to [Google Search Console](https://search.google.com/search-console),
+which you do by providing your sitemap feed links, which also makes it much easier and quicker for
+Google to index your site. Those sitemaps can simply be your existing RSS 2.0 feeds — so RSS === SEO
+Win 🥳
+[supported sitemap formats](https://developers.google.com/search/docs/advanced/sitemaps/build-sitemap#sitemapformat).
+Though while you're adding your RSS feed, you can also provide an additional XML sitemap, which are
+smaller, as you don't include the full content, just the links and they provide
+[extensions](https://developers.google.com/search/docs/advanced/sitemaps/build-sitemap#extensions)
+which allow you to tell search engines about images, videos and Google News sitemaps.
 [Jump to example sitemap below](#xml-sitemap-for-search-engines)
 
 So providing RSS feeds, even in 2022, sounds like a really good idea to me 🤓
 
 ## I Love Remix!
 
-I can just use [Resource Routes](https://remix.run/docs/en/v1/guides/resource-routes) to generate web-feeds on the fly 🥳
+I can just use [Resource Routes](https://remix.run/docs/en/v1/guides/resource-routes) to generate
+web-feeds on the fly 🥳
 
 ## Table of contents
 
 ## The feed routes
 
-So I've got a route for each syndication format, in my case so far [RSS2](/en/feed.xml) and [JSON](/en/feed.json) (click for example feeds). Personally I'd prefer to only use `json` because it's just less messy, but hey 🤷🏻‍♂️😅
+So I've got a route for each syndication format, in my case so far [RSS2](/en/feed.xml) and
+[JSON](/en/feed.json) (click for example feeds). Personally I'd prefer to only use `json` because
+it's just less messy, but hey 🤷🏻‍♂️😅
 
-To get routes with a `.` dot working, we have to escape it like so `feed[.]xml.tsx` or alternatively `[feed.xml].tsx` so the url path ends up like `/feed.xml`, otherwise Remix considers it a subroute without inheriting the layout. More on [Dot Delimeters](https://remix.run/docs/en/v1/api/conventions#dot-delimeters) and [Escaping special characters](https://remix.run/docs/en/v1/api/conventions#escaping-special-characters) in Remix.
+To get routes with a `.` dot working, we have to escape it like so `feed[.]xml.tsx` or alternatively
+`[feed.xml].tsx` so the url path ends up like `/feed.xml`, otherwise Remix considers it a subroute
+without inheriting the layout. More on
+[Dot Delimeters](https://remix.run/docs/en/v1/api/conventions#dot-delimeters) and
+[Escaping special characters](https://remix.run/docs/en/v1/api/conventions#escaping-special-characters)
+in Remix.
 
 As I plan to have my website multilanguage I've put my feed routes into
 
@@ -80,7 +105,9 @@ As I plan to have my website multilanguage I've put my feed routes into
 
 Let's start with the more widely used and supported RSS 2 XML feed.
 
-As we just want a resource route to render custom stuff to the frontend, we only need to export a `loader` function returning the XML string along some headers to ensure everyone understands the content correctly.
+As we just want a resource route to render custom stuff to the frontend, we only need to export a
+`loader` function returning the XML string along some headers to ensure everyone understands the
+content correctly.
 
 ```ts
 export const loader: LoaderFunction = async () => {
@@ -93,7 +120,10 @@ export const loader: LoaderFunction = async () => {
 };
 ```
 
-There's various ways on how you can go about generating the XML. The first way I'll show you is doing it manually. The second is using [feed](https://github.com/jpmonette/feed) which only requires an object containing the data and renders everything else for you. This might be more convenient, but is also more limited.
+There's various ways on how you can go about generating the XML. The first way I'll show you is
+doing it manually. The second is using [feed](https://github.com/jpmonette/feed) which only requires
+an object containing the data and renders everything else for you. This might be more convenient,
+but is also more limited.
 
 ## Full code of my `feed[.]xml.tsx`
 
@@ -104,17 +134,17 @@ import type { Lang } from "/types";
 import { renderToString } from "react-dom/server";
 import { getMDXComponent } from "mdx-bundler/client";
 import { getPostsList } from "~/utils/mdx.server";
-import { NotFoundError } from "~/utils/error-responses";
+import { notFoundError } from "~/utils/error-responses";
 import { defaultLang, languages, rootUrl } from "/config";
 
 export const loader: LoaderFunction = async ({ params }) => {
   const lang = (params.lang || defaultLang) as Lang;
   if (!languages.includes(lang)) {
-    throw NotFoundError();
+    throw notFoundError();
   }
 
   const posts = await getPostsList({ lang }).catch(() => {
-    throw NotFoundError(lang);
+    throw notFoundError(lang);
   });
 
   const postItems = posts
@@ -179,38 +209,47 @@ function pubDate(date: Date) {
   const pieces = date.toString().split(" ");
   const offsetTime = pieces?.[5]?.match(/[-+]\d{4}/);
   const offset = offsetTime ? offsetTime : pieces[5];
-  const parts = [
-    pieces[0] + ",",
-    pieces[2],
-    pieces[1],
-    pieces[3],
-    pieces[4],
-    offset,
-  ];
+  const parts = [pieces[0] + ",", pieces[2], pieces[1], pieces[3], pieces[4], offset];
 
   return parts.join(" ");
 }
 ```
 
-> There's a lot more you can do in XML and RSS2, to get an idea of what's possible check out the [RSS 2.0 Spec](https://cyber.harvard.edu/rss/rss.html)
+> There's a lot more you can do in XML and RSS2, to get an idea of what's possible check out the
+> [RSS 2.0 Spec](https://cyber.harvard.edu/rss/rss.html)
 
-I "designed" the `<guid/>` inspired by [this CSS-Tricks](https://css-tricks.com/working-with-web-feeds-its-more-than-rss/#moving-feeds) article
+I "designed" the `<guid/>` inspired by
+[this CSS-Tricks](https://css-tricks.com/working-with-web-feeds-its-more-than-rss/#moving-feeds)
+article
 
 You might have noticed the `?xml-stylesheet` 🤔
 
-I just disabled it on this site as I'm actually still not completely sure about it, many don't seem to provide a stylesheet which then looks like this
+I just disabled it on this site as I'm actually still not completely sure about it, many don't seem
+to provide a stylesheet which then looks like this
 
 ![Screen shot of unstyled XML feed](./unstyled-xml-feed.png)
 
-Using the stylesheet, in this case [PrettyFeed](https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl) which I got inspired to use by [Tom Critchlow](https://tomcritchlow.com/feed.xml) results in the following output
+Using the stylesheet, in this case
+[PrettyFeed](https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl) which I got
+inspired to use by [Tom Critchlow](https://tomcritchlow.com/feed.xml) results in the following
+output
 
 ![Screen shot of styled XML feed](./styled-xml-feed.png)
 
-I'm unsure about the usefulness, as the feed is meant to be consumed by machines (bots), which aren't using this stylesheet anyway (as far as I know) and instead show the content in their prefered distraction free design, which will then be consumed by the reader. Also the pretty-feed file mentions in a code comment
+I'm unsure about the usefulness, as the feed is meant to be consumed by machines (bots), which
+aren't using this stylesheet anyway (as far as I know) and instead show the content in their
+prefered distraction free design, which will then be consumed by the reader. Also the pretty-feed
+file mentions in a code comment
 
-> Styling the feed _prevents_ the browser from automatically opening a newsreader application. This is a trade off, but it's a benefit to new users who won't have a newsreader installed, and they are saved from seeing or downloaded obscure XML content. For existing newsreader users, they will know to copy-and-paste the feed URL, and they get the benefit of an in-browser feed preview.
+> Styling the feed _prevents_ the browser from automatically opening a newsreader application. This
+> is a trade off, but it's a benefit to new users who won't have a newsreader installed, and they
+> are saved from seeing or downloaded obscure XML content. For existing newsreader users, they will
+> know to copy-and-paste the feed URL, and they get the benefit of an in-browser feed preview.
 
-So I feel I might disable the stylesheet soonish, just wanted to keep it in this article to show what's possible with XML and Remix [Resource Routes](https://remix.run/docs/en/v1/guides/resource-routes), as I'm showing to you how I generate the stylesheet dynamically depending on the URL language next.
+So I feel I might disable the stylesheet soonish, just wanted to keep it in this article to show
+what's possible with XML and Remix
+[Resource Routes](https://remix.run/docs/en/v1/guides/resource-routes), as I'm showing to you how I
+generate the stylesheet dynamically depending on the URL language next.
 
 Let's add `pretty-feed-v3[.]xsl.ts` to our `$lang` routes, to make use of the `lang` `param`.
 
@@ -228,13 +267,13 @@ Let's add `pretty-feed-v3[.]xsl.ts` to our `$lang` routes, to make use of the `l
 ```ts
 import { type LoaderFunction } from "remix";
 import type { Lang } from "/types";
-import { NotFoundError } from "~/utils/error-responses";
+import { notFoundError } from "~/utils/error-responses";
 import { defaultLang, languages, rootUrl } from "/config";
 
 export const loader: LoaderFunction = async ({ params }) => {
   const lang = (params.lang || defaultLang) as Lang;
   if (!languages.includes(lang)) {
-    throw NotFoundError();
+    throw notFoundError();
   }
 
   const feedUrl = `${rootUrl}/${lang}/feed.xml`;
@@ -403,13 +442,26 @@ export const loader: LoaderFunction = async ({ params }) => {
 };
 ```
 
-Actually the `lang` is only needed because I added the feed reader subscribe links, which I feel is a nice touch if I'm already designing the feed to be more human friendly, right? In the repo of [superfeedr/subtome](https://github.com/superfeedr/subtome/blob/50f7ca0a1a24317fe598c3f03a6d0ee19e4b2f98/app/scripts/services/store.js) you can find more feed readers and their urls to add a feed, if you wish to extend or change my list.
+Actually the `lang` is only needed because I added the feed reader subscribe links, which I feel is
+a nice touch if I'm already designing the feed to be more human friendly, right? In the repo of
+[superfeedr/subtome](https://github.com/superfeedr/subtome/blob/50f7ca0a1a24317fe598c3f03a6d0ee19e4b2f98/app/scripts/services/store.js)
+you can find more feed readers and their urls to add a feed, if you wish to extend or change my
+list.
 
-Also because I couldn't find a way so far of getting the stylesheet to render the actual HTML content, I changed it to just show the meta description (might switch to plain text), but still providing the full HTML in the (unstyled) feed which at least in [NetNewsWire](https://netnewswire.com/) shows as intended only the HTML version. 🥳
+Also because I couldn't find a way so far of getting the stylesheet to render the actual HTML
+content, I changed it to just show the meta description (might switch to plain text), but still
+providing the full HTML in the (unstyled) feed which at least in
+[NetNewsWire](https://netnewswire.com/) shows as intended only the HTML version. 🥳
 
-Uh, the original PrettyFeed stylesheet is not showing any description or content, and I also changed the spacing a little bit.
+Uh, the original PrettyFeed stylesheet is not showing any description or content, and I also changed
+the spacing a little bit.
 
-> Note: Make sure the URLs in you feeds are absolute. The ones linking to the article/site itself, but also links within the content. More in [W3C Feed Validation Service](https://validator.w3.org/feed/docs/warning/ContainsRelRef.html), [Working With Web Feeds: It’s More Than RSS](https://css-tricks.com/working-with-web-feeds-its-more-than-rss/#beware-of-relative-urls) and [RSS feeds, Jekyll, and absolute versus relative URLs](https://www.jessesquires.com/blog/2021/06/06/rss-feeds-jekyll-and-absolute-versus-relative-urls/)
+> Note: Make sure the URLs in you feeds are absolute. The ones linking to the article/site itself,
+> but also links within the content. More in
+> [W3C Feed Validation Service](https://validator.w3.org/feed/docs/warning/ContainsRelRef.html),
+> [Working With Web Feeds: It’s More Than RSS](https://css-tricks.com/working-with-web-feeds-its-more-than-rss/#beware-of-relative-urls)
+> and
+> [RSS feeds, Jekyll, and absolute versus relative URLs](https://www.jessesquires.com/blog/2021/06/06/rss-feeds-jekyll-and-absolute-versus-relative-urls/)
 
 Let's get to the much nicer and simpler JSON Feed, shall we?
 
@@ -431,17 +483,17 @@ import formatRFC3339 from "date-fns/formatRFC3339";
 import { renderToString } from "react-dom/server";
 import { getMDXComponent } from "mdx-bundler/client";
 import { getPostsList, Frontmatter } from "~/utils/mdx.server";
-import { NotFoundError } from "~/utils/error-responses";
+import { notFoundError } from "~/utils/error-responses";
 import { defaultLang, languages, rootUrl } from "/config";
 
 export const loader: LoaderFunction = async ({ params }) => {
   const lang = (params.lang || defaultLang) as Lang;
   if (!languages.includes(lang)) {
-    throw NotFoundError();
+    throw notFoundError();
   }
 
   const posts = await getPostsList({ lang }).catch(() => {
-    throw NotFoundError(lang);
+    throw notFoundError(lang);
   });
 
   const items = posts
@@ -477,8 +529,7 @@ export const loader: LoaderFunction = async ({ params }) => {
       {
         name: "Can Rau",
         url: rootUrl,
-        avatar:
-          "https://www.gravatar.com/avatar/3b4eb1b1e3184c6fdf1568eb5a6b71f0.jpg?s=512",
+        avatar: "https://www.gravatar.com/avatar/3b4eb1b1e3184c6fdf1568eb5a6b71f0.jpg?s=512",
       },
     ],
     items,
@@ -490,21 +541,30 @@ export const loader: LoaderFunction = async ({ params }) => {
 
 😍 Much cleaner right?
 
-> Make sure to check out the [JSON Feed Spec](https://www.jsonfeed.org/version/1.1/) to see which fields are available.
+> Make sure to check out the [JSON Feed Spec](https://www.jsonfeed.org/version/1.1/) to see which
+> fields are available.
 
-With those feeds in place and deployed your users can subscribe to you website/blog with their favorite feed reader 🥳
+With those feeds in place and deployed your users can subscribe to you website/blog with their
+favorite feed reader 🥳
 
 To make it even easier let's jump to some optimisations.
 
 ## Web Feed optimisations
 
-You can of course "just" link to your feed URLs from your websites footer for example and share the URL in social media, though I highly recommend making them automatically discoverable for interested bots and curious devs 🤓
+You can of course "just" link to your feed URLs from your websites footer for example and share the
+URL in social media, though I highly recommend making them automatically discoverable for interested
+bots and curious devs 🤓
 
 ### Make your RSS feeds discoverable
 
-If your feed URL is static, without a dynamic language or other parts depending on the routes data, you can just add
+If your feed URL is static, without a dynamic language or other parts depending on the routes data,
+you can just add
 
-> Note: Relative URLs should be fine here, though for good measures I prefer absolute ones (containing the full URL) as searching for [relative url in application/rss+xml](https://www.google.com/search?q=relative+url+in+application%2Frss%2Bxml) yields unclear results, like [Link to RSS/Atom feed, relative, doesn't work in Firefox](https://stackoverflow.com/questions/4438794/link-to-rss-atom-feed-relative-doesnt-work-in-firefox).
+> Note: Relative URLs should be fine here, though for good measures I prefer absolute ones
+> (containing the full URL) as searching for
+> [relative url in application/rss+xml](https://www.google.com/search?q=relative+url+in+application%2Frss%2Bxml)
+> yields unclear results, like
+> [Link to RSS/Atom feed, relative, doesn't work in Firefox](https://stackoverflow.com/questions/4438794/link-to-rss-atom-feed-relative-doesnt-work-in-firefox).
 
 ```ts
 export let links: LinksFunction = () => [
@@ -513,9 +573,11 @@ export let links: LinksFunction = () => [
 ];
 ```
 
-to (at least) your `root.tsx` and maybe to other routes, for example `blog.tsx` if you have one, or even all routes.
+to (at least) your `root.tsx` and maybe to other routes, for example `blog.tsx` if you have one, or
+even all routes.
 
-But if your feed URLs depend on some data it's easier to just add them in the `<head/>` JSX of your `root.tsx` file or wherever you render the `Document` containing the `<html/>` stuff, like so
+But if your feed URLs depend on some data it's easier to just add them in the `<head/>` JSX of your
+`root.tsx` file or wherever you render the `Document` containing the `<html/>` stuff, like so
 
 ```tsx
 <head>
@@ -536,16 +598,24 @@ But if your feed URLs depend on some data it's easier to just add them in the `<
 
 ### Tell others about your feed
 
-You could for example add your feed to the [1000 feeds for web developers](https://github.com/simevidas/web-dev-feeds) repo.
+You could for example add your feed to the
+[1000 feeds for web developers](https://github.com/simevidas/web-dev-feeds) repo.
 
-There's of course plenty of options if you need an icon for your feed, though if you just want the plain generic orange RSS feed icon with no licensing issues, check out the one provided by [Wikimedia](https://commons.wikimedia.org/wiki/File:Generic_Feed-icon.svg) <RssIcon size={24} inline />
+There's of course plenty of options if you need an icon for your feed, though if you just want the
+plain generic orange RSS feed icon with no licensing issues, check out the one provided by
+[Wikimedia](https://commons.wikimedia.org/wiki/File:Generic_Feed-icon.svg)
+<RssIcon size={24} inline />
 
 ### Caching and compression
 
-> Something super important, since people are going to do polling on this page (meaning a lot of requests on the page) - Cache it on your server - Serve and Etag header and/or a LastModifiedDate. That way your server can respond with just a "not modified" if the client has it in cache already. — [from erwan on SO](https://stackoverflow.com/a/14726019/3484824)
+> Something super important, since people are going to do polling on this page (meaning a lot of
+> requests on the page) - Cache it on your server - Serve and Etag header and/or a LastModifiedDate.
+> That way your server can respond with just a "not modified" if the client has it in cache already.
+> — [from erwan on SO](https://stackoverflow.com/a/14726019/3484824)
 
 {/* todo: Add cache/caching to RSS in Remix article (directly or link to new article) [Loader vs Route Cache Headers in Remix](https://sergiodxa.com/articles/loader-vs-route-cache-headers-in-remix) */}
-More on caching later, as I'm not yet caching anything myself I don't feel comfortable share "recommendations".
+More on caching later, as I'm not yet caching anything myself I don't feel comfortable share
+"recommendations".
 
 ## XML sitemap for search engines
 
@@ -554,18 +624,18 @@ import { type LoaderFunction } from "remix";
 import formatDate from "date-fns/format";
 import type { Lang } from "/types";
 import { getPostsList } from "~/utils/mdx.server";
-import { NotFoundError } from "~/utils/error-responses";
+import { notFoundError } from "~/utils/error-responses";
 import { defaultLang, languages, rootUrl } from "/config";
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const encoding = request.headers.get("accept-encoding") ?? "";
   const lang = (params.lang || defaultLang) as Lang;
   if (!languages.includes(lang)) {
-    throw NotFoundError();
+    throw notFoundError();
   }
 
   const posts = await getPostsList({ lang }).catch(() => {
-    throw NotFoundError(lang);
+    throw notFoundError(lang);
   });
 
   const allPosts = posts.filter((post) => post.status === "published");
@@ -574,10 +644,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     return [
       `<url>`,
       `<loc>${post.canonical}</loc>`,
-      `<lastmod>${formatDate(
-        post.updated || post.created,
-        "yyyy-MM-dd",
-      )}</lastmod>`,
+      `<lastmod>${formatDate(post.updated || post.created, "yyyy-MM-dd")}</lastmod>`,
       `</url>`,
     ].join("");
   });
@@ -589,10 +656,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     // index page, or /blog page
     `<url>`,
     `<loc>${rootUrl}/${lang}</loc>`,
-    `<lastmod>${formatDate(
-      allPosts[0].updated || allPosts[0].created,
-      "yyyy-MM-dd",
-    )}</lastmod>`,
+    `<lastmod>${formatDate(allPosts[0].updated || allPosts[0].created, "yyyy-MM-dd")}</lastmod>`,
     `</url>`,
 
     ...postItems,
@@ -608,11 +672,16 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 };
 ```
 
-This is the most basic sitemap, though actually even `<lastmod>` is optional. At [sitemaps.org](https://www.sitemaps.org/protocol.html) you'll find the full specification and at [Build and submit a sitemap (by Google)](https://developers.google.com/search/docs/advanced/sitemaps/build-sitemap#extensions) you'll find info on all available extensions to include images and videos as well as News Feed items and in generall all the exact requirements and how to submit it.
+This is the most basic sitemap, though actually even `<lastmod>` is optional. At
+[sitemaps.org](https://www.sitemaps.org/protocol.html) you'll find the full specification and at
+[Build and submit a sitemap (by Google)](https://developers.google.com/search/docs/advanced/sitemaps/build-sitemap#extensions)
+you'll find info on all available extensions to include images and videos as well as News Feed items
+and in generall all the exact requirements and how to submit it.
 
 Example result at [/en/sitemap.xml](/en/sitemap.xml)
 
-[Kent](https://twitter.com/kentcdodds) is doing it pretty similar [on his website](https://github.com/kentcdodds/kentcdodds.com/blob/main/app/other-routes.server.ts#L10).
+[Kent](https://twitter.com/kentcdodds) is doing it pretty similar
+[on his website](https://github.com/kentcdodds/kentcdodds.com/blob/main/app/other-routes.server.ts#L10).
 
 ## All mentioned links
 
@@ -627,8 +696,9 @@ Example result at [/en/sitemap.xml](/en/sitemap.xml)
 [feed](https://github.com/jpmonette/feed) - NodeJS package
 [PrettyFeed](https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl)
 [Tom Critchlow](https://tomcritchlow.com/feed.xml)
-[superfeedr/subtome](https://github.com/superfeedr/subtome/blob/50f7ca0a1a24317fe598c3f03a6d0ee19e4b2f98/app/scripts/services/store.js) - for more feed readers and their subscribe urls
-[NetNewsWire](https://netnewswire.com/) - The feed reade I (not really actively) use 😅
+[superfeedr/subtome](https://github.com/superfeedr/subtome/blob/50f7ca0a1a24317fe598c3f03a6d0ee19e4b2f98/app/scripts/services/store.js) -
+for more feed readers and their subscribe urls [NetNewsWire](https://netnewswire.com/) - The feed
+reade I (not really actively) use 😅
 [W3C Feed Validation Service](https://validator.w3.org/feed/docs/warning/ContainsRelRef.html)
 [Working With Web Feeds: It’s More Than RSS](https://css-tricks.com/working-with-web-feeds-its-more-than-rss/)
 [RSS feeds, Jekyll, and absolute versus relative URLs](https://www.jessesquires.com/blog/2021/06/06/rss-feeds-jekyll-and-absolute-versus-relative-urls/)
@@ -641,10 +711,13 @@ Example result at [/en/sitemap.xml](/en/sitemap.xml)
 
 ### More links
 
-[Technical feed requirements](https://support.google.com/news/publisher-center/answer/9545420?hl=en) — The information in your feed powers your Google News publication.
-[Questions on building RSS feed](https://stackoverflow.com/a/14725975/3484824) (about what to include, pubDate and lastBuildDate)
+[Technical feed requirements](https://support.google.com/news/publisher-center/answer/9545420?hl=en)
+— The information in your feed powers your Google News publication.
+[Questions on building RSS feed](https://stackoverflow.com/a/14725975/3484824) (about what to
+include, pubDate and lastBuildDate)
 [Really Simple Syndication Best Practices Profile](https://www.rssboard.org/rss-profile)
 [RSS Club](https://daverupert.com/rss-club/) — 1st rule of RSS Club is “Don’t Talk About RSS Club”
-[An Analysis of Feed URLs](https://blog.jim-nielsen.com/2021/feed-urls/) {/* todo: Make analysis of RSS guid's (etc) used, link to "An Analysis of Feed URLs" */}
+[An Analysis of Feed URLs](https://blog.jim-nielsen.com/2021/feed-urls/)
+{/* todo: Make analysis of RSS guid's (etc) used, link to "An Analysis of Feed URLs" */}
 [Design for reading: tips for optimizing content for Reader modes and reading apps](https://www.sarasoueidan.com/blog/tips-for-reader-modes/)
 [Difference between description and content:encoded tags in RSS2](https://stackoverflow.com/questions/7220670/difference-between-description-and-contentencoded-tags-in-rss2)
