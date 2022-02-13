@@ -5,13 +5,14 @@ import { defaultLang, domain } from "/config";
 // const cachedStyles: Record<string, boolean> = {};
 const isProd = process.env.NODE_ENV === "production";
 
-const dontCountCookie = createCookie("dontcount", {
-  sameSite: "strict",
+const dontCountCookie = createCookie("CR_dontcount", {
+  sameSite: "lax",
   httpOnly: true,
   secure: true,
   // note: session secret generated via `head -c20 /dev/urandom | base64` recommended on [martinfowler.com](https://martinfowler.com/articles/session-secret.html)
-  secrets: [process.env.COOKIE_KEY || "fG1JZtGFjF5dGCXwEYmdW3RQcvWc6fU"],
+  secrets: [process.env.SESSION_SECRET ?? "fG1JZtGFjF5dGCXwEYmdW3RQcvWc6fU"],
   path: "/",
+  expires: new Date("2088-01-17"),
 });
 
 // todo: [use ETags](https://sergiodxa.com/articles/use-etags-in-remix) when adding cache/caching
@@ -101,9 +102,7 @@ export default async function handleRequest(
 
   const canonical = match?.route?.id && routeData?.[match.route.id]?.canonical;
 
-  let markup = renderToString(
-    <RemixServer context={remixContext} url={request.url} />,
-  );
+  let markup = renderToString(<RemixServer context={remixContext} url={request.url} />);
 
   // if (!cachedStyles.preflight) {
   //   console.log("generating preflight styles");
