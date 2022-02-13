@@ -1,0 +1,133 @@
+---
+status: published
+slug: /cms-thoughts
+lang: en
+title: CMS Thoughts
+description: CMS notes
+created: 2022-02-12T22:13:00 -5
+updated: 2022-02-12T22:13:00 -5
+published: 2022-02-12T22:13:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2022-02-12T22:13:00 -5
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+# {frontmatter.title}
+
+Some (incomplete) thoughts on some CMS's I've tried recently
+
+## Table of contents
+
+## Keystone JS
+
+Kinda love it, though... 🤓
+
+- [Getting started with create keystone app](https://keystonejs.com/docs/walkthroughs/getting-started-with-create-keystone-app)
+- [How do I query my API for a single entity by its "slug" with GraphQL?](https://stackoverflow.com/questions/65829744/how-do-i-query-my-api-for-a-single-entity-by-its-slug-with-graphql)
+
+## Strapi
+
+Ridiculous field "styles", the widths aren't customizable and at least within Dynamic Zones most fields are half width 🤦🏻‍♂️
+
+I mean
+
+![Screenshot of Strapi Dashboard showing half sized fields](./strapi-dashboard-field-width.png)
+![Close-up screenshot of Strapi Dashboard showing half sized fields](./strapi-dashboard-field-width_closeup.png)
+
+### Strapi related links
+
+- [Official Strapi Website](https://strapi.io/)
+- [Change width of fields on Edit page](https://forum.strapi.io/t/change-width-of-fields-on-edit-page/181/5)
+- [Headless CMS and Strapi SEO best practices](https://strapi.io/blog/headless-cms-strapi-seo-best-practices)
+- [Create is owner policy (Apply the author by default)](https://docs.strapi.io/developer-docs/latest/guides/is-owner.html)
+- [Strapi - working with relationships and how to use Graphql for nested relations](https://www.youtube.com/watch?v=Rw9Xd89yC2o)
+- [Run Strapi on existing server (e.g. Next.js)](https://forum.strapi.io/t/run-strapi-on-existing-server-e-g-next-js/8777/1)
+- [How to: Strapi GraphQL mutation with dynamic zones/component](https://stackoverflow.com/a/61376901/3484824)
+- [How to Create Pages on the fly with Dynamic Zone](https://strapi.io/blog/how-to-create-pages-on-the-fly-with-dynamic-zone)
+- [Strapi CMS v4 Custom Field Type Renderer](https://www.youtube.com/watch?v=3of3s_xhEnE)
+- [Strapi Security Checklist](https://strapi.io/blog/strapi-security-checklist)
+- [How to Build a Notion Clone With Strapi and Next.js 1/2](https://strapi.io/blog/how-to-build-a-notion-clone-with-strapi-and-next-js)
+- [Handle previews in a headless architecture](https://strapi.io/blog/handling-previews-in-a-headless-architecture)
+- [How to Setup & Use Strapi to Store your app's logs](https://strapi.io/blog/how-to-setup-and-use-strapi-to-store-your-app-s-logs)
+- [Create a Url Shortener using NextJs, Tailwind CSS and Strapi](https://strapi.io/blog/create-a-url-shortener-using-next-js-tailwind-css-and-strapi)
+- [Strapi V4 search by slug instead ID](https://forum.strapi.io/t/strapi-v4-search-by-slug-instead-id/13469)
+- [Strapi plugin gutenberg-editor](https://github.com/renrizzolo/strapi-plugin-gutenberg-editor)
+- [How to change the WYSIWYG in Strapi](https://strapi.io/blog/how-to-change-the-wysiwyg-in-strapi)
+- [Admin Panel API for plugins](https://docs.strapi.io/developer-docs/latest/developer-resources/plugin-api-reference/admin-panel.html)
+- []()
+
+### REST API Example
+
+```
+http://localhost:1337/api/posts?publicationState=preview&populate=*&filters[slug][$eq]=erster-artikel&locale=de
+```
+
+### GraphQL Example
+
+```gql
+{
+  posts(
+    publicationState: PREVIEW
+    filters: { slug: { eq: "first-blog-post-due" } }
+    pagination: { limit: 1 }
+  ) {
+    __typename
+    data {
+      id
+      attributes {
+        createdAt
+        publishedAt
+        Title
+        Content {
+          __typename
+          ... on ComponentContentHeading {
+            id
+            Heading
+            Level
+          }
+          ... on ComponentContentParagraph {
+            id
+            Paragraph
+          }
+          ... on ComponentContentQuote {
+            id
+            Quote
+            Source
+          }
+          ... on ComponentContentCode {
+            id
+            Code
+          }
+          ... on ComponentContentList {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## Directus
+
+[Directus Website](https://directus.io)
+
+## ApostropheCMS
+
+[ApostropheCMS Website](https://apostrophecms.com/) [ApostropheCMS Repo](https://github.com/apostrophecms/apostrophe)
+
+## CraftCMS
+
+[CraftCMS Website](https://craftcms.com)
+It's PHP, but I especially don't like the restriction on having only a "Single admin account" in the free version, although I kinda get the idea 😇
+
+Best way to try it locally is [Craft Nitro](https://craftcms.com/docs/nitro), though I haven't actually tried it 😅

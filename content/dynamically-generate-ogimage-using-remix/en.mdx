@@ -3,7 +3,9 @@ status: published
 slug: /dynamically-generate-ogimage-using-remix
 lang: en
 title: Dynamically generate OG:image using Remix 💿
-description: How to dynamically generate OG:images using Remix resource routes, React JSX, TailwindCSS & Puppeteer
+description:
+  How to dynamically generate OG:images using Remix resource routes, React JSX, TailwindCSS &
+  Puppeteer
 created: 2022-01-05T15:50:00 -5
 updated: 2022-01-08T00:50:00 -5
 published: 2022-01-07T15:50:00 -5
@@ -23,29 +25,41 @@ published_at:
 
 # {frontmatter.title}
 
-> **NOTE**: I had to increase the RAM of my fly.io app from 512mb to 1024mb so I'm currently working on a slightly different approach doing the screenshots locally pre-commit because at the moment the price increase, although not a lot, is not worth it for my little blog. I'll let you know when I publish the local alternative.
+> **NOTE**: I had to increase the RAM of my fly.io app from 512mb to 1024mb so I'm currently working
+> on a slightly different approach doing the screenshots locally pre-commit because at the moment
+> the price increase, although not a lot, is not worth it for my little blog. I'll let you know when
+> I publish the local alternative.
 
 ## Table of contents
 
 ## ¿What are we generating?
 
-Social sharing images, so that when you share an article link on Twitter, Facebook or other social media it shows a nice image along the title and description, like the following
+Social sharing images, so that when you share an article link on Twitter, Facebook or other social
+media it shows a nice image along the title and description, like the following
 
 ![](./ogimage_small.png)
 
-I just have to link to `/en/ogimage/dynamically-create-ogimage-using-remix.png?size=small` which is using the same slug as the article, prefixed with `/ogimage/` and ending in `.png` 🥳
+I just have to link to `/en/ogimage/dynamically-create-ogimage-using-remix.png?size=small` which is
+using the same slug as the article, prefixed with `/ogimage/` and ending in `.png` 🥳
 
-There are of course alternative API designs, like allowing arbitrary values or a link to some content, those are obviously more flexible but also more easily abused.
+There are of course alternative API designs, like allowing arbitrary values or a link to some
+content, those are obviously more flexible but also more easily abused.
 
-For now I just need exactly this, social images only for my articles, so it was easier to build it restricted like this, than potentially opening a whole world of possible attack vectors.
+For now I just need exactly this, social images only for my articles, so it was easier to build it
+restricted like this, than potentially opening a whole world of possible attack vectors.
 
-Later when I've got my CMS going, I'm integrating some image generation right into the article editing ui, which is protected by authentication anyway.
+Later when I've got my CMS going, I'm integrating some image generation right into the article
+editing ui, which is protected by authentication anyway.
 
 ## Requirements
 
-You need a host where you can install [Puppeteer](https://pptr.dev), in this [issue](https://github.com/vercel/vercel/discussions/4903) people talk about using alternatively [Playwright](https://playwright.dev) instead of Puppeteer on Vercel as it's pretty similar in it's API.
+You need a host where you can install [Puppeteer](https://pptr.dev), in this
+[issue](https://github.com/vercel/vercel/discussions/4903) people talk about using alternatively
+[Playwright](https://playwright.dev) instead of Puppeteer on Vercel as it's pretty similar in it's
+API.
 
-More about making it work in [Docker below](#dockerfile-adjustments) and general [Puppeteer troubleshooting docs](https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md)
+More about making it work in [Docker below](#dockerfile-adjustments) and general
+[Puppeteer troubleshooting docs](https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md)
 
 ## Instaling dependencies
 
@@ -53,23 +67,31 @@ More about making it work in [Docker below](#dockerfile-adjustments) and general
 npm install puppeteer sharp
 ```
 
-> sharp is optional and only needed if you want to be able to easily produce differently resized versions via a query string like in the example above.
+> sharp is optional and only needed if you want to be able to easily produce differently resized
+> versions via a query string like in the example above.
 
 ## Route for the template
 
-It depends of course on your specific routing "setup", in my case I've got a `$lang` directory which houses almost everything, within it a `$slug.tsx` which renders individual posts, so I've added a directory `ogimage` within `$lang` and created `$slug.template.tsx`.
+It depends of course on your specific routing "setup", in my case I've got a `$lang` directory which
+houses almost everything, within it a `$slug.tsx` which renders individual posts, so I've added a
+directory `ogimage` within `$lang` and created `$slug.template.tsx`.
 
-So for the route `/en/deploy-remix-to-fly-using-github-action` the template lives at `/en/ogimage/deploy-remix-to-fly-using-github-action/template`.
+So for the route `/en/deploy-remix-to-fly-using-github-action` the template lives at
+`/en/ogimage/deploy-remix-to-fly-using-github-action/template`.
 
-I highly recommend setting a specific webfont for all the text you want to use as the Chrome browser Puppeteer is using within the (Docker) container doesn not have all the needed fonts.
+I highly recommend setting a specific webfont for all the text you want to use as the Chrome browser
+Puppeteer is using within the (Docker) container doesn not have all the needed fonts.
 
-I'm using [Oswald](https://fonts.google.com/specimen/Oswald) (light & bold). I downloaded the zip from Google Fonts, converted the light and bold .tts files to WOFF & WOFF2 using [cloudconvert](https://cloudconvert.com/ttf-to-woff2) (there's lots of alternatives, was just lazy 🤷🏻‍♂️), placed the downloaded files in `/public/fonts` and enabled them in my `/styles/tailwind.css` via the following css
+I'm using [Oswald](https://fonts.google.com/specimen/Oswald) (light & bold). I downloaded the zip
+from Google Fonts, converted the light and bold .tts files to WOFF & WOFF2 using
+[cloudconvert](https://cloudconvert.com/ttf-to-woff2) (there's lots of alternatives, was just lazy
+🤷🏻‍♂️), placed the downloaded files in `/public/fonts` and enabled them in my `/styles/tailwind.css`
+via the following css
 
 ```css
 @font-face {
   font-family: "Oswald";
-  src: url("/fonts/Oswald-Light.woff2") format("woff2"), url("/fonts/Oswald-Light.woff")
-      format("woff");
+  src: url("/fonts/Oswald-Light.woff2") format("woff2"), url("/fonts/Oswald-Light.woff") format("woff");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -77,15 +99,17 @@ I'm using [Oswald](https://fonts.google.com/specimen/Oswald) (light & bold). I d
 
 @font-face {
   font-family: "Oswald";
-  src: url("/fonts/Oswald-Bold.woff2") format("woff2"), url("/fonts/Oswald-Bold.woff")
-      format("woff");
+  src: url("/fonts/Oswald-Bold.woff2") format("woff2"), url("/fonts/Oswald-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 ```
 
-Now I could've edited `tailwind.config.js` to extend my theme, or instead thanks to [JIT](https://tailwindcss.com/docs/just-in-time-mode) ([migration guide](https://tailwindcss.com/docs/upgrade-guide#migrating-to-the-jit-engine)) set the font in my theme using `font-[Oswald]` as shown below, which's also why I can use `w-[1200px]`.
+Now I could've edited `tailwind.config.js` to extend my theme, or instead thanks to
+[JIT](https://tailwindcss.com/docs/just-in-time-mode)
+([migration guide](https://tailwindcss.com/docs/upgrade-guide#migrating-to-the-jit-engine)) set the
+font in my theme using `font-[Oswald]` as shown below, which's also why I can use `w-[1200px]`.
 
 ```tsx
 // /app/routes/$lang/__other/ogimage/$slug.template.tsx
@@ -93,7 +117,7 @@ import matter from "gray-matter";
 import { json, Links, LoaderFunction, useLoaderData } from "remix";
 import { readFile } from "~/utils.server";
 import { getContentPath, getFilePath } from "~/utils/compile-mdx.server";
-import { NotFoundError } from "~/utils/error-responses";
+import { notFoundError } from "~/utils/error-responses";
 import { Frontmatter } from "~/utils/mdx.server";
 import { defaultLang, domain } from "/config";
 import { Lang } from "/types";
@@ -115,7 +139,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   const contentPath = getContentPath(slug);
   const filePath = getFilePath(contentPath, filename);
   const source = await readFile(filePath, { encoding: "utf-8" }).catch(() => {
-    throw NotFoundError(lang);
+    throw notFoundError(lang);
   });
 
   const {
@@ -126,25 +150,18 @@ export const loader: LoaderFunction = async ({ params }) => {
 };
 
 export default function OgImage() {
-  const { status, title, hydrate, description, author, mdx, lang } =
-    useLoaderData<LoaderData>();
+  const { status, title, hydrate, description, author, mdx, lang } = useLoaderData<LoaderData>();
   return (
     <>
       <html lang="en">
         <head>
           <meta charSet="UTF-8" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-          />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <title>{title}</title>
           <Links />
         </head>
         <body className="font-[Oswald] font-bold">
-          <div
-            id="ogimage"
-            className="w-[1200px] h-[630px] bg-black rounded-2xl"
-          >
+          <div id="ogimage" className="w-[1200px] h-[630px] bg-black rounded-2xl">
             <div className="h-full bg-gradient-to-tr from-skin-accent/60 to-skin-accent p-4 rounded-2xl">
               <div className="p-10 bg-zinc-800 text-zinc-200 h-full border border-zinc-300 rounded-lg flex flex-col justify-center items-center space-y-10">
                 <h1 className="text-8xl leading-[1.2] text-center">{title}</h1>
@@ -164,15 +181,23 @@ export default function OgImage() {
 }
 ```
 
-NOTE: When you design your template, I recommend using the `/template` route which has a quicker feedback loop than generating a screenshot all the time.
+NOTE: When you design your template, I recommend using the `/template` route which has a quicker
+feedback loop than generating a screenshot all the time.
 
-Some values are still not really dynamic as I don't have the actual need for it so far. I'm the only author so my avatar is hard coded and I'm using `domain` which I've defined in `/config.ts` as `CanRau.com` instead of a dynamic author, later I'm going to make all that more dynamic, probably when I migrated to my upcoming CMS.
+Some values are still not really dynamic as I don't have the actual need for it so far. I'm the only
+author so my avatar is hard coded and I'm using `domain` which I've defined in `/config.ts` as
+`CanRau.com` instead of a dynamic author, later I'm going to make all that more dynamic, probably
+when I migrated to my upcoming CMS.
 
 But it's meant as a starting point anyway 😉
 
 So now that we've got the template going we need the code to take a screenshot of it.
 
-> If it'd be possible to have a [Resource Route](https://remix.run/docs/en/v1/guides/resource-routes) & a UI route in the same file, providing some logic to "disable" the component rendering, e.g. if `loader` responses with some specific config, we could have the template in the same file, for now that's not possible though 🤷🏻‍♂️
+> If it'd be possible to have a
+> [Resource Route](https://remix.run/docs/en/v1/guides/resource-routes) & a UI route in the same
+> file, providing some logic to "disable" the component rendering, e.g. if `loader` responses with
+> some specific config, we could have the template in the same file, for now that's not possible
+> though 🤷🏻‍♂️
 
 ## Puppeteer using a Remix Resource Route
 
@@ -291,21 +316,20 @@ and be aware that (at least in Firefox) the screenshot seems to NOT be transpare
 
 ![](./ogimage-browser-preview-white-non-transparent-edges.png)
 
-note the white edges, though, after it was driving me nuts 🥜, I realized the edges are actually transparent as expected 🥳 as seen in the [example before](#what-are-we-generating)
+note the white edges, though, after it was driving me nuts 🥜, I realized the edges are actually
+transparent as expected 🥳 as seen in the [example before](#what-are-we-generating)
 
 ## Using the image in articles
 
-Then in my `$slug.tsx` route which renders each individual article I've got the following (stripped down) `meta` export
+Then in my `$slug.tsx` route which renders each individual article I've got the following (stripped
+down) `meta` export
 
 ```ts
 export const meta: MetaFunction = ({ data }) => {
-  const { title, description, lang, slug, cover, meta } =
-    data?.frontmatter ?? {};
+  const { title, description, lang, slug, cover, meta } = data?.frontmatter ?? {};
 
   const url = `${rootUrl}/${lang}${slug}`;
-  const image = cover
-    ? `${rootUrl}${cover}`
-    : `${rootUrl}/${lang}/ogimage${slug}.png`;
+  const image = cover ? `${rootUrl}${cover}` : `${rootUrl}/${lang}/ogimage${slug}.png`;
   return {
     title,
     description,
@@ -321,7 +345,8 @@ export const meta: MetaFunction = ({ data }) => {
 };
 ```
 
-> Make sure to define the `og:image` using an [absolute url](https://stackoverflow.com/questions/9858577/open-graph-can-resolve-relative-url#comment72002620_35153563)
+> Make sure to define the `og:image` using an
+> [absolute url](https://stackoverflow.com/questions/9858577/open-graph-can-resolve-relative-url#comment72002620_35153563)
 
 So if an article specifies a `cover` image in its frontmatter use this instead of generating one.
 
@@ -363,9 +388,11 @@ ARG COMMIT_SHA
 RUN apt-get update \
  && apt-get install -y wget gnupg \
  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
- && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+ && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >>
+/etc/apt/sources.list.d/google.list' \
  && apt-get update \
- && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst \
+ && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg
+fonts-kacst \
  fonts-noto fonts-noto-cjk fonts-noto-color-emoji fonts-freefont-ttf fonts-liberation libxss1 \
  --no-install-recommends \
  && rm -rf /var/lib/apt/lists/\*
@@ -376,11 +403,9 @@ FROM base as deps
 
 ARG COMMIT_SHA
 
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
-WORKDIR /home/node/app
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app WORKDIR /home/node/app
 
-ADD package.json yarn.lock .yarnrc.yml ./
-COPY .yarn .yarn
+ADD package.json yarn.lock .yarnrc.yml ./ COPY .yarn .yarn
 
 # Skip the chromium download when installing puppeteer
 
@@ -394,12 +419,10 @@ FROM base as production-deps
 
 ARG COMMIT_SHA
 
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
-WORKDIR /home/node/app
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app WORKDIR /home/node/app
 
-COPY --from=deps /home/node/app/node_modules /home/node/app/node_modules
-COPY --from=deps /home/node/app/.yarn /home/node/app/.yarn
-ADD package.json yarn.lock .yarnrc.yml /home/node/app/
+COPY --from=deps /home/node/app/node_modules /home/node/app/node_modules COPY --from=deps
+/home/node/app/.yarn /home/node/app/.yarn ADD package.json yarn.lock .yarnrc.yml /home/node/app/
 
 RUN yarn workspaces focus --all --production
 
@@ -411,35 +434,30 @@ ARG COMMIT_SHA
 
 ENV NODE_ENV=production
 
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
-WORKDIR /home/node/app
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app WORKDIR /home/node/app
 USER node
 
-COPY --from=deps --chown=node:node /home/node/app/node_modules /home/node/app/node_modules
-ADD --chown=node:node . .
+COPY --from=deps --chown=node:node /home/node/app/node_modules /home/node/app/node_modules ADD
+--chown=node:node . .
 
 RUN yarn build
 
 # Finally, build the production image with minimal footprint
 
-FROM base
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
-WORKDIR /home/node/app
+FROM base RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app WORKDIR
+/home/node/app
 
-ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 /usr/local/bin/dumb-init
-RUN chmod +x /usr/local/bin/dumb-init
-ENTRYPOINT ["dumb-init", "--"]
-RUN echo "kernel.unprivileged_userns_clone=1" >> /etc/sysctl.conf
+ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64
+/usr/local/bin/dumb-init RUN chmod +x /usr/local/bin/dumb-init ENTRYPOINT ["dumb-init", "--"] RUN
+echo "kernel.unprivileged_userns_clone=1" >> /etc/sysctl.conf
 
-ARG COMMIT_SHA
-ENV COMMIT_SHA=$COMMIT_SHA
+ARG COMMIT_SHA ENV COMMIT_SHA=$COMMIT_SHA
 
-ENV NODE_ENV=production
-ENV OS_ENV=container
+ENV NODE_ENV=production ENV OS_ENV=container
 
-COPY --chown=node:node --from=production-deps /home/node/app/node_modules /home/node/app/node_modules
-COPY --chown=node:node --from=build /home/node/app/build /home/node/app/build
-COPY --chown=node:node --from=build /home/node/app/public /home/node/app/public
+COPY --chown=node:node --from=production-deps /home/node/app/node_modules
+/home/node/app/node_modules COPY --chown=node:node --from=build /home/node/app/build
+/home/node/app/build COPY --chown=node:node --from=build /home/node/app/public /home/node/app/public
 ADD --chown=node:node . .
 
 USER node
@@ -469,6 +487,8 @@ You actually don't have to create a template route, you could also take a screen
 
 There's also alternatives to taking a screenshot with a headless browser like using `node-canvas` as already well explained by [Cameron McHenry](https://twitter.com/cammchenry) in [Generating Social Images with Remix](https://camchenry.com/blog/generating-social-images-with-remix).
 
+If you're using Go there's a great article at pace.dev [Programatically generate gorgeous social media images in Go.](https://pace.dev/blog/2020/03/02/dynamically-generate-social-images-in-golang-by-mat-ryer.html)
+
 
 ## Related
 
@@ -482,3 +502,4 @@ There's also alternatives to taking a screenshot with a headless browser like us
 - [Docker and Node.js Best Practices](https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md#non-root-user)
 
 Well, thanks for reading 🙏 As always feel free to get in touch if you've got any questions or feedback 🤝
+```
