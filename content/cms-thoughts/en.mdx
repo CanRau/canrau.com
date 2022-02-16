@@ -5,7 +5,7 @@ lang: en
 title: CMS Thoughts
 description: Some (incomplete) thoughts I gathered over a few CMS's I've tried out recently
 created: 2022-02-12T22:13:00 -5
-updated: 2022-02-12T22:26:00 -5
+updated: 2022-02-16T01:26:00 -5
 published: 2022-02-12T22:13:00 -5
 version: 1
 meta:
@@ -30,6 +30,36 @@ published_at:
 ## Keystone JS
 
 Kinda love it, though... 🤓
+
+- no "real" slug field? 🤔 so how to query blog posts? only way seams a manual slug field or a custom field¿!
+- dislike the slide-in pop-over when creating a new item, editing later is fine
+- how to add images to wysiwyg¿?
+
+Kay I just figured out a way of building it myself using [hooks](https://keystonejs.com/docs/guides/hooks)
+
+```ts
+export const lists: Lists = {
+  Post: list({
+    fields: {
+      title: text(),
+      slug: text({
+        isIndexed: "unique",
+      }),
+    },
+    hooks: {
+      resolveInput: ({ resolvedData, item, inputData }) => {
+        if (inputData.slug === "" || !item.slug) {
+          resolvedData.slug = resolvedData.title || item.title || "";
+        }
+        if (resolvedData.slug) {
+          resolvedData.slug = slugify(resolvedData.slug);
+        }
+        return resolvedData;
+      },
+    },
+  }),
+};
+```
 
 - [Getting started with create keystone app](https://keystonejs.com/docs/walkthroughs/getting-started-with-create-keystone-app)
 - [How do I query my API for a single entity by its "slug" with GraphQL?](https://stackoverflow.com/questions/65829744/how-do-i-query-my-api-for-a-single-entity-by-its-slug-with-graphql)
@@ -120,6 +150,9 @@ http://localhost:1337/api/posts?publicationState=preview&populate=*&filters[slug
 ## Directus
 
 [Directus Website](https://directus.io)
+
+- Currently (v9.5.1) missing an integrated way for a linked slug field. 🤯 [#4231](https://github.com/directus/directus/discussions/4231)
+- Images show as broken once added to wysiwyg editor [#10469](https://github.com/directus/directus/issues/10469)
 
 ## ApostropheCMS
 
