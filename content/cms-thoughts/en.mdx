@@ -5,7 +5,7 @@ lang: en
 title: CMS Thoughts
 description: Some (incomplete) thoughts I gathered over a few CMS's I've tried out recently
 created: 2022-02-12T22:13:00 -5
-updated: 2022-02-16T01:26:00 -5
+updated: 2022-02-16T01:30:00 -5
 published: 2022-02-12T22:13:00 -5
 version: 1
 meta:
@@ -48,8 +48,8 @@ export const lists: Lists = {
     },
     hooks: {
       resolveInput: ({ resolvedData, item, inputData }) => {
-        if (inputData.slug === "" || !item.slug) {
-          resolvedData.slug = resolvedData.title || item.title || "";
+        if (inputData.slug === "" || !item?.slug) {
+          resolvedData.slug = resolvedData.title || item?.title || "";
         }
         if (resolvedData.slug) {
           resolvedData.slug = slugify(resolvedData.slug);
