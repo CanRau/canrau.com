@@ -14,26 +14,15 @@ import formatDate from "date-fns/format";
 import { readFile } from "~/utils.server";
 // import { bundleMDX } from "mdx-bundler";
 import { getMDXComponent, getMDXExport } from "mdx-bundler/client";
-import {
-  bundleMDX,
-  getContentPath,
-  getFilePath,
-} from "~/utils/compile-mdx.server";
+import { bundleMDX, getContentPath, getFilePath } from "~/utils/compile-mdx.server";
 import { loader as getTotalPathVisitsLoader } from "~/utils/get-total-path-visits";
 import * as typography from "~/components/typography";
 import { Link } from "~/components/link";
 import prismPlus from "~/styles/prism-plus.css";
 import prismTheme from "~/styles/prism-theme.css";
-import {
-  rootUrl,
-  domain,
-  titleSeperator,
-  twitterHandle,
-  twitterId,
-  defaultLang,
-} from "/config";
+import { rootUrl, domain, titleSeperator, twitterHandle, twitterId, defaultLang } from "/config";
 import type { Lang } from "/types";
-import { NotFoundError } from "~/utils/error-responses";
+import { notFoundError } from "~/utils/error-responses";
 import { Frontmatter } from "~/utils/mdx.server";
 // import type { TocEntry } from "@stefanprobst/rehype-extract-toc";
 
@@ -52,9 +41,7 @@ export const meta: MetaFunction = ({ data }) => {
   const title = `${_title || "Missing Title"}${titleSeperator}${domain}`;
   const url = `${rootUrl}/${lang}${slug}`;
   const description = _description || "Missing description";
-  const image = cover
-    ? `${rootUrl}${cover}`
-    : `${rootUrl}/${lang}/ogimage${slug}.png`;
+  const image = cover ? `${rootUrl}${cover}` : `${rootUrl}/${lang}/ogimage${slug}.png`;
   // todo: make reusable function to define meta-tags
   return {
     title,
@@ -105,19 +92,17 @@ export const handle: RouteHandle = {
 };
 
 export const loader: LoaderFunction = async ({ params, request }) => {
-  const lang = (params.lang || defaultLang) as Lang;
-  const slug = params.slug || "index";
+  const lang = (params.lang ?? defaultLang) as Lang;
+  const slug = params.slug ?? "index";
   const filename = `${lang}.mdx`;
   const contentPath = getContentPath(slug);
   const filePath = getFilePath(contentPath, filename);
   const source = await readFile(filePath, { encoding: "utf-8" });
-  const bundleMdxPromise = bundleMDX({ cwd: contentPath, source }).catch(
-    (e) => {
-      console.error(e);
-      console.error("error in $slug for", lang, slug);
-      throw NotFoundError(lang);
-    },
-  );
+  const bundleMdxPromise = bundleMDX({ cwd: contentPath, source }).catch((e) => {
+    console.error(e);
+    console.error("error in $slug for", lang, slug);
+    throw notFoundError(lang);
+  });
 
   const [
     {
@@ -125,27 +110,35 @@ export const loader: LoaderFunction = async ({ params, request }) => {
       code,
     },
     totalPathVisits,
-  ] = await Promise.all([
-    bundleMdxPromise,
-    getTotalPathVisitsLoader({ request }),
-  ]);
+  ] = await Promise.all([bundleMdxPromise, getTotalPathVisitsLoader({ request })]);
 
   if (isProd && frontmatter.status !== "published") {
-    throw NotFoundError(lang);
+    throw notFoundError(lang);
   }
 
   // todo: wait for [kentcdodds/mdx-bundler#70](https://github.com/kentcdodds/mdx-bundler/issues/70)
   const { jsonld } = getMDXExport(code);
 
-  const canonical =
-    frontmatter.canonical ||
-    `${rootUrl}/${frontmatter?.lang}${frontmatter?.slug}`;
+  const canonical = frontmatter.canonical || `${rootUrl}/${frontmatter?.lang}${frontmatter?.slug}`;
   return json({ frontmatter, code, canonical, totalPathVisits, jsonld });
 };
 
-const headingWithClasses =
-  (comp: FC | string, className: string) => (props: any) =>
-    createElement(comp, { ...props, className });
+const headingWithClasses = (comp: FC | string, className: string) => (props: any) =>
+  createElement(comp, { ...props, className });
+
+// note: MyImg thanks to [Sam Robbins](https://samrobbins.uk/blog/adding-captions-to-images-in-mdx)
+const MyImg = (props) => {
+  if (props.title === undefined) {
+    return <img src={props.src} alt={props.alt} />;
+  } else {
+    return (
+      <figure>
+        <img src={props.src} alt={props.alt} />
+        <figcaption>{props.title}</figcaption>
+      </figure>
+    );
+  }
+};
 
 // note: more on [component substitution](https://github.com/wooorm/xdm#components)
 const components = {
@@ -158,6 +151,7 @@ const components = {
   h6: headingWithClasses("h6", "decoration-skin-accent target:underline"),
   a: Link,
   Link,
+  img: MyImg,
   // p: typography.Paragraph,
 };
 
@@ -237,22 +231,17 @@ export default function Post() {
 
         <div className="md:flex items-center text-sm space-y-6 md:space-x-8 md:space-y-0">
           <div className="space-x-4">
-            <a
-              href={`https://twitter.com/search?q=${encodeURIComponent(
-                frontmatter.canonical,
-              )}`}
-            >
+            <a href={`https://twitter.com/search?q=${encodeURIComponent(frontmatter.canonical)}`}>
               Discuss on Twitter
             </a>
-            <a
-              href={`https://twitter.com/messages/compose?recipient_id=${twitterId}`}
-            >
+            <a href={`https://twitter.com/messages/compose?recipient_id=${twitterId}`}>
               PM via Twitter
             </a>
           </div>
           <div className="hidden md:block mx-auto flex-grow mt-1 border-t-2 border-black/10 dark:border-white/10" />
           <div className="flex space-x-4">
             <div className="font-bold">Share</div>
+            {/* fix: Share buttons so the won't require JS! */}
             <TwitterShareButton
               title={`${frontmatter.title} via ${twitterHandle}\n`}
               // via={twitterHandle.substring(1)}
@@ -260,10 +249,7 @@ export default function Post() {
             >
               Twitter
             </TwitterShareButton>
-            <RedditShareButton
-              title={frontmatter.title}
-              url={frontmatter.canonical}
-            >
+            <RedditShareButton title={frontmatter.title} url={frontmatter.canonical}>
               Reddit
             </RedditShareButton>
             {/* https://twitter.com/intent/tweet?text=[TWEET] */}
@@ -281,11 +267,21 @@ export default function Post() {
           <div className="space-y-3">
             <div className="text-2xl text-center md:text-left">Can Rau</div>
             <p>
-              Doing web-development since around 2000, building my digital
-              garden with a mix of back-to-the-roots-use-the-platform and modern
-              edge-rendered-client-side-magic tech <span role="img" aria-label="radio emoji">📻</span><span role="img" aria-label="rocket emoji">🚀</span>
+              Doing web-development since around 2000, building my digital garden with a mix of
+              back-to-the-roots-use-the-platform and modern edge-rendered-client-side-magic tech{" "}
+              <span role="img" aria-label="radio emoji">
+                📻
+              </span>
+              <span role="img" aria-label="rocket emoji">
+                🚀
+              </span>
             </p>
-            <p>Living and working in the tropical rainforest of Perú <span role="img" aria-label="squatting monkey emoji">🐒</span></p>
+            <p>
+              Living and working in the tropical rainforest of Perú{" "}
+              <span role="img" aria-label="squatting monkey emoji">
+                🐒
+              </span>
+            </p>
           </div>
         </div>
       </div>
