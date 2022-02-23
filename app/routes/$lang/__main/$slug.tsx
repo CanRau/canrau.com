@@ -181,17 +181,6 @@ const GetH1 =
       <>
         <typography.H1 {...props} />
         <div className="flex space-x-4 text-sm text-zinc-400 mb-10">
-          {updated && (
-            <div>
-              Last updated:&nbsp;
-              <time
-                className="ml-1"
-                // dateTime={updated} property="dateModified"
-              >
-                {formatDate(parseISO(updated), "yyyy-MM-dd")}
-              </time>
-            </div>
-          )}
           {published && (
             <div>
               Published:&nbsp;
@@ -199,7 +188,18 @@ const GetH1 =
                 className="ml-1"
                 // dateTime={published || created} property="datePublished"
               >
-                {formatDate(parseISO(published), "yyyy-MM-dd")}
+                {formatDate(parseISO(published), "yyyy-MM-dd hh:mm aaa")}
+              </time>
+            </div>
+          )}
+          {updated && (
+            <div>
+              Last updated:&nbsp;
+              <time
+                className="ml-1"
+                // dateTime={updated} property="dateModified"
+              >
+                {formatDate(parseISO(updated), "yyyy-MM-dd hh:mm aaa")}
               </time>
             </div>
           )}

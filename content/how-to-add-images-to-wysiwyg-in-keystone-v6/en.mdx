@@ -5,8 +5,8 @@ lang: en
 title: How to add images to WYSIWYG in Keystone v6
 description: Tutorial on how to add a custom image component block field to Keystone's document field
 created: 2022-02-22T13:14:00 -5
-updated: 2022-02-22T21:51:00 -5
-published: 2022-02-22T21:51:00 -5
+updated: 2022-02-22T23:27:00 -5
+published: 2022-02-22T22:55:00 -5
 version: 1
 meta:
   - name: og:type
@@ -25,27 +25,13 @@ published_at:
 
 {frontmatter.description}
 
-[](./keystone-file-block-screenshot.png)
+> Note that some of the links in this article are affiliate links.
+
+![Image description below image](./keystone-file-block-screenshot.png "Screenshot of Keystone's item edit page showcasing the custom image component block")
 
 ## Table of contents
 
 > ¡Work-in-Progress!
-
-At the moment I'm evaluating the use of Backblaze B2 for asset storage, but as I'm using the S3-compatible API it should work for other S3 compatible services (like AWS S3) as well.
-
-I've set up a private bucket, which I want to make accessible via a custom domain and Cloudflare.
-
-The hardest part so far was getting CORS working as, at least for now, I could only figure out how to upload straight from the browser. There might be a way though to "proxy" it through the Keystone server.
-
-Here's B2 CLI command I used to set custom CORS rules, which are pretty loose for my taste, but it's good enough for now to verify that's it working at all and worth continuing.
-
-First I created an [App Key](https://secure.backblaze.com/app_keys.htm) with all capabilities
-
-```bash
-B2_APPLICATION_KEY_ID=API_KEY B2_APPLICATION_KEY=API_SECRET b2 update-bucket --corsRules '[{"corsRuleName":"downloadFromAnyOriginWithUpload","allowedOrigins":["*"],"allowedHeaders":["*"],"allowedOperations":["s3_head","s3_post","s3_put","b2_upload_file"],"maxAgeSeconds":3600}]' BUCKET_NAME allPrivate
-```
-
-> Make sure to insert your `B2_APPLICATION_KEY_ID`, `B2_APPLICATION_KEY` and `BUCKET_NAME`, also note that `allPrivate` will make your bucket private, otherwise use `allPublic` instead if you want you bucket to be public.
 
 Of all the CMS' I've tried Keystone (v6) is so far the one I like the most.
 I'm still planning to continue with my custom CMS though until then I prefer to manage my own content via an existing CMS as I'm not too much of a fan of having to deploy my website everytime I want to publish or edit content.
@@ -219,7 +205,7 @@ You might have noticed `"/api/upload"` in the `fetch` request, that's the part w
 ## Adding a custom upload API endpoint to Keystone v6
 
 Thanks to [`extendExpressApp`](https://keystonejs.com/docs/apis/config#extend-express-app) it's pretty easy to add custom server logic and API endpoints to KeystoneJS. And by using [busboy](https://github.com/mscdex/busboy/) we can stream the incoming files straight to wherever we want, instead of loading it into server memory first.
-I use the S3 compatible API by [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html#af9xh2) (affiliate link).
+I use the S3 compatible API by [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html#af9xh2).
 
 ```ts
 // /keystone.ts
@@ -308,6 +294,24 @@ export default config({
 ```
 
 I'm not an expert in streams, so creating 3 [`PassThrough`](https://nodejs.org/api/stream.html#class-streampassthrough) streams was the only way I could generate a hash of the file for the S3 key as well as streaming it to Backblaze. All other ways I tried failed either in an `undefined` hash or `0kb` file upload, as you can't consume a stream more than once.
+
+## Backblaze B2
+
+At the moment I'm evaluating the use of [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html#af9xh2) for asset storage, but as I'm using the S3-compatible API it should work for other S3 compatible services (like AWS S3) as well.
+
+I've set up a private bucket, which I want to make accessible via a custom domain and Cloudflare.
+
+The hardest part so far was getting CORS working as, at least for now, I could only figure out how to upload straight from the browser. There might be a way though to "proxy" it through the Keystone server.
+
+Here's B2 CLI command I used to set custom CORS rules, which are pretty loose for my taste, but it's good enough for now to verify that's it working at all and worth continuing.
+
+First I created an [App Key](https://secure.backblaze.com/app_keys.htm#af9xh2) with all capabilities
+
+```bash
+B2_APPLICATION_KEY_ID=API_KEY B2_APPLICATION_KEY=API_SECRET b2 update-bucket --corsRules '[{"corsRuleName":"downloadFromAnyOriginWithUpload","allowedOrigins":["*"],"allowedHeaders":["*"],"allowedOperations":["s3_head","s3_post","s3_put","b2_upload_file"],"maxAgeSeconds":3600}]' BUCKET_NAME allPrivate
+```
+
+> Make sure to insert your `B2_APPLICATION_KEY_ID`, `B2_APPLICATION_KEY` and `BUCKET_NAME`, also note that `allPrivate` will make your bucket private, otherwise use `allPublic` instead if you want you bucket to be public.
 
 ## Related links
 
