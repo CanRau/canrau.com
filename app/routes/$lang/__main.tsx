@@ -13,13 +13,7 @@ import invariant from "tiny-invariant";
 import { NewsletterForm } from "~/components/newsletter-form";
 import { Link } from "~/components/link";
 import { getDeployVersion } from "~/utils/get-fly-deploy-version";
-import {
-  defaultLang,
-  domain,
-  titleSeperator,
-  twitterHandle,
-  twitterId,
-} from "/config";
+import { defaultLang, domain, titleSeperator, twitterHandle, twitterId } from "/config";
 import { repository } from "/package.json";
 import { DiGithubBadge } from "react-icons/di";
 import { Document } from "~/components/document";
@@ -28,7 +22,7 @@ import { Lang } from "/types";
 import { ThrownResponses } from "~/utils/error-responses";
 import { UndrawNotFound } from "~/components/illustrations/undraw-not-found";
 import { UndrawBugFixing } from "~/components/illustrations/undraw-bug-fixing";
-import { useLang } from "~/hooks/useLang";
+import { useLang } from "~/hooks/use-lang";
 
 type LoaderData = {
   lang: string;
@@ -36,8 +30,8 @@ type LoaderData = {
   appVersion: number;
 };
 
-export const loader: LoaderFunction = async ({ params, request }) => {
-  const lang = params.lang || defaultLang;
+export const loader: LoaderFunction = async ({ params }) => {
+  const lang = params.lang ?? defaultLang;
   const commitSha = process.env.COMMIT_SHA;
   const DB_ENDPOINT = process.env.DB_ENDPOINT;
   invariant(DB_ENDPOINT, "DB_ENDPOINT MISSING");
@@ -80,11 +74,7 @@ function Layout({
     >
       <div id="accessibility-menu">
         {/* todo: add accessibility help linking to contact once implemented */}
-        <a
-          id="skip-link"
-          href="#content"
-          className="sr-only focus:not-sr-only target:not-sr-only"
-        >
+        <a id="skip-link" href="#content" className="sr-only focus:not-sr-only target:not-sr-only">
           Skip to content
         </a>
       </div>
@@ -92,17 +82,11 @@ function Layout({
         <div className="lg:max-w-3xl mx-auto md:flex item-center justify-between dark:text-zinc-400">
           <Link to={`/${lang}`} title={domain} className="flex items-center">
             <h2 className="text-2xl">Can Rau</h2>{" "}
-            <span
-              title="Work-in-Progress"
-              className="ml-2 mt-1 dark:text-gray-500"
-            >
+            <span title="Work-in-Progress" className="ml-2 mt-1 dark:text-gray-500">
               WIP
             </span>
           </Link>
-          <nav
-            aria-label="Main navigation"
-            className="remix-app__header-nav mt-6 md:mt-0"
-          >
+          <nav aria-label="Main navigation" className="remix-app__header-nav mt-6 md:mt-0">
             <ul className="md:flex">
               <li className="md:px-5 py-2">
                 <NavLink to={`/${lang}`}>Home</NavLink>
@@ -123,14 +107,8 @@ function Layout({
       <footer className="flex flex-col items-center justify-center mt-24 mb-4 mx-5vw dark:text-zinc-600 print:hidden space-y-16">
         <NewsletterForm />
         <div>
-          Get in touch via{" "}
-          <a href={`https://twitter.com/${twitterHandle}`}>{twitterHandle}</a>{" "}
-          or{" "}
-          <a
-            href={`https://twitter.com/messages/compose?recipient_id=${twitterId}`}
-          >
-            PM
-          </a>
+          Get in touch via <a href={`https://twitter.com/${twitterHandle}`}>{twitterHandle}</a> or{" "}
+          <a href={`https://twitter.com/messages/compose?recipient_id=${twitterId}`}>PM</a>
         </div>
         <div>
           <p className="dark:text-gray-400">{totalPathVisits} visits so far</p>
@@ -153,12 +131,7 @@ function Layout({
               {" | "}
               <span>
                 <a href={`${repository.url}/commit/${commitSha}`}>
-                  <DiGithubBadge
-                    className="inline"
-                    size="1.8rem"
-                    title="GitHub Logo"
-                  />{" "}
-                  #{sha}
+                  <DiGithubBadge className="inline" size="1.8rem" title="GitHub Logo" /> #{sha}
                 </a>
               </span>
             </>
@@ -172,17 +145,14 @@ function Layout({
 export default function LangLayout() {
   const { lang, commitSha, appVersion } = useLoaderData<LoaderData>();
   const navigate = useNavigate();
-  const sha = commitSha ? commitSha.substr(0, 7) : "";
-  const matches = useMatches();
+  // const sha = commitSha ? commitSha.substr(0, 7) : "";
+  // const matches = useMatches();
   // const currentRoute = matches.find((m) => m?.data?.totalPathVisits > 0);
-  const currentRoute = matches?.[matches.length - 1];
-  const { totalPathVisits } = currentRoute?.data ?? {};
+  // const currentRoute = matches?.[matches.length - 1];
+  // const { totalPathVisits } = currentRoute?.data ?? {};
 
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.location.hash.toLowerCase() === "#roadmap"
-    ) {
+    if (typeof window !== "undefined" && window.location.hash.toLowerCase() === "#roadmap") {
       navigate(`/${lang}/todos`);
     }
   });
@@ -238,10 +208,7 @@ export function CatchBoundary() {
   }
 
   return (
-    <Document
-      lang={lang}
-      title={`${caught.status} ${caught.statusText}${titleSeperator}${domain}`}
-    >
+    <Document lang={lang} title={`${caught.status} ${caught.statusText}${titleSeperator}${domain}`}>
       <Layout>
         <h1 className="text-4xl text-center">
           {caught.status} — {caught.statusText}

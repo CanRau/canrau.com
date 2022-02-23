@@ -1,14 +1,14 @@
 import { type LoaderFunction } from "remix";
 import type { Lang } from "/types";
-import { NotFoundError } from "~/utils/error-responses";
+import { notFoundError } from "~/utils/error-responses";
 import { defaultLang, languages, rootUrl } from "/config";
 
 export const loader: LoaderFunction = async ({ params }) => {
   const lang = (params.lang || defaultLang) as Lang;
   if (!languages.includes(lang)) {
-    throw NotFoundError();
+    throw notFoundError();
   }
-  throw NotFoundError("en");
+  throw notFoundError("en");
 
   const feedUrl = `${rootUrl}/${lang}/feed.xml`;
 

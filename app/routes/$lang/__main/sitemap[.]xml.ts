@@ -2,18 +2,18 @@ import { type LoaderFunction } from "remix";
 import formatDate from "date-fns/format";
 import type { Lang } from "/types";
 import { getPostsList } from "~/utils/mdx.server";
-import { NotFoundError } from "~/utils/error-responses";
+import { notFoundError } from "~/utils/error-responses";
 import { defaultLang, languages, rootUrl } from "/config";
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const encoding = request.headers.get("accept-encoding") ?? "";
   const lang = (params.lang || defaultLang) as Lang;
   if (!languages.includes(lang)) {
-    throw NotFoundError();
+    throw notFoundError();
   }
 
   const posts = await getPostsList({ lang }).catch(() => {
-    throw NotFoundError(lang);
+    throw notFoundError(lang);
   });
 
   const allPosts = posts.filter((post) => post.status === "published");
@@ -22,10 +22,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     return [
       `<url>`,
       `<loc>${post.canonical}</loc>`,
-      `<lastmod>${formatDate(
-        post.updated || post.created,
-        "yyyy-MM-dd",
-      )}</lastmod>`,
+      `<lastmod>${formatDate(post.updated || post.created, "yyyy-MM-dd")}</lastmod>`,
       `</url>`,
     ].join("");
   });
@@ -37,10 +34,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     // index page, or /blog page
     `<url>`,
     `<loc>${rootUrl}/${lang}</loc>`,
-    `<lastmod>${formatDate(
-      allPosts[0].updated || allPosts[0].created,
-      "yyyy-MM-dd",
-    )}</lastmod>`,
+    `<lastmod>${formatDate(allPosts[0].updated || allPosts[0].created, "yyyy-MM-dd")}</lastmod>`,
     `</url>`,
 
     ...postItems,

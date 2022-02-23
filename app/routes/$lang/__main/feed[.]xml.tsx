@@ -6,7 +6,7 @@ import type { Lang } from "/types";
 import { renderToString } from "react-dom/server";
 import { getMDXComponent } from "mdx-bundler/client";
 import { getPostsList } from "~/utils/mdx.server";
-import { NotFoundError } from "~/utils/error-responses";
+import { notFoundError } from "~/utils/error-responses";
 import { defaultLang, languages, rootUrl, domain } from "/config";
 
 const isProd = process.env.NODE_ENV === "production";
@@ -41,14 +41,7 @@ function pubDate(date: Date) {
   const pieces = date.toString().split(" ");
   const offsetTime = pieces?.[5]?.match(/[-+]\d{4}/);
   const offset = offsetTime ? offsetTime : pieces[5];
-  const parts = [
-    pieces[0] + ",",
-    pieces[2],
-    pieces[1],
-    pieces[3],
-    pieces[4],
-    offset,
-  ];
+  const parts = [pieces[0] + ",", pieces[2], pieces[1], pieces[3], pieces[4], offset];
 
   return parts.join(" ");
 }
@@ -57,12 +50,12 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const encoding = request.headers.get("accept-encoding") ?? "";
   const lang = (params.lang || defaultLang) as Lang;
   if (!languages.includes(lang)) {
-    throw NotFoundError();
+    throw notFoundError();
   }
   // invariant(params.userId, "Expected params.userId");
 
   const posts = await getPostsList({ lang }).catch(() => {
-    throw NotFoundError(lang);
+    throw notFoundError(lang);
   });
 
   // from https://stackoverflow.com/a/57448862/3484824

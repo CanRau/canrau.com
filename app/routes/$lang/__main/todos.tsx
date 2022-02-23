@@ -55,6 +55,7 @@ const getAllFiles = async (
 
   for (const file of _files) {
     const filePath = join(root, dirPath, file);
+    // exec
     const filePathRelative = relative(root, filePath);
     if (
       // todo: automate using `.gitignore` file I guess

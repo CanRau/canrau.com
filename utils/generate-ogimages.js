@@ -15,7 +15,7 @@ if (cmd === "all") {
   if (contentPaths.length === 0) {
     return process.exit();
   }
-  console.log("take pre-commit screenshots of", files.join(", "));
+  console.log("take pre-commit screenshots of", contentPaths.join(", "));
   const files = contentPaths.map((p) =>
     p.replace("content/", "").replace("/en.mdx", ""),
   );

@@ -18,5 +18,7 @@ export const defaultLang = languages[0] as Lang;
 // todo: add more user profiles, maybe change implementation
 export const profiles: Array<string> = [
   "https://twitter.com/CanRau",
+  "https://github.com/CanRau",
   "https://stackoverflow.com/users/3484824/can-rau",
+  "https://www.figma.com/@CanRau",
 ];

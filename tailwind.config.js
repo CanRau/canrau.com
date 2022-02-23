@@ -79,6 +79,8 @@ const externalLink = plugin(({ addComponents }) => {
 
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
+  // note: disable JIT until [prettier-plugin-tailwind#29](https://github.com/Acidic9/prettier-plugin-tailwind/issues/29)
+  mode: process.env.NODE_ENV ? 'jit' : undefined,
   content: ["./{app,content}/**/*.{ts,tsx}"],
   // done: don't remove (defaults to media) until light mode has been fixed (by me 🥲)!
   // todo: make theme toggling, based on class, default to auto (via code), be customizable but also revertible to auto ([theme-change](https://github.com/saadeghi/theme-change)) [tweet](https://mobile.twitter.com/chaphasilor/status/1472142142109851652) [discord](https://discord.com/channels/770287896669978684/771068344320786452/922672997754605568)

@@ -10,18 +10,18 @@ import formatRFC3339 from "date-fns/formatRFC3339";
 import { renderToString } from "react-dom/server";
 import { getMDXComponent } from "mdx-bundler/client";
 import { getPostsList, Frontmatter } from "~/utils/mdx.server";
-import { NotFoundError } from "~/utils/error-responses";
+import { notFoundError } from "~/utils/error-responses";
 import { defaultLang, languages, rootUrl } from "/config";
 
 export const loader: LoaderFunction = async ({ params }) => {
-  const lang = (params.lang || defaultLang) as Lang;
+  const lang = (params.lang ?? defaultLang) as Lang;
   if (!languages.includes(lang)) {
-    throw NotFoundError();
+    throw notFoundError();
   }
   // invariant(params.userId, "Expected params.userId");
 
   const posts = await getPostsList({ lang }).catch(() => {
-    throw NotFoundError(lang);
+    throw notFoundError(lang);
   });
 
   const items = posts
@@ -68,8 +68,7 @@ export const loader: LoaderFunction = async ({ params }) => {
       {
         name: "Can Rau",
         url: rootUrl,
-        avatar:
-          "https://www.gravatar.com/avatar/3b4eb1b1e3184c6fdf1568eb5a6b71f0.jpg?s=512",
+        avatar: "https://www.gravatar.com/avatar/3b4eb1b1e3184c6fdf1568eb5a6b71f0.jpg?s=512",
       },
     ],
     items,

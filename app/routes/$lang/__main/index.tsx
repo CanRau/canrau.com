@@ -1,21 +1,9 @@
-import {
-  useLoaderData,
-  json,
-  type MetaFunction,
-  type LoaderFunction,
-} from "remix";
+import { useLoaderData, json, type MetaFunction, type LoaderFunction } from "remix";
 import type { Lang } from "/types";
 import { getPostsList, Frontmatter } from "~/utils/mdx.server";
-import { NotFoundError } from "~/utils/error-responses";
+import { notFoundError } from "~/utils/error-responses";
 import { loader as getTotalPathVisitsLoader } from "~/utils/get-total-path-visits";
-import {
-  defaultLang,
-  languages,
-  rootUrl,
-  titleSeperator,
-  domain,
-  twitterHandle,
-} from "/config";
+import { defaultLang, languages, rootUrl, titleSeperator, domain, twitterHandle } from "/config";
 // import invariant from "tiny-invariant";
 // import styles from "~/styles/windicss/index.css";
 
@@ -32,13 +20,13 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ params, request }) => {
   const lang = (params.lang || defaultLang) as Lang;
   if (!languages.includes(lang)) {
-    throw NotFoundError();
+    throw notFoundError();
   }
   // invariant(params.userId, "Expected params.userId");
   const postsPromise = getPostsList({ lang }).catch((e) => {
     console.error(e);
     console.error("error in index.tsx for", lang);
-    throw NotFoundError(lang);
+    throw notFoundError(lang);
   });
   // done: fix visits and `catch` here
   const visitsPromise = getTotalPathVisitsLoader({ request }).catch((error) => {
@@ -63,19 +51,11 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 };
 
 export const meta: MetaFunction = ({ data }) => {
-  const {
-    title: _title,
-    description: _description,
-    lang,
-    slug,
-    cover,
-  } = data?.hero ?? {};
+  const { title: _title, description: _description, lang, slug, cover } = data?.hero ?? {};
   const title = `${_title || "Missing Title"}${titleSeperator}${domain}`;
   const url = `${rootUrl}/${lang}`;
   const description = _description || "Missing description";
-  const image = cover
-    ? `${rootUrl}${cover}`
-    : `${rootUrl}/${lang}/ogimage/${slug}.png`;
+  const image = cover ? `${rootUrl}${cover}` : `${rootUrl}/${lang}/ogimage/${slug}.png`;
   return {
     title,
     description,
@@ -116,9 +96,7 @@ const Post = ({ post, url }: { post: Frontmatter; url: string }) => {
     <a className="space-y-2" href={url}>
       {/* {!!post.cover && <img src={post.cover} alt={post.title} className="" />} */}
       <h2 className="text-2xl">{post.title}</h2>
-      {!!post.description && (
-        <p className="text-skin-text-dark">{post.description}</p>
-      )}
+      {!!post.description && <p className="text-skin-text-dark">{post.description}</p>}
     </a>
   );
 };
