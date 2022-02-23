@@ -1,0 +1,314 @@
+---
+status: published
+slug: /how-to-add-images-to-wysiwyg-in-keystone-v6
+lang: en
+title: How to add images to WYSIWYG in Keystone v6
+description: Tutorial on how to add a custom image component block field to Keystone's document field
+created: 2022-02-22T13:14:00 -5
+updated: 2022-02-22T21:51:00 -5
+published: 2022-02-22T21:51:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2022-02-22T21:51:00 -5
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+# {frontmatter.title}
+
+{frontmatter.description}
+
+[](./keystone-file-block-screenshot.png)
+
+## Table of contents
+
+> ¡Work-in-Progress!
+
+At the moment I'm evaluating the use of Backblaze B2 for asset storage, but as I'm using the S3-compatible API it should work for other S3 compatible services (like AWS S3) as well.
+
+I've set up a private bucket, which I want to make accessible via a custom domain and Cloudflare.
+
+The hardest part so far was getting CORS working as, at least for now, I could only figure out how to upload straight from the browser. There might be a way though to "proxy" it through the Keystone server.
+
+Here's B2 CLI command I used to set custom CORS rules, which are pretty loose for my taste, but it's good enough for now to verify that's it working at all and worth continuing.
+
+First I created an [App Key](https://secure.backblaze.com/app_keys.htm) with all capabilities
+
+```bash
+B2_APPLICATION_KEY_ID=API_KEY B2_APPLICATION_KEY=API_SECRET b2 update-bucket --corsRules '[{"corsRuleName":"downloadFromAnyOriginWithUpload","allowedOrigins":["*"],"allowedHeaders":["*"],"allowedOperations":["s3_head","s3_post","s3_put","b2_upload_file"],"maxAgeSeconds":3600}]' BUCKET_NAME allPrivate
+```
+
+> Make sure to insert your `B2_APPLICATION_KEY_ID`, `B2_APPLICATION_KEY` and `BUCKET_NAME`, also note that `allPrivate` will make your bucket private, otherwise use `allPublic` instead if you want you bucket to be public.
+
+Of all the CMS' I've tried Keystone (v6) is so far the one I like the most.
+I'm still planning to continue with my custom CMS though until then I prefer to manage my own content via an existing CMS as I'm not too much of a fan of having to deploy my website everytime I want to publish or edit content.
+
+The only problems I have with Keystone was the missing slug field which I solved in [CMS thoughts](/en/cms-thoughts) and the lack of inline image support in the provided document field (WYSIWYG) which is based on [Slate](https://docs.slatejs.org/), which I'm going to solve here, at least sharing one way of doing it.
+
+## Adding Component Blocks to the Document Field
+
+```ts
+import { list } from "@keystone-6/core";
+import { document } from "@keystone-6/fields-document";
+import { Lists } from ".keystone/types";
+import { componentBlocks } from "./src/component-blocks";
+
+export const lists: Lists = {
+  Post: list({
+    fields: {
+      content: document({
+        ui: {
+          views: path.resolve("./src/component-blocks"),
+        },
+        componentBlocks,
+        links: true,
+        dividers: true,
+        layouts: [
+          [1, 1],
+          [1, 1, 1],
+          [1, 1, 1, 1],
+          [2, 1],
+          [1, 2],
+          [1, 2, 1],
+        ],
+        relationships: {
+          related: {
+            kind: "inline",
+            listKey: "Post",
+            label: "Related",
+            selection: "id title",
+          },
+          url: {
+            kind: "inline",
+            listKey: "URL",
+            label: "Url",
+            selection: "id url",
+          },
+        },
+        formatting: {
+          inlineMarks: {
+            bold: true,
+            italic: true,
+            underline: true,
+            strikethrough: true,
+            code: true,
+            superscript: true,
+            subscript: true,
+            keyboard: true,
+          },
+          listTypes: true,
+          alignment: true,
+          headingLevels: [2, 3, 4, 5, 6],
+          blockTypes: true,
+          softBreaks: true,
+        },
+      }),
+    },
+  }),
+};
+```
+
+Note that the imported `componentBlocks` have to be added twice to the document field. Once passed in as is to provide access to the components and once providing the path to `ui.views`.
+
+Now lets check out the `component-blocks.tsx` file
+
+```tsx
+import React from "react";
+import {
+  NotEditable,
+  component,
+  fields,
+  type FormField,
+} from "@keystone-6/fields-document/component-blocks";
+import {
+  ToolbarGroup,
+  ToolbarButton,
+  ToolbarSeparator,
+} from "@keystone-6/fields-document/primitives";
+import { Tooltip } from "@keystone-ui/tooltip";
+import { useTheme } from "@keystone-ui/core";
+import { InfoIcon } from "@keystone-ui/icons/icons/InfoIcon";
+import { AlertTriangleIcon } from "@keystone-ui/icons/icons/AlertTriangleIcon";
+import { AlertOctagonIcon } from "@keystone-ui/icons/icons/AlertOctagonIcon";
+import { CheckCircleIcon } from "@keystone-ui/icons/icons/CheckCircleIcon";
+import { Trash2Icon } from "@keystone-ui/icons/icons/Trash2Icon";
+import { FieldLabel, FieldContainer } from "@keystone-ui/fields";
+
+const files = ({ label }: { label: string }): FormField<Array<string>, undefined> => {
+  return {
+    kind: "form",
+    Input({ value, onChange, autoFocus }) {
+      return (
+        <FieldContainer>
+          <FieldLabel>{label}</FieldLabel>
+          <div>
+            {value?.map((file) => (
+              <img width="200" src={`http://127.0.0.1:8787/${file}`} key={file} />
+            ))}
+          </div>
+          <div>
+            <input
+              type="file"
+              multiple
+              onChange={async (e) => {
+                e.preventDefault();
+                if (e.target.files?.length === 1) {
+                  const formData = new FormData();
+                  formData.append("file", e.target.files[0]);
+                  const res = await fetch("/api/upload", { method: "POST", body: formData });
+                  if (res.ok) {
+                    const json = await res.json();
+                    onChange([...value, json.filename]);
+                  }
+                }
+              }}
+            />
+          </div>
+        </FieldContainer>
+      );
+    },
+    options: undefined,
+    defaultValue: [],
+    validate(value) {
+      return Array.isArray(value) && value.every((value) => typeof value === "string");
+    },
+  };
+};
+
+// naming the export componentBlocks is important because the Admin UI
+// expects to find the components like on the componentBlocks export
+export const componentBlocks = {
+  files: component({
+    label: "Files",
+    chromeless: false,
+    props: {
+      files: files({
+        label: "Files",
+      }),
+    },
+    component: ({ files: { value } }) => {
+      return (
+        <>
+          {value?.map((file) => (
+            <img width="200" src={`http://127.0.0.1:8787/${file}`} key={file} />
+          ))}
+        </>
+      );
+    },
+  }),
+};
+```
+
+First I'm defining a custom form field `const files` which will "hold" the data and provide the UI to edit it, which means in this case providing the `file` input to upload new files.
+
+Also at the moment it's kinda limited to images although it's called `files` I think I'm going to make the preview more dynamic in the future, alternatively the field could just be called `images`.
+
+And at the moment it's not handling individual file deletion, you can only remove the block, which wouldn't (ask to) delete the files from disk yet.
+
+This is the first version. When I find the time I think I'm developing it a little further to be able to set `chromeless: true` and provide my own UI.
+
+You might have noticed `"/api/upload"` in the `fetch` request, that's the part we're looking at next.
+
+## Adding a custom upload API endpoint to Keystone v6
+
+Thanks to [`extendExpressApp`](https://keystonejs.com/docs/apis/config#extend-express-app) it's pretty easy to add custom server logic and API endpoints to KeystoneJS. And by using [busboy](https://github.com/mscdex/busboy/) we can stream the incoming files straight to wherever we want, instead of loading it into server memory first.
+I use the S3 compatible API by [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html#af9xh2) (affiliate link).
+
+```ts
+// /keystone.ts
+import { config } from "@keystone-6/core";
+import { lists } from "./schema";
+import { createHash } from "crypto";
+import busboy from "busboy";
+import { S3Client, type PutObjectCommandInput } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+import mime from "mime-types";
+import { PassThrough, Readable } from "stream";
+
+const S3_BUCKET = process.env.S3_BUCKET;
+const S3_REGION = process.env.S3_REGION;
+const S3_ENDPOINT = process.env.S3_ENDPOINT;
+const S3_ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID;
+const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY;
+
+const fileChecksum = (file: Readable): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const hash = createHash("sha256").setEncoding("hex");
+    file
+      .once("error", (err) => reject(err))
+      .on("data", (chunk) => hash.update(chunk))
+      .once("end", () => resolve(hash.digest("hex")));
+  });
+
+export default config({
+  lists,
+  server: {
+    extendExpressApp: (app) => {
+      app.post("/api/upload", async (req, res) => {
+        const bb = busboy({ headers: req.headers });
+
+        bb.on("file", async (_name, file, info) => {
+          const ext = mime.extension(info.mimeType);
+          const hashStream = new PassThrough();
+          const intermediateStream = new PassThrough();
+          const fileStream = new PassThrough();
+
+          intermediateStream
+            .on("data", (chunk) => fileStream.write(chunk))
+            .once("end", () => fileStream.end());
+
+          file.pipe(hashStream).pipe(intermediateStream);
+
+          const hash = await fileChecksum(hashStream);
+
+          const filename = `${hash}.${ext}`;
+
+          const params: PutObjectCommandInput = {
+            Bucket: S3_BUCKET ?? "",
+            Key: filename,
+            Body: fileStream,
+            ContentType: info.mimeType,
+            ContentEncoding: info.encoding,
+            Metadata: {
+              filename: info.filename,
+            },
+          };
+
+          const client = new S3Client({
+            endpoint: S3_ENDPOINT ?? "",
+            region: S3_REGION ?? "",
+            credentials: {
+              accessKeyId: S3_ACCESS_KEY_ID ?? "",
+              secretAccessKey: S3_SECRET_ACCESS_KEY ?? "",
+            },
+          });
+
+          const upload = new Upload({
+            client,
+            params,
+          });
+
+          await upload.done();
+
+          res.json({ hash, filename, error: null });
+        });
+
+        req.pipe(bb);
+      });
+    },
+  },
+});
+```
+
+I'm not an expert in streams, so creating 3 [`PassThrough`](https://nodejs.org/api/stream.html#class-streampassthrough) streams was the only way I could generate a hash of the file for the S3 key as well as streaming it to Backblaze. All other ways I tried failed either in an `undefined` hash or `0kb` file upload, as you can't consume a stream more than once.
+
+## Related links
+
+- [[B2 Cloud Storage] How do I set a bucket's CORS rules to allow uploads directly from a web browser? (/r/backblaze)](https://www.reddit.com/r/backblaze/comments/94mabe/b2_cloud_storage_how_do_i_set_a_buckets_cors/)

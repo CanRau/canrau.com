@@ -3,9 +3,9 @@ status: published
 slug: /cms-thoughts
 lang: en
 title: CMS Thoughts
-description: Some (incomplete) thoughts I gathered over a few CMS's I've tried out recently
+description: Some (non-exhaustive) thoughts I gathered over a few CMS's I've tried out recently
 created: 2022-02-12T22:13:00 -5
-updated: 2022-02-16T01:30:00 -5
+updated: 2022-02-22T22:45:00 -5
 published: 2022-02-12T22:13:00 -5
 version: 1
 meta:
@@ -60,6 +60,14 @@ export const lists: Lists = {
   }),
 };
 ```
+
+This behaves exactly as I think a `slug` field should. Initially (when empty) it'll be auto-populated on save from the title field. Later when updating the title it stays the same to not "break the site" but gives me the freedom to edit the slug however I see fit, or empty it to make it auto-generate from title field on save.
+
+Also it should be possible to prevent it from changing if the item is already published, if that's a requirement, or send old, non-empty slugs to your redirection database to make sure it'll never end up in 404s.
+
+I must say this hook system is really fantastic 👏
+
+If I can now figure out how to add images to the `document` field (WYSIWYG) I might be convinced 🥰.
 
 - [Getting started with create keystone app](https://keystonejs.com/docs/walkthroughs/getting-started-with-create-keystone-app)
 - [How do I query my API for a single entity by its "slug" with GraphQL?](https://stackoverflow.com/questions/65829744/how-do-i-query-my-api-for-a-single-entity-by-its-slug-with-graphql)
