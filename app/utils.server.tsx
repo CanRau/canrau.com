@@ -12,3 +12,7 @@ import { createHash } from "crypto";
 export function hash(str: string) {
   return createHash("sha1").update(str).digest("hex").toString();
 }
+
+export * from "@aws-sdk/client-s3";
+export * from "@aws-sdk/lib-storage";
+export * from "@aws-sdk/middleware-apply-body-checksum";

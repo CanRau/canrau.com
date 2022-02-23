@@ -1,13 +1,8 @@
-import { ReactNode } from "react";
-import {
-  Links,
-  LiveReload,
-  Meta,
-  Scripts,
-  ScrollRestoration,
-  useMatches,
-} from "remix";
+import { type ReactNode } from "react";
+import { Links, LiveReload, Meta, Scripts, ScrollRestoration, useMatches } from "remix";
 import { useShouldHydrate } from "remix-utils";
+// todo: RouteChangeAnnouncement needs testing
+// import { RouteChangeAnnouncement } from "./routechange-announcement";
 import { rootUrl } from "/config";
 
 export function Document({
@@ -41,6 +36,9 @@ export function Document({
 
         {/* todo: more meta tags */}
         {/* <meta name="theme-color" content="#fff"></meta> */}
+        {/* found https://artplusmarketing.com/5-simple-strategies-to-make-your-articles-consumable-with-audio-d8502aae1061 */}
+        {/* <meta data-rh="true" name="twitter:label1" content="Reading time"/>
+        <meta data-rh="true" name="twitter:data1" content="5 min read"/> */}
 
         {/* prettier-ignore */}
         <link rel="alternate" type="application/rss+xml" href={`${rootUrl}/${lang}/feed.xml`} title="Can Rau's XML Feed" />
@@ -49,11 +47,7 @@ export function Document({
         {/* Google Search Console */}
         {/* prettier-ignore */}
         <meta name="google-site-verification" content="KGv3z097pffnaQ1ZA4nUtkhyewpwfmUPLxAoPVlyfpw" />
-        <link
-          rel="sitemap"
-          type="application/xml"
-          href={`/${lang}/sitemap.xml`}
-        />
+        <link rel="sitemap" type="application/xml" href={`/${lang}/sitemap.xml`} />
         {jsonld && (
           <script
             type="application/ld+json"
@@ -63,6 +57,7 @@ export function Document({
       </head>
       <body className="dark:bg-zinc-900">
         {children}
+        {/* <RouteChangeAnnouncement /> */}
         <ScrollRestoration />
         {includeScripts && <Scripts />}
         {process.env.NODE_ENV === "development" && <LiveReload />}

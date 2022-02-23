@@ -6,6 +6,16 @@ import { readFile } from "fs/promises";
 import { isWhitespaceCharacter } from "is-whitespace-character";
 import { author, rootUrl } from "/config";
 import { loaders } from "@remix-run/dev/compiler/loaders";
+// import { remarkToc } from "remark-toc";
+// import { remarkGfm } from "remark-gfm";
+// import { remarkGithub } from "remark-github";
+// import { remarkBreaks } from "remark-breaks";
+// import { remarkFootnotes } from "remark-footnotes";
+// import { rehypeExternalLinks } from "rehype-external-links";
+// import { rehypeSlug } from "rehype-slug";
+// import { linkHeadings } from "rehype-autolink-headings";
+// import { rehypePrism } from "rehype-prism-plus";
+// import { visit, EXIT } from "unist-util-visit";
 // import { type Frontmatter } from "~/utils/mdx.server";
 
 // from https://stackoverflow.com/a/60617060/3484824
