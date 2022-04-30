@@ -137,6 +137,9 @@ function Layout({
             </>
           )}
         </div>
+        <div>
+          Domain hosted at <a href="https://gandi.link/f/80a974a5">Gandi.net</a>
+        </div>
       </footer>
     </div>
   );

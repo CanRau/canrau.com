@@ -110,6 +110,24 @@ const uploadHandler: UploadHandler = async ({ name, filename, mimetype, encoding
 };
 ```
 
+You could also import the `aws-sdk` modules in parallel changing the following code from the last code block from:
+
+```ts
+const { S3Client } = await import("@aws-sdk/client-s3");
+const { Upload } = await import("@aws-sdk/lib-storage");
+const { getApplyMd5BodyChecksumPlugin } = await import("@aws-sdk/middleware-apply-body-checksum");
+```
+
+to:
+
+```ts
+const [{ S3Client }, { Upload }, { getApplyMd5BodyChecksumPlugin }] = await Promise.all([
+  import("@aws-sdk/client-s3"),
+  import("@aws-sdk/lib-storage"),
+  import("@aws-sdk/middleware-apply-body-checksum"),
+]);
+```
+
 Note that type `UploadHandler` only "allows" to return a `string` a `File` or undefined, I "complained" about it in [#1139](https://github.com/remix-run/remix/issues/1139#issuecomment-1037685317)
 
 `File` has the following shape and so requires more data than I need 🤷🏻‍♂️

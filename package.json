@@ -11,10 +11,6 @@
   "bugs": {
     "url": "https://github.com/CanRau/canrau.com/issues"
   },
-  "workspaces": [
-    "functions/*",
-    "cms"
-  ],
   "scripts": {
     "build": "yarn build:css && remix build",
     "prebuild": "yarn clean && echo All clean ✨",

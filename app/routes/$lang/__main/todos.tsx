@@ -44,11 +44,7 @@ type TodoCommentWithMDX = TodoComment & {
   mdx: { code: string };
 };
 
-const getAllFiles = async (
-  root: string,
-  dirPath: string = "",
-  files: Array<string> = [],
-) => {
+const getAllFiles = async (root: string, dirPath: string = "", files: Array<string> = []) => {
   const _files = await readdir(join(root, dirPath));
 
   files = files = [];
@@ -115,8 +111,7 @@ const groupBy = <T, K extends keyof T>(
   array: T[],
   groupOn: K | ((i: T) => string),
 ): Record<string, T[]> => {
-  const groupFn =
-    typeof groupOn === "function" ? groupOn : (o: T) => o[groupOn];
+  const groupFn = typeof groupOn === "function" ? groupOn : (o: T) => o[groupOn];
 
   return Object.fromEntries(
     array.reduce((acc, obj) => {
@@ -170,9 +165,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
       extension = filename.startsWith(".") ? filename : `.${filename}`;
     }
     if (!leasotExtensionSupported(extension)) {
-      console.error(
-        `>>>>>>>> LEASOT: Unsupported extension: "${extension}" (${filePath})`,
-      );
+      console.error(`>>>>>>>> LEASOT: Unsupported extension: "${extension}" (${filePath})`);
       continue;
     }
     const fileTodos = leasot.parse(fileContent, {
@@ -225,10 +218,7 @@ const TodoList = ({ todos }: ITodoProps) =>
         </div>
         <ul className="space-y-5">
           {tagsTodos.map((todo) => {
-            const Component = useMemo(
-              () => getMDXComponent(todo.mdx.code),
-              [todo.mdx.code],
-            );
+            const Component = useMemo(() => getMDXComponent(todo.mdx.code), [todo.mdx.code]);
             return (
               <li key={todo.text}>
                 <div className="prose dark:prose-invert">
@@ -236,14 +226,8 @@ const TodoList = ({ todos }: ITodoProps) =>
                 </div>
                 <div className="text-xs dark:text-zinc-500">
                   {todo.ref ? `Ref: ${todo.ref} - ` : ""}
-                  <a
-                    href={`${repository.url}/blob/main/${todo.file}#L${todo.line}`}
-                  >
-                    <DiGithubBadge
-                      className="inline"
-                      size="1.1rem"
-                      title="GitHub Logo"
-                    />{" "}
+                  <a href={`${repository.url}/blob/main/${todo.file}#L${todo.line}`}>
+                    <DiGithubBadge className="inline" size="1.1rem" title="GitHub Logo" />{" "}
                     {todo.file}#L{todo.line}
                   </a>
                 </div>
