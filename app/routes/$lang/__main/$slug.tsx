@@ -277,9 +277,9 @@ export default function Post() {
               </span>
             </p>
             <p>
-              Living and working in the tropical rainforest of Perú{" "}
-              <span role="img" aria-label="squatting monkey emoji">
-                🐒
+              Living and working in Cusco, Perú{" "}
+              <span role="img" aria-label="llama emoji">
+                🦙
               </span>
             </p>
           </div>
