@@ -1,14 +1,21 @@
 // todo: Twitter profile banner like [Prateek Surana](https://twitter.com/psuranas) using [API](https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_banner)
 // todo: when adding cache/caching check out [Loader vs Route Cache Headers in Remix](https://sergiodxa.com/articles/loader-vs-route-cache-headers-in-remix)
 // note: [GaiAma Paypal plaintext link](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TU5GAQZHYT8NC)
-
+// todo: add [useIsPending](https://gist.github.com/ryanflorence/0fb9190e83d99b3d779f0a593a91f07c) hooks by Ryan Florence
+// todo: [💡 HOWTO: Debug your server-side Remix code using VSCode](https://gist.github.com/kiliman/a9d7c874af03369a1d105a92560d89e9)
 // todo: add [review](https://simonknott.de/articles/review-snippet) feature 🥰
-
+// todo: [Design for reading: tips for optimizing content for Reader modes and reading apps](https://www.sarasoueidan.com/blog/tips-for-reader-modes/)
+// todo: add feed to [simevidas/web-dev-feeds](https://github.com/simevidas/web-dev-feeds)
+// note: https://max.engineer/server-informed-ui
+// todo: play with text-shadow like [12daysofweb.dev](https://12daysofweb.dev/2021/css-custom-properties/)
+// text-shadow: .015em .015em hsl(var(--color-red-hue),var(--color-saturation-high),30%),var(--h1-highlight-offset) var(--h1-highlight-offset) var(--color-light);
 // fixme: add impressum [1](https://simonknott.de/impressum.html) & datenschutz [1](https://simonknott.de/datenschutz.html)
-
+// todo: [add localhost https?](https://github.com/daquinoaldo/https-localhost)
 // todo: broken link checker?
 // https://www.npmjs.com/package/broken-link-checker
 // https://www.npmjs.com/package/hyperlink
+// todo: maybe [How to catch React Hydration errors on production](https://suncommander.medium.com/how-to-catch-and-log-react-hydration-errors-3f507ca83d5f)
+// todo: maybe turn tab-rant into post [tweet](https://twitter.com/CanRau/status/1518945315314884608)?
 
 import { useLoaderData, type LoaderFunction, type MetaFunction } from "remix";
 import { useMemo } from "react";
@@ -23,8 +30,8 @@ import {
   basename,
   join,
   relative,
-  leasot,
-  leasotExtSupported,
+  // leasotParse,
+  // leasotExtSupported,
 } from "~/utils.server";
 import { Link } from "~/components/link";
 import { bundleMDX } from "~/utils/compile-mdx.server";
@@ -129,8 +136,8 @@ const associateParser = {
   ".svg": { parserName: "defaultParser" },
 };
 
-const leasotExtensionSupported = (ext: string) =>
-  leasotExtSupported(ext) || Object.keys(associateParser).includes(ext);
+const leasotExtensionSupported = (leasot: any, ext: string) =>
+  leasot.isExtensionSupported(ext) || Object.keys(associateParser).includes(ext);
 
 type Todos = Record<string, TodoCommentWithMDX[]>;
 type LoaderData = { canonical: string; todos: Todos; totalPathVisits: number };
@@ -151,9 +158,10 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const rootDir = process.cwd();
   const todosUngrouped: TodoComment[] = [];
 
-  const [files, totalPathVisits] = await Promise.all([
+  const [files, totalPathVisits, leasot] = await Promise.all([
     getAllFiles(rootDir),
     getTotalPathVisitsLoader({ request }),
+    import("leasot"),
   ]);
 
   for (const filePath of files) {
@@ -164,11 +172,11 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     if (extension === "") {
       extension = filename.startsWith(".") ? filename : `.${filename}`;
     }
-    if (!leasotExtensionSupported(extension)) {
+    if (!leasotExtensionSupported(leasot, extension)) {
       console.error(`>>>>>>>> LEASOT: Unsupported extension: "${extension}" (${filePath})`);
       continue;
     }
-    const fileTodos = leasot.parse(fileContent, {
+    const fileTodos = await leasot.parse(fileContent, {
       extension,
       filename: relative(rootDir, filePath),
       customTags: ["note", "done", "fix"],
