@@ -17,6 +17,18 @@ const ratios: Record<string, number> = {
   default: 1.9047619048,
 };
 
+const fontDividers: Record<string, number> = {
+  default: 16,
+};
+
+const marginDividers: Record<string, number> = {
+  default: 20,
+};
+
+const avatarDividers: Record<string, number> = {
+  default: 8,
+};
+
 const rand = (n: number) => Math.floor(n * Math.random());
 
 // inspirations
@@ -35,11 +47,18 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const lang = (params.lang ?? defaultLang) as Lang;
   const url = new URL(request.url);
   const querySize = url.searchParams.get("size");
+  const ratio = ratios.default as number;
+  const fontDivider = fontDividers.default as number;
   const width = (querySize ? sizes[querySize] : sizes.default) as number;
-  const height = Math.round(width / (ratios.default as number));
-  console.log({ height });
-  const sizeSuffix = width === (sizes.default as number) ? "" : `_${querySize}`;
+  const height = Math.round(width / ratio);
+  const fontSize = Math.floor(width / fontDivider);
+  const marginDivider = marginDividers.default as number;
+  const avatarDivider = avatarDividers.default as number;
+  const margin = Math.floor(width / marginDivider / ratio);
+  const avatarSize = Math.floor(width / avatarDivider);
+  console.log({ avatarSize, margin });
 
+  const sizeSuffix = width === (sizes.default as number) ? "" : `_${querySize}`;
   const filename = `${lang}.mdx`;
   const contentPath = getContentPath(slug);
   const filePath = getFilePath(contentPath, filename);
@@ -73,23 +92,20 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   ctx.shadowOffsetY = 7;
   ctx.shadowBlur = 20;
 
-  ctx.font = "bold 75pt Menlo";
+  ctx.font = `bold ${fontSize}pt Menlo`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   ctx.fillStyle = "#fff";
   ctx.textWrap = true;
-  const titleY = 60;
   const titleMaxWidth = width - 40;
-  ctx.fillText(title, CENTER_X, titleY, titleMaxWidth);
+  ctx.fillText(title, CENTER_X, margin, titleMaxWidth);
   const titleHeight = ctx.measureText(title, titleMaxWidth);
-  const spacingAfterTitle = 40;
-  const bottomOfTitle = titleY + titleHeight.actualBoundingBoxDescent;
+  const bottomOfTitle = margin + titleHeight.actualBoundingBoxDescent;
 
   const img = await loadImage("https://github.com/canrau.png");
-  const avatarSize = 150;
   const imageX = CENTER_X - avatarSize / 2;
-  const imageY = bottomOfTitle + spacingAfterTitle;
-  const maskRadius = 70;
+  const imageY = bottomOfTitle + margin;
+  const maskRadius = avatarSize / 2;
   const startAngle = 0;
   const endAngle = 2 * Math.PI;
 
@@ -109,11 +125,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   ctx.restore();
 
-  ctx.font = "35pt Menlo";
+  ctx.font = `${Math.floor(width / 34)}pt Menlo`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   ctx.fillStyle = "#fff";
-  const urlY = imageY + 180;
+  const urlY = imageY + avatarSize + margin;
   ctx.shadowColor = "#000";
   ctx.shadowOffsetX = 5;
   ctx.shadowOffsetY = 5;
