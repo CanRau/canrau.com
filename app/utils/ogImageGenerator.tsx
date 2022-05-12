@@ -3,6 +3,7 @@ import { json } from "remix";
 import { Canvas, loadImage, type CanvasRenderingContext2D } from "skia-canvas";
 import sharp from "sharp";
 import { Lang } from "/types";
+import { readFile, join } from "../utils.server";
 
 export const OG_IMAGE_VERSION = 1;
 
@@ -96,7 +97,7 @@ export const ogImageGenerator = async ({
   ctx.clearRect(0, 0, width, height);
 
   const CENTER_X = width / 2;
-  const titleMaxWidth = width - 70; // Math.round((width / 1.0344) * 0.9);
+  const titleMaxWidth = width - 50; // Math.round((width / 1.0344) * 0.9);
   const pixelsPerRow = height / 3; // for now 3 colums
   const desiredFontSize = Math.floor(width / fontDivider);
   const minFontSize = 50;
@@ -115,14 +116,38 @@ export const ogImageGenerator = async ({
   ctx.clip();
 
   // todo: make type of BG & colors overidable from frontmatter
-  const colors: Array<string> = ["#03430d", "#168e16"];
-  draw2ColoredPixelBg({ ctx, width, height, colors });
+  // const colors: Array<string> = ["#03430d", "#168e16"];
+  // draw2ColoredPixelBg({ ctx, width, height, colors });
+  const gradient = ctx.createLinearGradient(20, 0, 220, 0);
+
+  // Add three color stops
+  gradient.addColorStop(0, "#4942aa");
+  // gradient.addColorStop(0.5, "cyan");
+  gradient.addColorStop(1, "#5c55d9");
+
+  // Set the fill style and draw a rectangle
+  ctx.fillStyle = gradient;
+  // ctx.fillStyle = "hsl(243.5, 68.8%, 61%)";
+  ctx.fillRect(0, 0, width, height);
 
   ctx.restore();
 
+  // content background
+  const whiteBorderSize = Math.floor(width / 63);
+  // ctx.save();
+  // const contentMaskRadius = width / 100;
+  // drawRoundedMask({
+  //   ctx,
+  //   x: whiteBorderSize - 2,
+  //   y: whiteBorderSize - 2,
+  //   width: width - whiteBorderSize + 1 * 2,
+  //   height: height - whiteBorderSize + 1 * 2,
+  //   radius: contentMaskRadius,
+  // });
+  // ctx.clip();
+
   // white border
   ctx.fillStyle = "#fff";
-  const whiteBorderSize = Math.floor(width / 66);
   ctx.fillRect(
     whiteBorderSize,
     whiteBorderSize,
@@ -130,8 +155,8 @@ export const ogImageGenerator = async ({
     height - whiteBorderSize * 2,
   );
 
-  // content background
-  ctx.fillStyle = "#15201f";
+  // ctx.fillStyle = "#15201f";
+  ctx.fillStyle = "hsl(240, 2.5%, 15.7%)";
   const contentBackgroundSize = width / 60;
   ctx.fillRect(
     contentBackgroundSize,
@@ -139,6 +164,23 @@ export const ogImageGenerator = async ({
     width - contentBackgroundSize * 2,
     height - contentBackgroundSize * 2,
   );
+  ctx.restore();
+
+  if (title.toLowerCase().includes("fly.io")) {
+    const flyLogoBuffer = await readFile(
+      join(process.cwd(), "app", "assets", "fly.io_brandmark.png"),
+    );
+    const logo = await loadImage(flyLogoBuffer);
+    const logoX = (width / 4.5) * 2;
+    const logoY = (height / 3) * 2;
+    const logoSize = 250;
+    ctx.save();
+    ctx.translate(logoSize / 2, logoSize / 2);
+    ctx.rotate(convertToRadians(-20));
+    ctx.globalAlpha = 0.45;
+    ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
+    ctx.restore();
+  }
 
   ctx.shadowColor = "#000";
   ctx.shadowOffsetX = 7;
@@ -287,4 +329,8 @@ function drawRoundedMask({ ctx, x, y, width, height, radius }: DrawRoundedMaskPr
   ctx.lineTo(x, y + radius);
   ctx.bezierCurveTo(x, y + cP, x + cP, y, x + radius, y);
   ctx.closePath();
+}
+
+function convertToRadians(degree: number) {
+  return degree * (Math.PI / 180);
 }

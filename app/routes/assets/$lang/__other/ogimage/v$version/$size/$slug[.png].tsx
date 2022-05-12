@@ -42,7 +42,7 @@ export const loader: LoaderFunction = async ({ params }) => {
     "Content-Disposition": `${contentDisposition}; filename="canrau.com_${slug}_${lang}_ogimage-${size}-v${OG_IMAGE_VERSION}.png"`,
     "x-content-type-options": "nosniff",
     // fixme: proper cache settings!
-    // "Cache-Control": "max-age=0",
+    // "Cache-Control": "public,max-age=31536000,immutable",
   };
 
   return new Response(buffer, { headers });
