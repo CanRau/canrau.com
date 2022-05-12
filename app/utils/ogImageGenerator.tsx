@@ -110,10 +110,10 @@ export const ogImageGenerator = async ({
     pixelsPerRow + 90,
   );
 
-  ctx.save();
-  const maskRadius = width / 48;
-  drawRoundedMask({ ctx, x: 0, y: 0, width, height, radius: maskRadius });
-  ctx.clip();
+  // ctx.save();
+  // const maskRadius = width / 48;
+  // drawRoundedMask({ ctx, x: 0, y: 0, width, height, radius: maskRadius });
+  // ctx.clip();
 
   // todo: make type of BG & colors overidable from frontmatter
   // const colors: Array<string> = ["#03430d", "#168e16"];
