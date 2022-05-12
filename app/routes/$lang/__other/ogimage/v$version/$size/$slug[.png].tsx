@@ -63,7 +63,7 @@ function calcFontSize(
   maxHeight: number,
   rounds: number = 0,
 ): [fontSize: number, fontSizeString: string] {
-  const lineHeight = desired > 40 ? 1 : 1.5;
+  const lineHeight = desired > 40 ? 1.1 : 1.5;
   if (rounds > 10) return [desired, `${desired}px/${lineHeight}`];
 
   ctx.font = `bold ${desired}pt Menlo`;
@@ -86,9 +86,7 @@ function calcFontSize(
 export const loader: LoaderFunction = async ({ params }) => {
   // fix: reconsider the version param for proper cache invalidation
   const { slug, size: requestSize, version: ignoredVersion } = params;
-  console.log({ slug });
   if (!slug) return null;
-  console.log({ requestSize });
 
   const lang = (params.lang ?? defaultLang) as Lang;
   // const ratio = ratios.default as number;
@@ -126,7 +124,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   ctx.clearRect(0, 0, width, height);
 
   const CENTER_X = width / 2;
-  const titleMaxWidth = width - 30; // Math.round((width / 1.0344) * 0.9);
+  const titleMaxWidth = width - 150; // Math.round((width / 1.0344) * 0.9);
   const pixelsPerRow = height / 3; // for now 3 colums
   const desiredFontSize = Math.floor(width / fontDivider);
   const [ignoredfontSize, fontSizeString] = calcFontSize(
@@ -137,7 +135,6 @@ export const loader: LoaderFunction = async ({ params }) => {
     20,
     pixelsPerRow,
   );
-  console.log({ ignoredfontSize, fontSizeString });
   console.log({ ignoredfontSize, fontSizeString });
   // const titleMeasures = ctx.measureText(title, titleMaxWidth);
 
@@ -182,7 +179,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   ctx.textBaseline = "top";
   ctx.fillStyle = "#fff";
   ctx.textWrap = true;
-  ctx.fillText(title, CENTER_X, 40, titleMaxWidth);
+  ctx.fillText(title, CENTER_X, 90, titleMaxWidth);
   // const bottomOfTitle = paddin + titleMeasures.actualBoundingBoxDescent;
 
   const img = await loadImage("https://github.com/canrau.png");
