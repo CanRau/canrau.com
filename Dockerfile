@@ -18,8 +18,8 @@ FROM node:16-bullseye-slim as base
 
 ARG COMMIT_SHA
 
-# update linux deps & install deps needed for puppeteer, [code from](https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-in-docker)
-RUN apt-get update && apt-get install -y
+# update linux deps & install deps needed for [skia-canvas](https://github.com/samizdatco/skia-canvas#running-in-docker)
+RUN apt-get update && apt-get install -y -q --no-install-recommends libfontconfig1
 
 # DEPS - Install all node_modules, including dev dependencies
 FROM base as deps
