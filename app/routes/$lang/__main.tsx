@@ -123,7 +123,7 @@ function Layout({
           */}
           {" | "}
           <span>
-            running on fly.io
+            running on <a href="https://fly.io/">fly.io</a>
             {appVersion && ` as v${appVersion}`}
           </span>
           {commitSha && (
