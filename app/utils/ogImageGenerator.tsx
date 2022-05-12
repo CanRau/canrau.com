@@ -24,7 +24,7 @@ const sizes: Record<Size, SizeObj> = {
 // };
 
 const fontDividers: Record<string, number> = {
-  default: 16,
+  default: 14,
 };
 
 // const marginDividers: Record<string, number> = {
@@ -96,18 +96,18 @@ export const ogImageGenerator = async ({
   ctx.clearRect(0, 0, width, height);
 
   const CENTER_X = width / 2;
-  const titleMaxWidth = width - 150; // Math.round((width / 1.0344) * 0.9);
+  const titleMaxWidth = width - 70; // Math.round((width / 1.0344) * 0.9);
   const pixelsPerRow = height / 3; // for now 3 colums
   const desiredFontSize = Math.floor(width / fontDivider);
+  const minFontSize = 50;
   const [ignoredfontSize, fontSizeString] = calcFontSize(
     ctx,
     title,
     titleMaxWidth,
     desiredFontSize,
-    20,
-    pixelsPerRow,
+    minFontSize,
+    pixelsPerRow + 90,
   );
-  // const titleMeasures = ctx.measureText(title, titleMaxWidth);
 
   ctx.save();
   const maskRadius = width / 48;
@@ -150,7 +150,7 @@ export const ogImageGenerator = async ({
   ctx.textBaseline = "top";
   ctx.fillStyle = "#fff";
   ctx.textWrap = true;
-  ctx.fillText(title, CENTER_X, 90, titleMaxWidth);
+  ctx.fillText(title, CENTER_X, 70, titleMaxWidth);
   // const bottomOfTitle = paddin + titleMeasures.actualBoundingBoxDescent;
 
   const img = await loadImage("https://github.com/canrau.png");
@@ -211,8 +211,8 @@ function calcFontSize(
   maxHeight: number,
   rounds: number = 0,
 ): [fontSize: number, fontSizeString: string] {
-  const lineHeight = desired > 40 ? 1.1 : 1.5;
-  if (rounds > 10) return [desired, `${desired}px/${lineHeight}`];
+  const lineHeight = desired > 65 ? 1.2 : desired > 40 ? 1.4 : 1.5;
+  if (rounds > 20) return [desired, `${desired}px/${lineHeight}`];
 
   ctx.font = `bold ${desired}pt Menlo`;
   ctx.textAlign = "center";
