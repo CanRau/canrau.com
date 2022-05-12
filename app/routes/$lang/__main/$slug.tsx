@@ -11,7 +11,7 @@ import TwitterShareButton from "react-share/lib/TwitterShareButton";
 import RedditShareButton from "react-share/lib/RedditShareButton";
 import parseISO from "date-fns/parseISO";
 import formatDate from "date-fns/format";
-import { readFile } from "~/utils.server";
+import { readFile, revHash } from "~/utils.server";
 // import { bundleMDX } from "mdx-bundler";
 import { getMDXComponent, getMDXExport } from "mdx-bundler/client";
 import { bundleMDX, getContentPath, getFilePath } from "~/utils/compile-mdx.server";
@@ -40,9 +40,10 @@ export const meta: MetaFunction = ({ data }) => {
   } = data?.frontmatter ?? {};
 
   const title = `${_title || "Missing Title"}${titleSeperator}${domain}`;
+  const titleHash = revHash(_title);
   const url = `${rootUrl}/${lang}${slug}`;
   const description = _description || "Missing description";
-  const autoOgImageUrl = `${rootUrl}/assets/${lang}/ogimage/v${OG_IMAGE_VERSION}/default${slug}.png`;
+  const autoOgImageUrl = `${rootUrl}/assets/${lang}/ogimage/v${OG_IMAGE_VERSION}/default${slug}.${titleHash}.png`;
   const image = cover ? `${rootUrl}${cover}` : autoOgImageUrl;
   // todo: make reusable function to define meta-tags
   return {
