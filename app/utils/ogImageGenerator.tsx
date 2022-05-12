@@ -4,6 +4,8 @@ import { Canvas, loadImage, type CanvasRenderingContext2D } from "skia-canvas";
 import sharp from "sharp";
 import { Lang } from "/types";
 
+export const OG_IMAGE_VERSION = 1;
+
 export type Size = "default" | "small";
 
 type SizeObj = {
@@ -105,7 +107,6 @@ export const ogImageGenerator = async ({
     20,
     pixelsPerRow,
   );
-  console.log({ ignoredfontSize, fontSizeString });
   // const titleMeasures = ctx.measureText(title, titleMaxWidth);
 
   ctx.save();

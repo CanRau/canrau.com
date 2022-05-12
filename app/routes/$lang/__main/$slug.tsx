@@ -24,6 +24,7 @@ import { rootUrl, domain, titleSeperator, twitterHandle, twitterId, defaultLang 
 import type { Lang } from "/types";
 import { notFoundError } from "~/utils/error-responses";
 import { Frontmatter } from "~/utils/mdx.server";
+import { OG_IMAGE_VERSION } from "~/utils/ogImageGenerator";
 // import type { TocEntry } from "@stefanprobst/rehype-extract-toc";
 
 const isProd = process.env.NODE_ENV === "production";
@@ -41,7 +42,8 @@ export const meta: MetaFunction = ({ data }) => {
   const title = `${_title || "Missing Title"}${titleSeperator}${domain}`;
   const url = `${rootUrl}/${lang}${slug}`;
   const description = _description || "Missing description";
-  const image = cover ? `${rootUrl}${cover}` : `${rootUrl}/${lang}/ogimage${slug}.png`;
+  const autoOgImageUrl = `${rootUrl}/assets/${lang}/ogimage/v${OG_IMAGE_VERSION}/default${slug}.png`;
+  const image = cover ? `${rootUrl}${cover}` : autoOgImageUrl;
   // todo: make reusable function to define meta-tags
   return {
     title,

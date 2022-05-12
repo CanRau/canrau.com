@@ -7,15 +7,16 @@ import { readFile } from "~/utils.server";
 import { defaultLang } from "/config";
 import { Lang } from "/types";
 import { type Frontmatter } from "~/utils/mdx.server";
-import { ogImageGenerator, type Size } from "~/utils/ogImageGenerator";
+import { ogImageGenerator, OG_IMAGE_VERSION, type Size } from "~/utils/ogImageGenerator";
 
 // inspiration distribution in canvas http://jsfiddle.net/mes2L9vf/1/
 export const loader: LoaderFunction = async ({ params }) => {
-  // fix: reconsider the version param for proper cache invalidation
-  const { slug, size } = params;
-  if (!slug) return null;
-
+  const { slug, size, version } = params;
   const lang = (params.lang ?? defaultLang) as Lang;
+
+  // if `slug` is missing or version doesn't match current `OG_IMAGE_VERSION` throw 404
+  if (!slug || parseInt(version ?? "", 10) !== OG_IMAGE_VERSION) throw notFoundError(lang);
+
   const filename = `${lang}.mdx`;
   const contentPath = getContentPath(slug);
   const filePath = getFilePath(contentPath, filename);
@@ -36,7 +37,7 @@ export const loader: LoaderFunction = async ({ params }) => {
     "Content-Type": "image/png",
     "Access-Control-Expose-Headers": "Content-Disposition",
     // can be `inline` or `attachment`
-    "Content-Disposition": `attachment; filename="canrau.com_${slug}_ogimage-${size}.png"`,
+    "Content-Disposition": `attachment; filename="canrau.com_${slug}_ogimage-${size}-v${OG_IMAGE_VERSION}.png"`,
     "x-content-type-options": "nosniff",
     // fixme: proper cache settings!
     "Cache-Control": "max-age=0",
