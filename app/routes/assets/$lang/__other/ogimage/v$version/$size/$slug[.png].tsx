@@ -33,14 +33,16 @@ export const loader: LoaderFunction = async ({ params }) => {
 
   const buffer = await ogImageGenerator({ title, slug, lang, size: size as Size, status, author });
 
+  const contentDisposition = process.env.NODE_ENV === "development" ? "inline" : "attachment";
+
   const headers: HeadersInit = {
     "Content-Type": "image/png",
     "Access-Control-Expose-Headers": "Content-Disposition",
     // can be `inline` or `attachment`
-    "Content-Disposition": `attachment; filename="canrau.com_${slug}_ogimage-${size}-v${OG_IMAGE_VERSION}.png"`,
+    "Content-Disposition": `${contentDisposition}; filename="canrau.com_${slug}_${lang}_ogimage-${size}-v${OG_IMAGE_VERSION}.png"`,
     "x-content-type-options": "nosniff",
     // fixme: proper cache settings!
-    "Cache-Control": "max-age=0",
+    // "Cache-Control": "max-age=0",
   };
 
   return new Response(buffer, { headers });
