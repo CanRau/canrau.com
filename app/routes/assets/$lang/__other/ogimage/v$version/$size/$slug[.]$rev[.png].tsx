@@ -2,7 +2,7 @@
 import { type LoaderFunction } from "remix";
 import matter from "gray-matter";
 import { getContentPath, getFilePath } from "~/utils/compile-mdx.server";
-import { notFoundError } from "~/utils/error-responses";
+// import { notFoundError } from "~/utils/error-responses";
 import { readFile, revHash } from "~/utils.server";
 import { defaultLang } from "/config";
 import { Lang } from "/types";
@@ -11,12 +11,13 @@ import { ogImageGenerator, OG_IMAGE_VERSION, type Size } from "~/utils/ogImageGe
 
 // inspiration distribution in canvas http://jsfiddle.net/mes2L9vf/1/
 export const loader: LoaderFunction = async ({ params }) => {
-  const { slug = "", size = "", version = "", rev = "" } = params;
+  const { slug = "", size = "", version: ignoredV = "", rev = "" } = params;
 
   const lang = (params.lang ?? defaultLang) as Lang;
 
   // if `slug` is missing or version doesn't match current `OG_IMAGE_VERSION` throw 404
-  if (!slug || parseInt(version, 10) !== OG_IMAGE_VERSION) {
+  // if (!slug || parseInt(version, 10) !== OG_IMAGE_VERSION) {
+  if (!slug) {
     throw new Response("Not Found", { status: 404 });
     // throw notFoundError(lang);
   }
