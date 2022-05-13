@@ -5,19 +5,20 @@ import { getContentPath, getFilePath } from "~/utils/compile-mdx.server";
 // import { notFoundError } from "~/utils/error-responses";
 import { readFile, revHash } from "~/utils.server";
 import { defaultLang } from "/config";
-import { Lang } from "/types";
+import type { Lang } from "/types";
 import { type Frontmatter } from "~/utils/mdx.server";
 import { ogImageGenerator, OG_IMAGE_VERSION, type Size } from "~/utils/ogImageGenerator";
 
 // inspiration distribution in canvas http://jsfiddle.net/mes2L9vf/1/
 export const loader: LoaderFunction = async ({ params }) => {
-  const { slug = "", size = "", version: ignoredV = "", rev = "" } = params;
+  const { slug = "", size = "", version = "", rev = "" } = params;
 
   const lang = (params.lang ?? defaultLang) as Lang;
 
   // if `slug` is missing or version doesn't match current `OG_IMAGE_VERSION` throw 404
-  // if (!slug || parseInt(version, 10) !== OG_IMAGE_VERSION) {
-  if (!slug) {
+  // note: disabled version mismatch for now, not sure that's what caused Twitter Card Validator to fail tho 🤔
+  if (!slug || parseInt(version, 10) !== OG_IMAGE_VERSION) {
+    // if (!slug) {
     throw new Response("Not Found", { status: 404 });
     // throw notFoundError(lang);
   }
@@ -33,9 +34,8 @@ export const loader: LoaderFunction = async ({ params }) => {
   // todo: probably too much clutter! (consider adding `description`, maybe only if less than n characters)
   // todo: `author` undefined
   // todo: maybe show `status` as well?
-  const {
-    data: { status, title, author },
-  } = matter(source) as unknown as { data: Frontmatter };
+  const { data } = matter(source) as unknown as { data: Frontmatter };
+  const { status, title, author } = data;
 
   if (rev.toLowerCase() !== revHash(title).toLowerCase()) {
     throw new Response("Not Found", { status: 404 });
