@@ -1,11 +1,11 @@
 // todo: design article cards with some "adorno" based on the categories og:image bg 🥳
 import { json } from "remix";
-import { Canvas, loadImage, type CanvasRenderingContext2D } from "skia-canvas";
+import { Canvas, loadImage, FontLibrary, type CanvasRenderingContext2D } from "skia-canvas";
 import sharp from "sharp";
 import { Lang } from "/types";
 import { readFile, join } from "../utils.server";
 
-export const OG_IMAGE_VERSION = 5;
+export const OG_IMAGE_VERSION = 6;
 
 export type Size = "default" | "small";
 
@@ -47,6 +47,9 @@ type OgImageGeneratorProps = {
   author?: string;
   size: Size;
 };
+
+// with an alias
+FontLibrary.use("Inter", ["assets/fonts/Inter.ttf"]);
 
 // inspiration distribution in canvas http://jsfiddle.net/mes2L9vf/1/
 export const ogImageGenerator = async ({
@@ -161,7 +164,7 @@ export const ogImageGenerator = async ({
   ctx.shadowOffsetY = 7;
   ctx.shadowBlur = 20;
 
-  ctx.font = `bold ${fontSizeString} Menlo`;
+  ctx.font = `bold ${fontSizeString} Inter`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   ctx.fillStyle = "#fff";
