@@ -13,12 +13,10 @@ if (cmd === "all") {
 } else if (cmd === "pre-commit") {
   const contentPaths = postPaths.filter((p) => p.includes("content"));
   if (contentPaths.length === 0) {
-    return process.exit();
+    process.exit();
   }
   console.log("take pre-commit screenshots of", contentPaths.join(", "));
-  const files = contentPaths.map((p) =>
-    p.replace("content/", "").replace("/en.mdx", ""),
-  );
+  const files = contentPaths.map((p) => p.replace("content/", "").replace("/en.mdx", ""));
   takeScreenshotOfFiles(files).then(() => console.log("done"));
 } else if (cmd === "single") {
   console.log(`taking screenshot of ${postPaths[0]}`);
@@ -48,13 +46,12 @@ async function getBrowser() {
   return puppeteer.launch({
     // headless: false,
     // slowMo: 750,
-    executablePath:
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   });
 }
 
 async function takeScreenshot(slug) {
-  const browser = cachedBrowser ?? (await getBrowser());
+  const browser = cachedBrowser || (await getBrowser());
   cachedBrowser = browser;
   const template = `http://localhost:3000/en/ogimage/${slug}/template`;
   const page = await browser.newPage();

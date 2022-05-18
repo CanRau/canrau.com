@@ -1,3 +1,4 @@
+// todo: use [skia-canvas](https://github.com/samizdatco/skia-canvas) <canvas/> or similar instead like [camchenry.com](https://camchenry.com/blog/generating-social-images-with-remix)
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { json, type LoaderFunction } from "remix";
 // import puppeteer from "puppeteer";
