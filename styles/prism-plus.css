@@ -1,5 +1,10 @@
 pre {
   overflow-x: auto;
+  white-space: pre-wrap !important;
+}
+
+pre code {
+  white-space: pre-wrap !important;
 }
 
 /**
@@ -20,6 +25,10 @@ pre {
   margin-right: -16px;
   border-left-width: 4px;
   border-left-color: rgba(31, 41, 55, 0); /* Set code block color */
+}
+
+.code-line.line-number {
+  margin-left: -9px;
 }
 
 .code-line.inserted {
