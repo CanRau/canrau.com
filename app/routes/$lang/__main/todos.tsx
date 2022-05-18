@@ -90,7 +90,9 @@ const getAllFiles = async (root: string, dirPath: string = "", files: Array<stri
       filePathRelative.endsWith(".gitignore") ||
       filePathRelative.endsWith(".dockerignore") ||
       filePathRelative.endsWith("LICENSE") ||
-      filePathRelative.endsWith(".zip")
+      filePathRelative.endsWith(".zip") ||
+      filePathRelative.endsWith(".pre-commit") ||
+      filePathRelative.endsWith(".ttf")
     ) {
       continue;
     }
