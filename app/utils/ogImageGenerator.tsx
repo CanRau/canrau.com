@@ -5,7 +5,7 @@ import sharp from "sharp";
 import { Lang } from "/types";
 import { readFile, join } from "../utils.server";
 
-export const OG_IMAGE_VERSION = 3;
+export const OG_IMAGE_VERSION = 4;
 
 export type Size = "default" | "small";
 
@@ -20,21 +20,8 @@ const sizes: Record<Size, SizeObj> = {
   default: { width: 1200, height: 630, padding: 20 },
 } as const;
 
-// const ratios: Record<string, number> = {
-//   default: 1.9047619048,
-// };
-
-const fontDividers: Record<string, number> = {
-  default: 14,
-};
-
-// const marginDividers: Record<string, number> = {
-//   default: 20,
-// };
-
-const avatarDividers: Record<string, number> = {
-  default: 8,
-};
+export const defaultOgImageSize = "default";
+export const supportedOgImageSizes = Object.keys(sizes);
 
 const rand = (n: number) => Math.floor(n * Math.random());
 
@@ -72,21 +59,8 @@ export const ogImageGenerator = async ({
 }: OgImageGeneratorProps) => {
   if (!title || !slug) return null;
 
-  // const ratio = ratios.default as number;
-  const fontDivider = fontDividers.default as number;
-  // const { width, height, padding } =
-  //   typeof requestSize === "undefined" ? sizes.default : sizes[requestSize as Size];
-  const width = 1200;
-  const height = 630;
-  const padding = 20;
-  // const height = Math.round(width / ratio);
-  // const marginDivider = marginDividers.default as number;
-  const avatarDivider = avatarDividers.default as number;
-  // const margin = Math.floor(width / marginDivider / ratio);
-  // const marginY = Math.floor(width / marginDivider / ratio);
-  // const marginX = Math.floor(width / marginDivider / ratio);
-  // console.log({ margin });
-  const avatarSize = Math.floor(width / avatarDivider);
+  const { width, height, padding } = sizes.default;
+  const avatarSize = Math.floor(width / 8);
 
   // todo: probably too much clutter! (consider adding `description`, maybe only if less than n characters)
   // todo: `author` undefined
@@ -99,7 +73,7 @@ export const ogImageGenerator = async ({
   const CENTER_X = width / 2;
   const titleMaxWidth = width - 50; // Math.round((width / 1.0344) * 0.9);
   const pixelsPerRow = height / 3; // for now 3 colums
-  const desiredFontSize = Math.floor(width / fontDivider);
+  const desiredFontSize = Math.floor(width / 14);
   const minFontSize = 50;
   const [ignoredfontSize, fontSizeString] = calcFontSize(
     ctx,
@@ -130,7 +104,7 @@ export const ogImageGenerator = async ({
   // ctx.fillStyle = "hsl(243.5, 68.8%, 61%)";
   ctx.fillRect(0, 0, width, height);
 
-  ctx.restore();
+  // ctx.restore();
 
   // content background
   const whiteBorderSize = Math.floor(width / 63);
@@ -164,7 +138,7 @@ export const ogImageGenerator = async ({
     width - contentBackgroundSize * 2,
     height - contentBackgroundSize * 2,
   );
-  ctx.restore();
+  // ctx.restore();
 
   if (title.toLowerCase().includes("fly.io")) {
     const flyLogoBuffer = await readFile(
@@ -233,7 +207,7 @@ export const ogImageGenerator = async ({
 
   if (Object.keys(sizes).includes(size) && size !== "default") {
     buffer = await sharp(buffer)
-      .resize(sizes[size as Size])
+      .resize(sizes[size as Size].width)
       .toBuffer()
       .catch((e) => {
         console.error(e);
