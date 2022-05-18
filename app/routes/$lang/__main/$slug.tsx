@@ -21,7 +21,7 @@ import { Link } from "~/components/link";
 import prismPlus from "~/styles/prism-plus.css";
 import prismTheme from "~/styles/prism-theme.css";
 import { rootUrl, domain, titleSeperator, twitterHandle, twitterId, defaultLang } from "/config";
-import type { Lang } from "/types";
+import type { Lang, LoaderFunc } from "/types";
 import { notFoundError } from "~/utils/error-responses";
 import { Frontmatter } from "~/utils/mdx.server";
 import { OG_IMAGE_VERSION } from "~/utils/ogImageGenerator";
@@ -98,16 +98,21 @@ type LoaderData = {
   totalPathVisits: number;
 };
 
+type LoaderParams = {
+  lang: Lang;
+  slug: string;
+};
+
 // export const handle: RouteHandle = {
 //   canonical: (pathname: string) => pathname,
 // };
 
 export const handle: RouteHandle = {
-  hydrate: ({ frontmatter }: LoaderData) => frontmatter?.hydrate,
+  hydrate: ({ frontmatter }: LoaderData) => frontmatter.hydrate,
 };
 
-export const loader: LoaderFunction = async ({ params, request }) => {
-  const lang = (params.lang ?? defaultLang) as Lang;
+export const loader: LoaderFunc<LoaderParams> = async ({ params, request }) => {
+  const lang = params.lang ?? defaultLang;
   const slug = params.slug ?? "index";
   const filename = `${lang}.mdx`;
   const contentPath = getContentPath(slug);
