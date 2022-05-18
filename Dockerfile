@@ -19,7 +19,12 @@ FROM node:16-bullseye-slim as base
 ARG COMMIT_SHA
 
 # update linux deps & install deps needed for [skia-canvas](https://github.com/samizdatco/skia-canvas#running-in-docker)
-RUN apt-get update && apt-get install -y -q --no-install-recommends libfontconfig1
+# emojione https://linoxide.com/install-emojione-color-svginot-font-ubuntu/
+RUN apt-get update && apt-get install -y -q --no-install-recommends libfontconfig1 ttf-bitstream-vera
+
+RUN fc-cache -vfrs
+
+RUN sudo apt-add-repository ppa:eosrei/fonts && sudo apt-get update && sudo apt-get install -y fonts-emojione-svginot
 
 # DEPS - Install all node_modules, including dev dependencies
 FROM base as deps
