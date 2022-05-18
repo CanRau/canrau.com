@@ -5,7 +5,7 @@ import sharp from "sharp";
 import { Lang } from "/types";
 import { readFile, join } from "../utils.server";
 
-export const OG_IMAGE_VERSION = 6;
+export const OG_IMAGE_VERSION = 7;
 
 export type Size = "default" | "small";
 
@@ -48,8 +48,8 @@ type OgImageGeneratorProps = {
   size: Size;
 };
 
-// with an alias
-FontLibrary.use("Inter", ["assets/fonts/Inter.ttf"]);
+FontLibrary.use("Inter", [join(process.cwd(), "app", "assets", "fonts", "Inter.ttf")]);
+console.log("FontLibrary.families", FontLibrary.families);
 
 // inspiration distribution in canvas http://jsfiddle.net/mes2L9vf/1/
 export const ogImageGenerator = async ({
