@@ -43,9 +43,21 @@ export const meta: MetaFunction = ({ data }) => {
   const titleHash = revHash(_title);
   const url = `${rootUrl}/${lang}${slug}`;
   const description = _description || "Missing description";
-  const autoOgImageUrl = `${rootUrl}/assets/${lang}/ogimage/v${OG_IMAGE_VERSION}/default${slug}.${titleHash}.png`;
-  const image = cover ? `${rootUrl}${cover}` : autoOgImageUrl;
+  const ogImageUrl = new URL(rootUrl);
+  ogImageUrl.pathname = "/assets/images/og.png";
+  ogImageUrl.searchParams.set("v", OG_IMAGE_VERSION);
+  ogImageUrl.searchParams.set("size", "default");
+  ogImageUrl.searchParams.set("rev", titleHash);
+  ogImageUrl.searchParams.set("slug", slug.replace(/^\//, ""));
+  const image = cover ? `${rootUrl}${cover}` : ogImageUrl.toString();
   // todo: make reusable function to define meta-tags
+  const ogImageMeta = {
+    "og:image:url": image,
+    "og:image:width": 1200,
+    "og:image:height": 630,
+    "og:image:type": "image/png",
+    // todo: "og:image:alt":
+  };
   return {
     title,
     description,
@@ -53,7 +65,7 @@ export const meta: MetaFunction = ({ data }) => {
     "og:title": title,
     "og:description": description,
     // note: clear FB cache [Sharing Debugger](https://developers.facebook.com/tools/debug/)
-    ...(image && { "og:image": image }),
+    ...(image && ogImageMeta),
     "og:site_name": domain,
     "twitter:card": image ? "summary_large_image" : "summary",
     "twitter:creator": twitterHandle,
