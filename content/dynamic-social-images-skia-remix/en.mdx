@@ -1,0 +1,534 @@
+---
+status: published
+slug: /dynamic-social-images-skia-remix
+lang: en
+title: Dynamically generate og:image using Skia in Remix 💿
+description: How to dynamically generate og:images for Social Media using `skia-canvas` in a Remix resource route.
+created: 2022-05-10T22:48:00 -5
+updated: 2022-05-18T10:29:00 -5
+published: 2022-05-18T10:29:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2022-05-18T10:29:00 -5
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+export const jsonld = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "Dynamically generate og:image using Skia in Remix 💿",
+  description:
+    "How to dynamically generate og:images for Social Media using `skia-canvas` in a Remix resource route.",
+  dateCreated: "2022-05-10T22:48:00",
+  dateModified: "2022-05-18T10:29:00",
+  datePublished: "2022-05-18T10:29:00",
+  author: [
+    {
+      "@type": "Person",
+      name: "Can Rau",
+      url: "https://twitter.com/CanRau",
+      gender: "Male",
+      birthDate: "1988-1-17",
+      birthPlace: "Berlin, Germany",
+    },
+  ],
+};
+
+# {frontmatter.title}
+
+## Table of contents
+
+## I had a problem!
+
+Couple of months ago I created a first version of [automatic og:image generation using Puppeteer](/en/dynamically-generate-ogimage-using-remix) taking screenshots on the server. Though I cached the images once generated the problem I ran into was the high RAM consumption of Puppeteer, so I increased the RAM of my fly app until I fixed it by disabling the on-server generation and moved almost the same code into a [Git pre-commit hook](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) using [husky](https://github.com/typicode/husky).
+
+Which worked, but became pretty annoying pretty quickly, as I sometimes wanted to change and commit something without running the dev server which lead to commit errors as Puppeteer couldn't reach `localhost` 😩.
+
+## Canvas to the rescue 🖼
+
+So another solution was needed, which I already had on my radar for quite some time, which is using `canvas`, even I kinda dislike(d) the API so far.
+
+My inspiration to use `canvas` came from [Cameron McHenry](https://camchenry.com/blog/generating-social-images-with-remix), [Flavio Copes](https://flaviocopes.com/canvas-node-generate-image/) and [Swyx](https://www.swyx.io/jamstack-og-images).
+
+Even though I kinda not-like the [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) as it feels pretty low level, primitive and is soo imperative 😵‍💫
+
+Like when you want to rotate an element on the canvas you have to first save the context, then rotate the whole context before placing the element on the rotated context and then restore the former state 😳 🤣
+
+Luckily before getting started and just out of curiosity I googled for something like "NodeJS Skia", I think, which lead me to [skia-canvas](https://github.com/samizdatco/skia-canvas). Which I have to say is quite a lot more enjoyable, as it for example supports [text-wrap](https://github.com/samizdatco/skia-canvas#textwrap) out of the box. 🥳
+
+## Immutable URLs
+
+And this time I also planned for immutable caching and kept most of the logic in a separate file.
+
+So for example the URL of the og:image for this article might look like this:
+
+```url showLineNumbers=false
+https://www.canrau.com/assets/images/og.png?v=4&size=default&rev=i3_KGR9q48&lang=en&slug=dynamic-social-images-skia-remix
+```
+
+In earlier versions I used [Dynamic Segments](https://remix.run/docs/en/v1/guides/routing#dynamic-segments) like in the example below:
+
+```url showLineNumbers=false
+https://www.canrau.com/assets/en/ogimage/v4/default/dynamic-social-images-skia-remix.i3_KGR9q48.png
+```
+
+due to the fear that query parameters might not be universally supported as I remembered it from immutable asset URLs like for CSS files, that might be outdated.
+
+though after [chatting on Discord](https://discord.com/channels/770287896669978684/771068344320786452/976097175190798397) and doing some more research it seems this shouldn't be an issue, so I decided to switch over to a simpler route file `/app/routes/assets/images/og[.png].ts` and have the rest handled via [URL Search Params](https://remix.run/docs/en/v1/guides/data-loading#url-search-params), this way it'll also be easier to change details or adding features later on. 🥳
+
+I decided to move the resource route to its own subfolder **`assets`**, cause I might want to add a [Cloudflare Page Rule](https://www.cloudflare.com/features-page-rules/) targeting `/assets/` or only `/assets/images/`.
+
+## Breakdown of the Query Parameters
+
+**v** identifies the **version** of the og:image-generator, so when I update the design later on, I can just increment the version within the module and all URLs update automatically.
+
+Then follows the **size** in this case `default` which equals 1200x630 which the whole internet mentions as the recommended size.
+Not sure right now why I made it variable last time, but I kept it this way just in case I want to show a smaller one somewhere, might use them within the page via `srcSet` so the browser can decide which size to show.
+
+**lang** specifies the requested content language. I could change my current content logic to get rid of it, but I think I wait at least for my CMS which might make this obsolete as well. Also when I switch to my CMS every article gets it's own ID so I might then even turn `slug` into `id`, because the slug doesn't have to affect the image at all. As it is right now, if I decide to rename a slug the image URL would change as well invalidating all caches. 😳
+
+To identify the actual content **slug** (URL) reflects the post.
+
+**rev** is a hash of the title, so when I decide to change the title later on, without changing the slug, the hash and therefore the URL changes to reflect that, which was the final piece to make the og:image URLs immutable. 🥳
+
+## The Resource Route
+
+Okay let's first look at the [Resource Route](https://remix.run/docs/en/v1/guides/resource-routes) which gets the request url, verifies all parameters, requests a new image from `ogImageGenerator` sets some headers and sends the response.
+
+```tsx
+// app/routes/assets/images/og[.png].ts
+
+import { redirect, type LoaderFunction } from "remix";
+import matter from "gray-matter";
+import { getContentPath, getFilePath } from "~/utils/compile-mdx.server";
+import { readFile, revHash } from "~/utils.server";
+import { domain, languages, defaultLang } from "/config";
+import type { Lang } from "/types";
+import { type Frontmatter } from "~/utils/mdx.server";
+import {
+  ogImageGenerator,
+  defaultOgImageSize,
+  supportedOgImageSizes,
+  OG_IMAGE_VERSION,
+  type Size,
+} from "~/utils/ogImageGenerator";
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url);
+  const slug = url.searchParams.get("slug") ?? "";
+  const size = (url.searchParams.get("size") ?? "") as Size;
+  const version = url.searchParams.get("v") ?? "";
+  const rev = url.searchParams.get("rev") ?? "";
+  const lang = (url.searchParams.get("lang") ?? "") as Lang;
+
+  // if `slug` is missing we don't know what is requested so we stop right here and throw a 404
+  if (!slug) {
+    throw new Response("Not Found", { status: 404 });
+  }
+
+  // if `version` doesn't match, redirect to current `OG_IMAGE_VERSION`
+  if (parseInt(version, 10) !== OG_IMAGE_VERSION) {
+    url.searchParams.set("v", `${OG_IMAGE_VERSION}`);
+    return redirect(url.toString(), 302);
+  }
+
+  // if size isn't recognised, redirect to default
+  if (!supportedOgImageSizes.includes(size)) {
+    url.searchParams.set("size", `${defaultOgImageSize}`);
+    return redirect(url.toString(), 302);
+  }
+
+  // if language isn't recognised, redirect to default
+  if (!languages.includes(lang)) {
+    url.searchParams.set("lang", `${defaultLang}`);
+    return redirect(url.toString(), 302);
+  }
+
+  const filename = `${lang}.mdx`;
+  const contentPath = getContentPath(slug);
+  const filePath = getFilePath(contentPath, filename);
+  const source = await readFile(filePath, { encoding: "utf-8" }).catch(() => {
+    throw new Response("Not Found", { status: 404 });
+  });
+
+  const { data } = matter(source) as unknown as { data: Frontmatter };
+  const { status, title, author } = data;
+  const titleHash = revHash(title);
+
+  if (rev.toLowerCase() !== titleHash.toLowerCase()) {
+    url.searchParams.set("rev", `${titleHash}`);
+    return redirect(url.toString(), 302);
+  }
+
+  const buffer = await ogImageGenerator({ title, slug, lang, size, status, author });
+
+  const contentDisposition = process.env.NODE_ENV === "development" ? "inline" : "attachment";
+
+  const headers: HeadersInit = {
+    "Content-Type": "image/png",
+    "Access-Control-Expose-Headers": "Content-Disposition",
+    "Content-Disposition": `${contentDisposition}; filename="${domain}_${slug}_${lang}_ogimage-${size}-v${OG_IMAGE_VERSION}.png"`,
+    "x-content-type-options": "nosniff",
+    // "Cache-Control": "public,max-age=31536000,immutable",
+  };
+
+  return new Response(buffer, { headers });
+};
+```
+
+Also switching from dynamic segments to URL search params made the code a lot shorter, at least in this case and especially redirecting to defaults much cleaner.
+
+So the loader get's all the needed parameters via the from the search query (`slug`, `size`, `version`, `rev`, `lang`), making sure they're strings and for `Size` & `Lang` even specific TypeScript types.
+
+First, if there's no `slug` provided we straight up throw a 404 Not Found error as we have no way of knowing what to show.
+
+If the og:image version isn't up to date, we redirect to the current `OG_IMAGE_VERSION` to always get the latest design.
+
+If the size or language is not supported, we just redirect to the same URL with the size or language respectively changed to the default ones.
+
+I might come back later and make them less sequential, but for now this does the job of not unnecessarily duplicating images from different URLs, which is what we want for our immutable URLs.
+
+> The language parameter and the verification if the language is supported at all is of course only necessary if you support, or plan to support, multiple languages.
+
+Then we check out the content, get all needed information and verify the title is actually the requested one via the `rev` hash, if not redirect to the current one.
+
+After all that is done, we pass in all the data into `ogImageGenerator`, set some headers and return the response.
+
+In dev mode I need a quick feedback loop so I decided to set the `Content-Disposition` header to `inline` so that the image shows directly in the browser. In production it'll be set to `attachment` which indicates the browser to download the image with the specified name.
+
+> The `Content-Disposition` header is actually not needed for the functioning of the `og:image`, more a vanity thing. 😌
+
+### Generating the revision hash
+
+```tsx
+// /app/utils.server.tsx
+
+import { createHash, type BinaryToTextEncoding, type BinaryLike } from "node:crypto";
+
+/**
+ *
+ * @param data input BinaryLike
+ * @param encoding defaults to base64url
+ * @returns string truncated to first 10 charaters
+ *
+ * @description inspired by [sindresorhus/rev-hash](https://github.com/sindresorhus/rev-hash)
+ */
+export function revHash(data: BinaryLike, encoding: BinaryToTextEncoding = "base64url") {
+  return createHash("sha1").update(data).digest(encoding).slice(0, 10);
+}
+```
+
+As it's not actually too important right now I just searched and based on [this article](https://medium.com/@chris_72272/what-is-the-fastest-node-js-hashing-algorithm-c15c1a0e164e) decided to go with this hashing function instead of benchmarking myself.
+
+## The actual Open Graph Image Generator
+
+```ts
+// app/utils/ogImageGenerator.tsx
+
+import { json } from "remix";
+import { Canvas, loadImage, type CanvasRenderingContext2D } from "skia-canvas";
+import sharp from "sharp";
+import { Lang } from "/types";
+import { readFile, join } from "../utils.server";
+
+export const OG_IMAGE_VERSION = 4;
+
+export type Size = "default" | "small";
+
+type SizeObj = {
+  width: number;
+  height: number;
+  padding: number;
+};
+
+const sizes: Record<Size, SizeObj> = {
+  small: { width: 504, height: 265, padding: 40 },
+  default: { width: 1200, height: 630, padding: 20 },
+} as const;
+
+export const defaultOgImageSize = "default";
+export const supportedOgImageSizes = Object.keys(sizes);
+
+const rand = (n: number) => Math.floor(n * Math.random());
+
+type OgImageGeneratorProps = {
+  title: string;
+  slug: string;
+  lang: Lang;
+  status?: string;
+  author?: string;
+  size: Size;
+};
+
+export const ogImageGenerator = async ({
+  title,
+  slug,
+  lang,
+  size,
+  status,
+  author,
+}: OgImageGeneratorProps) => {
+  if (!title || !slug) return null;
+
+  const { width, height, padding } = sizes.default;
+  const avatarSize = Math.floor(width / 8);
+
+  const canvas = new Canvas(width, height);
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, width, height);
+
+  const CENTER_X = width / 2;
+  const titleMaxWidth = width - 50;
+  const pixelsPerRow = height / 3;
+  const desiredFontSize = Math.floor(width / 14);
+  const minFontSize = 50;
+  const [ignoredfontSize, fontSizeString] = calcFontSize(
+    ctx,
+    title,
+    titleMaxWidth,
+    desiredFontSize,
+    minFontSize,
+    pixelsPerRow + 90,
+  );
+
+  const gradient = ctx.createLinearGradient(20, 0, 220, 0);
+  gradient.addColorStop(0, "#4942aa");
+  gradient.addColorStop(1, "#5c55d9");
+
+  // Set the fill style and draw a rectangle
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // content background
+  const whiteBorderSize = Math.floor(width / 63);
+
+  // white border
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(
+    whiteBorderSize,
+    whiteBorderSize,
+    width - whiteBorderSize * 2,
+    height - whiteBorderSize * 2,
+  );
+
+  const contentBackgroundSize = width / 60;
+  ctx.fillStyle = "hsl(240, 2.5%, 15.7%)";
+  ctx.fillRect(
+    contentBackgroundSize,
+    contentBackgroundSize,
+    width - contentBackgroundSize * 2,
+    height - contentBackgroundSize * 2,
+  );
+
+  if (title.toLowerCase().includes("fly.io")) {
+    const flyLogoBuffer = await readFile(
+      join(process.cwd(), "app", "assets", "fly.io_brandmark.png"),
+    );
+    const logo = await loadImage(flyLogoBuffer);
+    const logoX = (width / 4.5) * 2;
+    const logoY = (height / 3) * 2;
+    const logoSize = 250;
+    ctx.save();
+    ctx.translate(logoSize / 2, logoSize / 2);
+    ctx.rotate(convertToRadians(-20));
+    ctx.globalAlpha = 0.45;
+    ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
+    ctx.restore();
+  }
+
+  ctx.shadowColor = "#000";
+  ctx.shadowOffsetX = 7;
+  ctx.shadowOffsetY = 7;
+  ctx.shadowBlur = 20;
+
+  ctx.font = `bold ${fontSizeString} Menlo`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.fillStyle = "#fff";
+  ctx.textWrap = true;
+  ctx.fillText(title, CENTER_X, 70, titleMaxWidth);
+
+  const img = await loadImage("https://github.com/canrau.png");
+  const imageX = CENTER_X - avatarSize / 2;
+  const imageY = pixelsPerRow + pixelsPerRow / 2 + padding;
+  const avatarRadius = avatarSize / 2;
+  const startAngle = 0;
+  const endAngle = 2 * Math.PI;
+
+  // image mask
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(imageX + avatarSize / 2, imageY + avatarSize / 2, avatarRadius, startAngle, endAngle);
+  ctx.fill();
+  ctx.clip();
+
+  ctx.shadowOffsetX = 4;
+  ctx.shadowOffsetY = 4;
+  ctx.shadowBlur = 13;
+  ctx.drawImage(img, imageX, imageY, avatarSize, avatarSize);
+
+  ctx.restore();
+
+  ctx.font = `${Math.floor(width / 34)}pt Menlo`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.fillStyle = "#fff";
+  const urlY = imageY + avatarSize + padding;
+  ctx.shadowColor = "#000";
+  ctx.shadowOffsetX = 5;
+  ctx.shadowOffsetY = 5;
+  ctx.shadowBlur = 5;
+  ctx.fillText("canrau.com", CENTER_X, urlY, titleMaxWidth);
+
+  let buffer = await canvas.toBuffer("png", { quality: 1 });
+
+  if (Object.keys(sizes).includes(size) && size !== "default") {
+    buffer = await sharp(buffer)
+      .resize(sizes[size as Size])
+      .toBuffer()
+      .catch((e) => {
+        console.error(e);
+        throw json({ lang, error: "Error creating the image" }, 500);
+      });
+  }
+
+  return buffer;
+};
+
+function calcFontSize(
+  ctx: CanvasRenderingContext2D,
+  title: string,
+  maxWidth: number,
+  desired: number,
+  min: number,
+  maxHeight: number,
+  rounds: number = 0,
+): [fontSize: number, fontSizeString: string] {
+  const lineHeight = desired > 65 ? 1.2 : desired > 40 ? 1.4 : 1.5;
+  if (rounds > 20) return [desired, `${desired}px/${lineHeight}`];
+
+  ctx.font = `bold ${desired}pt Menlo`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.textWrap = true;
+
+  const measures = ctx.measureText(title, maxWidth);
+
+  if (measures.actualBoundingBoxDescent > maxHeight && desired - 1 >= min) {
+    return calcFontSize(ctx, title, maxWidth, desired - 1, min, maxHeight, ++rounds);
+  } else if (measures.actualBoundingBoxDescent > maxHeight) {
+    return calcFontSize(ctx, title, maxWidth - 2, desired, min, maxHeight, ++rounds);
+  }
+
+  return [desired, `${desired}px/${lineHeight}`];
+}
+
+function convertToRadians(degree: number) {
+  return degree * (Math.PI / 180);
+}
+```
+
+> If you're interested let me know and I'll get a little more into detail on the code. — [@CanRau](https://twitter.com/CanRau)
+
+Also, after trying to make the canvas responsive and keep failing I dropped all the calculations and use [sharp](https://github.com/lovell/sharp) now instead to resize the big one to whatever size I want, cause guess what, images scale naturally. 😎
+
+## Usage in your Route
+
+To actually use the newly generated og:images in the content we have to add a little bit to all the desired route files where we want to include them.
+
+Here's a stripped down version of a [MetaFunction](https://remix.run/docs/en/v1/api/conventions#meta) where I'm including the auto generated og:images:
+
+```tsx
+// app/routes/$lang/__main/$slug.tsx
+
+export const meta: MetaFunction = ({ data }) => {
+  const {
+    title: _title = "Missing Title",
+    description = "Missing description",
+    lang,
+    slug,
+    cover,
+    meta,
+  } = data?.frontmatter ?? {};
+
+  const title = `${_title}${titleSeperator}${domain}`;
+  const titleHash = revHash(_title);
+  const url = `${rootUrl}/${lang}${slug}`;
+
+  const ogImageUrl = new URL(rootUrl);
+  ogImageUrl.pathname = "/assets/images/og.png";
+  ogImageUrl.searchParams.set("v", OG_IMAGE_VERSION);
+  ogImageUrl.searchParams.set("size", "default");
+  ogImageUrl.searchParams.set("rev", titleHash);
+  ogImageUrl.searchParams.set("slug", slug.replace(/^\//, ""));
+
+  const ogImageMeta = {
+    "og:image:url": cover ? `${rootUrl}${cover}` : ogImageUrl.toString(),
+    "og:image:width": 1200,
+    "og:image:height": 630,
+    "og:image:type": "image/png",
+    // todo: "og:image:alt":
+  };
+
+  return {
+    title,
+    description,
+    "og:url": url,
+    "og:title": title,
+    "og:description": description,
+    ...(image && ogImageMeta),
+  };
+};
+```
+
+## Note on Dependencies
+
+Make sure to check out the [installation instructions](https://github.com/samizdatco/skia-canvas/#installation) of `skia-canvas`.
+
+In my case I had to add additional dependencies to the base stage of my Dockerfile [commit](https://github.com/CanRau/canrau.com/commit/78d3e4158d22a6808d3ac6925dc0bafc30739843#diff-dd2c0eb6ea5cfc6c4bd4eac30934e2d5746747af48fef6da689e85b752f39557R21).
+
+## Yea we did it 🥳
+
+That's it for today, thanks a lot for reading.
+
+I'm feeling like I'm probably soon-ish writing more about og:images 😅 I've got still some more things in mind 🤓
+
+## Inspirations
+
+- [Generative Art with Node.js and Canvas](https://mattdesl.svbtle.com/generative-art-with-nodejs-and-canvas) by [Matt DesLauriers](https://twitter.com/mattdesl)
+- [Spipa circle](https://codepen.io/alexandrix/pen/oQOvYp) Codepen by [Alex Andrix](https://alexandrix.com)
+- [Intro to Generative Art](https://dev.to/aspittel/intro-to-generative-art-2hi7) by [Ali Spittel](https://twitter.com/ASpittel)
+- [Circuit Board Generator](https://codepen.io/tsuhre/pen/xgmEPe?editors=0010) by Ben Matthews
+- [Circuit board art](https://www.etsy.com/market/circuit_board_art)
+- [HTML5 Canvas Dynamic Circuitboard Trace](https://codepen.io/will627/pen/kyxdKw)
+
+## Resources
+
+- [Facebook Sharing Best Practices](https://developers.facebook.com/docs/sharing/best-practices?locale=en_US)
+- [A Guide to Sharing for Webmasters](https://developers.facebook.com/docs/sharing/webmasters)
+- [The Facebook Crawler](https://developers.facebook.com/docs/sharing/webmasters/crawler)
+- [38 JavaScript Background Effects](https://freefrontend.com/javascript-background-effects/) - not all using canvas though, and most I looked at reeaally complex 🤯
+- [How to draw image shadow with HTML5 canvas in Chrome browser](https://stackoverflow.com/questions/17469260/how-to-draw-image-shadow-with-html5-canvas-in-chrome-browser) - which lead me to the `shadow` API.
+- [HTML5 canvas text-shadow equivalent? (StackOverflow)](https://stackoverflow.com/questions/20909585/html5-canvas-text-shadow-equivalent)
+- [OpenSimplex Noise](https://www.npmjs.com/package/open-simplex-noise)
+- [Your Site's Calling Card - Five Ways to add `og:image`s to your JAMstack site](https://www.swyx.io/jamstack-og-images) - Great article by [Shawn @Swyx Wang](https://twitter.com/swyx), also inspiration for this tutorial and the [tweet](https://twitter.com/swyx/status/1175055254360154116)
+- [OGimage.gallery](https://www.ogimage.gallery/) - great inspiration for your social media images
+- [How to Optimize Blog Images for Social Sharing: An Intro to Open Graph Tags](https://blog.hubspot.com/marketing/open-graph-tags-facebook-twitter-linkedin)
+- [HTML5 Canvas Font Size Based on Canvas Size](https://stackoverflow.com/questions/22943186/html5-canvas-font-size-based-on-canvas-size)
+- [How to place images in a row based on the given count in html5 canvas using javascript?](https://stackoverflow.com/questions/38565337/how-to-place-images-in-a-row-based-on-the-given-count-in-html5-canvas-using-java)
+- [Make canvas transparent](https://stackoverflow.com/questions/40847299/make-canvas-transparent)
+- [Canvas quadraticCurveTo](https://stackoverflow.com/questions/66747396/canvas-quadraticcurveto)
+- [Everything you ever wanted to know about unfurling but were afraid to ask /or/ How to make your site previews look amazing in Slack](https://medium.com/slack-developer-blog/everything-you-ever-wanted-to-know-about-unfurling-but-were-afraid-to-ask-or-how-to-make-your-e64b4bb9254)
+- [Content-Disposition HTTP Header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition)
+- [Test Cases for HTTP Content-Disposition header field (RFC 6266)](http://test.greenbytes.de/tech/tc2231/)
+- [creativecommons/og-image-generator](https://github.com/creativecommons/og-image-generator)
+
+Well, thanks for reading 🙏 As always feel free to get in touch if you've got any questions or feedback 🤝
