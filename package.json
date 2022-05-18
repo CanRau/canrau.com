@@ -30,7 +30,8 @@
     "docker:down": "docker-compose --file compose.ignored.yml down",
     "clean": "rimraf .cache ./node_modules/.cache ./server/dist ./build ./public/build \"./app/styles/**/*.css\"",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/.eslintcache --ext js,jsx,ts,tsx .",
-    "format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|gql|graphql|mdx|vue)\""
+    "format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|gql|graphql|mdx|vue)\"",
+    "action:watch": "osascript -e 'tell app \"Visual Studio Code\" to display notification \"yeap marduc812.com again\" with title \"Action finished\"'"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.52.0",
@@ -50,6 +51,8 @@
     "@udecode/plate": "10.0.0",
     "@udecode/plate-test-utils": "3.2.0",
     "@udecode/plate-ui-excalidraw": "10.0.0",
+    "@unocss/core": "0.33.5",
+    "@unocss/preset-uno": "0.33.5",
     "autolinker": "3.14.3",
     "clsx": "1.1.1",
     "cuid": "2.1.8",

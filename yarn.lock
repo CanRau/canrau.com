@@ -3358,6 +3358,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@unocss/core@npm:0.33.5":
+  version: 0.33.5
+  resolution: "@unocss/core@npm:0.33.5"
+  checksum: 4dfad8521fe2c4f0ab603f7de5a1085a7c2459c018d0c4c68cf7af5b8eae95e722748b5793fbbc3b460d5300826d76aea399cde14dabd79876a4c22b552bd843
+  languageName: node
+  linkType: hard
+
+"@unocss/preset-mini@npm:0.33.5":
+  version: 0.33.5
+  resolution: "@unocss/preset-mini@npm:0.33.5"
+  dependencies:
+    "@unocss/core": 0.33.5
+  checksum: 9c96c2d8ab6f43f2ef58452f01dd0d9549a7a0533fd940a0034753853b1a4690c46f46d79c2994557d5f270aed7f7b96c230c71936e50935ef6f82d63429e06e
+  languageName: node
+  linkType: hard
+
+"@unocss/preset-uno@npm:0.33.5":
+  version: 0.33.5
+  resolution: "@unocss/preset-uno@npm:0.33.5"
+  dependencies:
+    "@unocss/core": 0.33.5
+    "@unocss/preset-mini": 0.33.5
+    "@unocss/preset-wind": 0.33.5
+  checksum: fb75ab17faf1cb3e4d7a0d71252d3ca4eb3d0835afc95a754b7422360f9369719a802e2b901a5985b28891737b5fbf999b249e93a910c937d94e31596cba772f
+  languageName: node
+  linkType: hard
+
+"@unocss/preset-wind@npm:0.33.5":
+  version: 0.33.5
+  resolution: "@unocss/preset-wind@npm:0.33.5"
+  dependencies:
+    "@unocss/core": 0.33.5
+    "@unocss/preset-mini": 0.33.5
+  checksum: ffcefe27e2d34df9887aaf9d421288ddad2cbc71e5040973caffa3cdfd8080c85a00488c4b8225fc54764c3befcf933d50c7ef03903493045dae478add4c9ca5
+  languageName: node
+  linkType: hard
+
 "@web-std/blob@npm:^3.0.3":
   version: 3.0.4
   resolution: "@web-std/blob@npm:3.0.4"
