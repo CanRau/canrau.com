@@ -52,12 +52,13 @@ export const meta: MetaFunction = ({ data }) => {
   // todo: make reusable function to define meta-tags
   const ogImageMeta = {
     // note: twitter doesn't seem to like `og:image:url`
-    "twitter:image": image,
     "og:image:url": image,
+    "twitter:image": image,
     "og:image:width": 1200,
     "og:image:height": 630,
     "og:image:type": "image/png",
-    // todo: "og:image:alt":
+    "twitter:image:alt": title,
+    "og:image:alt": title,
   };
   return {
     title,
@@ -74,9 +75,7 @@ export const meta: MetaFunction = ({ data }) => {
     // "twitter:title": title,
     // "twitter:description": description,
     // note: validate [Twitter Cards](https://cards-dev.twitter.com/validator/)
-    // "twitter:image": image,
     // note: more about [Twitter Cards](https://developer.twitter.com/en/docs/twitter-for-websites/cards/guides/getting-started)
-    "twitter:alt": title,
     ...(Array.isArray(meta) &&
       meta.reduce((prev, cur) => {
         prev[cur.name] = cur.content;
