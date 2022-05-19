@@ -18,6 +18,10 @@ import {
 // inspiration distribution in canvas http://jsfiddle.net/mes2L9vf/1/
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
+  if (process.env.NODE_ENV === "production") {
+    // force https in production for redirects to work properly
+    url.protocol = "https:";
+  }
   const slug = url.searchParams.get("slug") ?? "";
   const size = (url.searchParams.get("size") ?? "") as Size;
   const version = url.searchParams.get("v") ?? "";
