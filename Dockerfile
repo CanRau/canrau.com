@@ -26,12 +26,13 @@ RUN apt-get update \
 
 # https://github.com/eosrei/twemoji-color-font
 # https://linoxide.com/install-emojione-color-svginot-font-ubuntu/
-# RUN fc-cache -vfrs
-# RUN apt-get install -y -q \
-#         # https://github.com/eosrei/twemoji-color-font
-#         ttf-bitstream-vera \
-#         # https://itsfoss.com/add-apt-repository-command-not-found/
-#         software-properties-common
+RUN fc-cache -vfrs
+RUN apt-get install -y -q \
+        #         # https://github.com/eosrei/twemoji-color-font
+        ttf-bitstream-vera \
+        #         # https://itsfoss.com/add-apt-repository-command-not-found/
+        software-properties-common
+RUN fc-cache -vfrs
 # && apt-add-repository ppa:eosrei/fonts \
 # && apt-get update \
 # && apt-get install -y fonts-twemoji-svginot

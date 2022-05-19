@@ -44,7 +44,7 @@ export const jsonld = {
 
 # {frontmatter.title}
 
-![The og:image of this article citing the title, my GitHub avatar picture and this sites domain](/assets/images/og.png?v=6&size=small&rev=i3_KGR9q48&slug=dynamic-social-images-skia-remix)
+![The og:image of this article citing the title, my GitHub avatar picture and this sites domain](/assets/images/og.png?v=9&size=small&rev=i3_KGR9q48&slug=dynamic-social-images-skia-remix)
 
 ## Table of contents
 
@@ -204,7 +204,7 @@ Then we check out the content, get all needed information and verify the title i
 
 After all that is done, we pass in all the data into `ogImageGenerator`, set some headers and return the response.
 
-In dev mode I need a quick feedback loop so I decided to set the `Content-Disposition` header to `inline` so that the image shows directly in the browser. In production it'll be set to `attachment` which indicates the browser to download the image with the specified name.
+In dev mode I need a quick feedback loop so I decided to set the `Content-Disposition` header to `inline` so that the image shows directly in the browser. In production it'll be set to `attachment` which indicates the browser to download the image with the specified name, instead of showing it. Beware that this only applies to when accesing the image straight from its direct URL in your browser, you can still embed images within your website as usual via he `<img/> tag, no problem.
 
 > The `Content-Disposition` header is actually not needed for the functioning of the `og:image`, more a vanity thing. 😌
 
@@ -236,7 +236,7 @@ As it's not actually too important right now I just searched and based on [this 
 // app/utils/ogImageGenerator.tsx
 
 import { json } from "remix";
-import { Canvas, loadImage, type CanvasRenderingContext2D } from "skia-canvas";
+import { Canvas, loadImage, FontLibrary, type CanvasRenderingContext2D } from "skia-canvas";
 import sharp from "sharp";
 import { Lang } from "/types";
 import { readFile, join } from "../utils.server";
@@ -269,6 +269,9 @@ type OgImageGeneratorProps = {
   author?: string;
   size: Size;
 };
+
+FontLibrary.use("Inter", ["assets/fonts/Inter.ttf"]);
+FontLibrary.use([join(process.cwd(), "app", "assets", "fonts", "TwitterColorEmoji-SVGinOT.ttf")]);
 
 export const ogImageGenerator = async ({
   title,
@@ -351,7 +354,7 @@ export const ogImageGenerator = async ({
   ctx.shadowOffsetY = 7;
   ctx.shadowBlur = 20;
 
-  ctx.font = `bold ${fontSizeString} Menlo`;
+  ctx.font = `bold ${fontSizeString} Inter, "Twitter Color Emoji"`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   ctx.fillStyle = "#fff";
