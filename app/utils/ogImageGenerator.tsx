@@ -5,7 +5,7 @@ import sharp from "sharp";
 import { Lang } from "/types";
 import { readFile, join } from "../utils.server";
 
-export const OG_IMAGE_VERSION = 10;
+export const OG_IMAGE_VERSION = 11;
 
 export type Size = "default" | "small";
 
@@ -48,6 +48,7 @@ type OgImageGeneratorProps = {
   size: Size;
 };
 
+FontLibrary.use([join(process.cwd(), "app", "assets", "fonts", "AppleColorEmoji.ttf")]);
 FontLibrary.use([join(process.cwd(), "app", "assets", "fonts", "TwitterColorEmoji-SVGinOT.ttf")]);
 FontLibrary.use("Inter", [join(process.cwd(), "app", "assets", "fonts", "Inter.ttf")]);
 console.log("FontLibrary.families", FontLibrary.families);
@@ -165,7 +166,7 @@ export const ogImageGenerator = async ({
   ctx.shadowOffsetY = 7;
   ctx.shadowBlur = 20;
 
-  ctx.font = `bold ${fontSizeString} "Twitter Color Emoji", Inter`;
+  ctx.font = `bold ${fontSizeString} "Apple Color Emoji Regular", "Apple Color Emoji", "Twitter Color Emoji", Inter`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   ctx.fillStyle = "#fff";
