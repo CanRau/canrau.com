@@ -24,10 +24,10 @@ RUN apt-get update \
         # install deps needed for [skia-canvas](https://github.com/samizdatco/skia-canvas#running-in-docker)
         && apt-get install -y -q --no-install-recommends libfontconfig1 fontconfig
 
-RUN wget https://github.com/samuelngs/apple-emoji-linux/releases/download/ios-15.4/AppleColorEmoji.ttf
-RUN echo "__FONTS BEFORE" && ls -lAFh ~/.local/share/fonts
-RUN mv AppleColorEmoji.ttf ~/.local/share/fonts
-RUN echo "__FONTS AFTER" && ls -lAFh ~/.local/share/fonts
+# RUN wget https://github.com/samuelngs/apple-emoji-linux/releases/download/ios-15.4/AppleColorEmoji.ttf
+# RUN echo "__FONTS BEFORE" && ls -lAFh ~/.local/share/fonts
+# RUN mv AppleColorEmoji.ttf ~/.local/share/fonts
+# RUN echo "__FONTS AFTER" && ls -lAFh ~/.local/share/fonts
 
 # https://github.com/eosrei/twemoji-color-font
 # https://linoxide.com/install-emojione-color-svginot-font-ubuntu/
