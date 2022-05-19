@@ -5,7 +5,7 @@ lang: en
 title: Dynamically generate og:image using Skia in Remix 💿
 description: How to dynamically generate og:images for Social Media using `skia-canvas` in a Remix resource route.
 created: 2022-05-10T22:48:00 -5
-updated: 2022-05-18T10:29:00 -5
+updated: 2022-05-19T02:31:00 -5
 published: 2022-05-18T10:29:00 -5
 version: 1
 meta:
@@ -28,7 +28,7 @@ export const jsonld = {
   description:
     "How to dynamically generate og:images for Social Media using `skia-canvas` in a Remix resource route.",
   dateCreated: "2022-05-10T22:48:00",
-  dateModified: "2022-05-18T10:29:00",
+  dateModified: "2022-05-19T02:31:00",
   datePublished: "2022-05-18T10:29:00",
   author: [
     {
@@ -270,8 +270,8 @@ type OgImageGeneratorProps = {
   size: Size;
 };
 
-FontLibrary.use("Inter", ["assets/fonts/Inter.ttf"]);
-FontLibrary.use([join(process.cwd(), "app", "assets", "fonts", "TwitterColorEmoji-SVGinOT.ttf")]);
+FontLibrary.use([join(process.cwd(), "app", "assets", "fonts", "TwemojiMozilla.ttf")]);
+FontLibrary.use("Inter", [join(process.cwd(), "app", "assets", "fonts", "Inter.ttf")]);
 
 export const ogImageGenerator = async ({
   title,
@@ -291,7 +291,7 @@ export const ogImageGenerator = async ({
   ctx.clearRect(0, 0, width, height);
 
   const CENTER_X = width / 2;
-  const titleMaxWidth = width - 50;
+  const titleMaxWidth = width - 100;
   const pixelsPerRow = height / 3;
   const desiredFontSize = Math.floor(width / 14);
   const minFontSize = 50;
@@ -354,7 +354,7 @@ export const ogImageGenerator = async ({
   ctx.shadowOffsetY = 7;
   ctx.shadowBlur = 20;
 
-  ctx.font = `bold ${fontSizeString} Inter, "Twitter Color Emoji"`;
+  ctx.font = `bold ${fontSizeString} "Twemoji Mozilla", Inter`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   ctx.fillStyle = "#fff";
@@ -444,6 +444,21 @@ function convertToRadians(degree: number) {
 > If you're interested let me know and I'll get a little more into detail on the code. — [@CanRau](https://twitter.com/CanRau)
 
 Also, after trying to make the canvas responsive and keep failing I dropped all the calculations and use [sharp](https://github.com/lovell/sharp) now instead to resize the big one to whatever size I want, cause guess what, images scale naturally. 😎
+
+## Font and proper Emoji support
+
+I've spent like ~7 hours trying to get emojis working.
+
+Installing `fonts-noto-color-emoji` in my Dockerfile worked straight away, though many of its emojis look pretty ugly to me, especially the CD 💿 which I use so frequently for Remix articles 💁🏻‍♂️
+
+So another solution had to be found, though I had really hard times getting [eosrei/twemoji-color-font](https://github.com/eosrei/twemoji-color-font) working, which seems to be the go to way for familiar emojis. 🥲
+
+Also tried [Apple Color Emoji](https://github.com/samuelngs/apple-emoji-linux/), sadly with no luck.
+
+In the end I stumbled upon [mozilla/twemoji-colr](https://github.com/mozilla/twemoji-colr/releases) which finally solved it for me.
+So you have to download the .ttf file from the release page and put it in your repo, I've put it in `app/assets/fonts`.
+
+> Please do yourselve a favor and don't look at my current Dockerfile 😳 I'm still way to worn out to clean that mess up 🥲
 
 ## Usage in your Route
 
