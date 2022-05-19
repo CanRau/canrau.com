@@ -30,6 +30,9 @@ import { OG_IMAGE_VERSION } from "~/utils/ogImageGenerator";
 const isProd = process.env.NODE_ENV === "production";
 
 export const meta: MetaFunction = ({ data }) => {
+  // probably 404
+  if (!data) return {};
+
   const {
     title: _title = "Missing Title",
     description = "Missing description",
@@ -108,7 +111,7 @@ type LoaderParams = {
 // };
 
 export const handle: RouteHandle = {
-  hydrate: ({ frontmatter }: LoaderData) => frontmatter.hydrate,
+  hydrate: (data: LoaderData) => data?.frontmatter.hydrate,
 };
 
 export const loader: LoaderFunc<LoaderParams> = async ({ params, request }) => {
@@ -117,12 +120,13 @@ export const loader: LoaderFunc<LoaderParams> = async ({ params, request }) => {
   const filename = `${lang}.mdx`;
   const contentPath = getContentPath(slug);
   const filePath = getFilePath(contentPath, filename);
-  const source = await readFile(filePath, { encoding: "utf-8" });
-  const bundleMdxPromise = bundleMDX({ cwd: contentPath, source }).catch((e) => {
+  const notFound = (e) => {
     console.error(e);
     console.error("error in $slug for", lang, slug);
     throw notFoundError(lang);
-  });
+  };
+  const source = await readFile(filePath, { encoding: "utf-8" }).catch(notFound);
+  const bundleMdxPromise = bundleMDX({ cwd: contentPath, source }).catch(notFound);
 
   const [
     {
