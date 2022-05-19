@@ -1,11 +1,11 @@
 ---
 status: published
-slug: /dynamic-social-images-skia-remix
+slug: /dynamic-social-images-skia-canvas-remix
 lang: en
-title: Dynamically generate og:image using Skia in Remix 💿
+title: Dynamically generate og:image using skia-canvas in Remix 💿
 description: How to dynamically generate og:images for Social Media using `skia-canvas` in a Remix resource route.
 created: 2022-05-10T22:48:00 -5
-updated: 2022-05-19T02:31:00 -5
+updated: 2022-05-19T10:33:00 -5
 published: 2022-05-18T10:29:00 -5
 version: 1
 meta:
@@ -28,7 +28,7 @@ export const jsonld = {
   description:
     "How to dynamically generate og:images for Social Media using `skia-canvas` in a Remix resource route.",
   dateCreated: "2022-05-10T22:48:00",
-  dateModified: "2022-05-19T02:31:00",
+  dateModified: "2022-05-19T10:33:00",
   datePublished: "2022-05-18T10:29:00",
   author: [
     {
@@ -445,7 +445,7 @@ function convertToRadians(degree: number) {
 
 Also, after trying to make the canvas responsive and keep failing I dropped all the calculations and use [sharp](https://github.com/lovell/sharp) now instead to resize the big one to whatever size I want, cause guess what, images scale naturally. 😎
 
-## Font and proper Emoji support
+## Proper Emoji support
 
 I've spent like ~7 hours trying to get emojis working.
 
