@@ -47,12 +47,10 @@ type OgImageGeneratorProps = {
   author?: string;
   size: Size;
 };
-
-// https://github.com/samuelngs/apple-emoji-linux
+// https://github.com/mozilla/twemoji-colr/releases
 FontLibrary.use([join(process.cwd(), "app", "assets", "fonts", "TwemojiMozilla.ttf")]);
-FontLibrary.use([join(process.cwd(), "app", "assets", "fonts", "TwitterColorEmoji-SVGinOT.ttf")]);
 FontLibrary.use("Inter", [join(process.cwd(), "app", "assets", "fonts", "Inter.ttf")]);
-console.log("FontLibrary.families", FontLibrary.families);
+// FontLibrary.use([join(process.cwd(), "app", "assets", "fonts", "TwitterColorEmoji-SVGinOT.ttf")]);
 
 // inspiration distribution in canvas http://jsfiddle.net/mes2L9vf/1/
 export const ogImageGenerator = async ({
@@ -77,7 +75,7 @@ export const ogImageGenerator = async ({
   ctx.clearRect(0, 0, width, height);
 
   const CENTER_X = width / 2;
-  const titleMaxWidth = width - 50; // Math.round((width / 1.0344) * 0.9);
+  const titleMaxWidth = width - 100; // Math.round((width / 1.0344) * 0.9);
   const pixelsPerRow = height / 3; // for now 3 colums
   const desiredFontSize = Math.floor(width / 14);
   const minFontSize = 50;
@@ -167,7 +165,8 @@ export const ogImageGenerator = async ({
   ctx.shadowOffsetY = 7;
   ctx.shadowBlur = 20;
 
-  ctx.font = `bold ${fontSizeString} "Twemoji Mozilla", "Twitter Color Emoji", Inter`;
+  // ctx.font = `bold ${fontSizeString} "Twemoji Mozilla", "Twitter Color Emoji", Inter`;
+  ctx.font = `bold ${fontSizeString} "Twemoji Mozilla", Inter`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   ctx.fillStyle = "#fff";
