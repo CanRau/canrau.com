@@ -31,18 +31,17 @@ const isProd = process.env.NODE_ENV === "production";
 
 export const meta: MetaFunction = ({ data }) => {
   const {
-    title: _title,
-    description: _description,
+    title: _title = "Missing Title",
+    description = "Missing description",
     lang,
     slug,
     cover,
     meta,
   } = data?.frontmatter ?? {};
 
-  const title = `${_title || "Missing Title"}${titleSeperator}${domain}`;
+  const title = `${_title}${titleSeperator}${domain}`;
   const titleHash = revHash(_title);
   const url = `${rootUrl}/${lang}${slug}`;
-  const description = _description || "Missing description";
   const ogImageUrl = new URL(rootUrl);
   ogImageUrl.pathname = "/assets/images/og.png";
   ogImageUrl.searchParams.set("v", OG_IMAGE_VERSION);
@@ -52,6 +51,8 @@ export const meta: MetaFunction = ({ data }) => {
   const image = cover ? `${rootUrl}${cover}` : ogImageUrl.toString();
   // todo: make reusable function to define meta-tags
   const ogImageMeta = {
+    // note: twitter doesn't seem to like `og:image:url`
+    "twitter:image": image,
     "og:image:url": image,
     "og:image:width": 1200,
     "og:image:height": 630,
