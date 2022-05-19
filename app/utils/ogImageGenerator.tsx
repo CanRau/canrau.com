@@ -5,7 +5,7 @@ import sharp from "sharp";
 import { Lang } from "/types";
 import { readFile, join } from "../utils.server";
 
-export const OG_IMAGE_VERSION = 13;
+export const OG_IMAGE_VERSION = 14;
 
 export type Size = "default" | "small";
 
