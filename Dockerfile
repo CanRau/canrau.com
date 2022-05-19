@@ -29,7 +29,8 @@ RUN apt-get update \
 RUN fc-cache -vfrs
 RUN apt-get install -y -q \
         #         # https://github.com/eosrei/twemoji-color-font
-        ttf-bitstream-vera \
+        # ttf-bitstream-vera \
+        fonts-liberation2 fonts-noto-color-emoji \
         #         # https://itsfoss.com/add-apt-repository-command-not-found/
         software-properties-common
 RUN fc-cache -vfrs
