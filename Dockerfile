@@ -18,13 +18,32 @@ FROM node:16-bullseye-slim as base
 
 ARG COMMIT_SHA
 
-# update linux deps & install deps needed for [skia-canvas](https://github.com/samizdatco/skia-canvas#running-in-docker)
-# emojione https://linoxide.com/install-emojione-color-svginot-font-ubuntu/
-RUN apt-get update && apt-get install -y -q --no-install-recommends libfontconfig1 ttf-bitstream-vera
+# update linux deps
+RUN apt-get update \
+        && apt-get install -y -q openssl \
+        # install deps needed for [skia-canvas](https://github.com/samizdatco/skia-canvas#running-in-docker)
+        && apt-get install -y -q --no-install-recommends libfontconfig1 fontconfig
 
-RUN fc-cache -vfrs
+# https://github.com/eosrei/twemoji-color-font
+# https://linoxide.com/install-emojione-color-svginot-font-ubuntu/
+# RUN fc-cache -vfrs
+# RUN apt-get install -y -q \
+#         # https://github.com/eosrei/twemoji-color-font
+#         ttf-bitstream-vera \
+#         # https://itsfoss.com/add-apt-repository-command-not-found/
+#         software-properties-common
+# && apt-add-repository ppa:eosrei/fonts \
+# && apt-get update \
+# && apt-get install -y fonts-twemoji-svginot
+# RUN apt-get install fonts-noto-core fonts-noto-mono fonts-noto-extra fonts-noto-ui-core fonts-noto-color-emoji
 
-RUN sudo apt-add-repository ppa:eosrei/fonts && sudo apt-get update && sudo apt-get install -y fonts-emojione-svginot
+# 1. Download the latest version
+# RUN wget https://github.com/eosrei/twemoji-color-font/releases/download/v13.1.0/TwitterColorEmoji-SVGinOT-Linux-13.1.0.tar.gz
+# # 2. Uncompress the file
+# RUN tar zxf TwitterColorEmoji-SVGinOT-Linux-13.1.0.tar.gz
+# # 3. Run the installer
+# RUN cd TwitterColorEmoji-SVGinOT-Linux-13.1.0
+# RUN ./install.sh
 
 # DEPS - Install all node_modules, including dev dependencies
 FROM base as deps
