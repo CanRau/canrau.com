@@ -38,8 +38,7 @@ export const jsonld = {
     "@context": "https://schema.org",
     "@type": "ImageObject",
     contentUrl: coverImage,
-    description:
-      "Cover showing the title with the full Remix logo instead of the word Remix",
+    description: "Cover showing the title with the full Remix logo instead of the word Remix",
   },
   image: [coverImage],
   dateCreated: "2021-12-06T14:00:00",
@@ -170,9 +169,7 @@ export default async function handleRequest(
 
   const canonical = match?.route?.id && routeData?.[match.route.id]?.canonical;
 
-  let markup = renderToString(
-    <RemixServer context={remixContext} url={request.url} />,
-  );
+  let markup = renderToString(<RemixServer context={remixContext} url={request.url} />);
 
   responseHeaders.set("Content-Type", "text/html");
 
@@ -189,6 +186,14 @@ export default async function handleRequest(
 
 More about useMatches in the [Remix Package docs](https://remix.run/docs/en/v1/api/remix#usematches) and in the [Disabling Javscript docs](https://remix.run/docs/en/v1/guides/disabling-javascript)
 
+### Verify the response header is set correctly
+
+![Screnshot of the dev tools network tab showing the successfully returned Link header](./verify-link-response-header.png)
+
+You can also check response headers using tools like [geekflare.com/tools/http-headers-test](https://geekflare.com/tools/http-headers-test).
+
+Also thanks to [@\_RecoveryOcean](https://twitter.com/_RecoveryOcean) I just stumbled upon a great read: [Why the rel=”canonical” HTTP Header is faster than the rel=”canonical” HTML tag](https://gentofsearch.com/blog/canonical-tag-vs-rel-canonical-http-header/). Which I kinda suspected, at least it makes sense as to read the HTML meta tag the crawler/spider/bot whatever has to parse or RegEx search the HTML, at least partially, whereas the HTTP header is kinda right there. 💁🏻‍♂️
+
 ## Bonus: Using the `links` export
 
 As Remix doesn't provide the `loader`s data to the `links` function anymore, as they had to [remove it for prefetching](https://discord.com/channels/770287896669978684/771068344320786452/907715068303642655), this one is less appealing or even not usable, when dealing with dynamic data in a single route file.
@@ -198,9 +203,7 @@ But if your writing your pages in `mdx` or `tsx` directly, you can also statical
 ```tsx
 import { type LinksFunction } from "remix";
 export let links: LinksFunction = () => {
-  return [
-    { rel: "canonical", href: "https://www.example.io/my-canonical-url" },
-  ];
+  return [{ rel: "canonical", href: "https://www.example.io/my-canonical-url" }];
 };
 ```
 
@@ -220,9 +223,7 @@ which you then get in your `root.tsx`
 
 ```jsx
 const matches = useMatches();
-const canonical = matches.find(
-  (match) => match.handle && match.handle.canonical,
-);
+const canonical = matches.find((match) => match.handle && match.handle.canonical);
 
 // then within your Document
 <head>{!!canonical && <link rel="canonical" href={canonical} />}</head>;
@@ -233,15 +234,8 @@ or using a function which can receive whatever data you pass in from your `root.
 ```jsx
 // in a route file
 export const handle: RouteHandle = {
-  canonical: ({
-    lang,
-    slug,
-    host,
-  }: {
-    lang: string,
-    slug: string,
-    host: string,
-  }) => `${host}/${lang}/${slug}`,
+  canonical: ({ lang, slug, host }: { lang: string, slug: string, host: string }) =>
+    `${host}/${lang}/${slug}`,
 };
 ```
 
@@ -249,9 +243,7 @@ then in your `root.tsx`
 
 ```tsx
 const { lang, slug } = useParams<"lang" | "slug">();
-const match = useMatches().find(
-  (match) => match.handle && match.handle.canonical,
-);
+const match = useMatches().find((match) => match.handle && match.handle.canonical);
 const canonical = match?.handle.canonical({
   lang,
   slug,
