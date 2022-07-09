@@ -49,7 +49,7 @@ export const jsonld = {
 
 ## Intro
 
-As [Fly.io](https://fly.io/) let's you run `Dockerfile`s, it's usually not a problem to deploy almost anything on their Edge-Network. When I tried [CouchDB](https://couchdb.apache.org/) a couple of days ago, the Docker part was as straightforward as it can be, just had to figure out how to configure my fly app correctly so I could access it. So here I wanna share what was needed to get it running.
+As [Fly.io](https://fly.io/) let's you run `Dockerfile`s, it's usually not a problem to deploy almost anything on their Edge-Network. When I tried [CouchDB](https://couchdb.apache.org/) a couple of days ago, the Docker part was as straight forward as it can be, just had to figure out how to configure my fly app correctly so I could access it. So here I wanna share what was needed to get it running.
 
 > For now I'm just talking about running a single-node instance.
 
@@ -121,7 +121,7 @@ This is the standard config, which listens internally on port 8080, so the app w
 
 Luckily Fly is pretty flexible so we can adjust to our needs.
 
-CouchDB expects port 5984, so I changed `internal_port` and also added an additional `services.ports`. It might be possible to remove ports 80 and 443 though I didn't came to actually test that, I think without further configuration the deployment would fail as fly uses those ports for [healthchecks](https://fly.io/docs/reference/configuration/#services-http_checks).
+CouchDB expects port 5984, so I changed `internal_port` and also added an additional `services.ports`. ~It might be possible to remove ports 80 and 443 though I didn't came to actually test that, I think without further configuration the deployment would fail as fly uses those ports for [healthchecks](https://fly.io/docs/reference/configuration/#services-http_checks).~ Just checked and it's possible to remove the blocks for ports 80 & 443 without problems.
 
 We also want to create a [volume](https://fly.io/docs/reference/volumes/), so CouchDB can store its data and survive app re-deploys. The following will create a volume in São Paulo, Brazil (gru is the airport identifier) with a size of 1 GB.
 
@@ -174,15 +174,6 @@ processes = []
     type = "connections"
 
   [[services.ports]]
-    force_https = true
-    handlers = ["http"]
-    port = 80
-
-  [[services.ports]]
-    handlers = ["tls", "http"]
-    port = 443
-
-  [[services.ports]]
     handlers = ["tls", "http"]
     port = 5984
 
@@ -196,6 +187,24 @@ processes = []
 Note the highlighted lines in the code block above (lines 9-10, 16-18, 22, 41-43) to see what has changed.
 
 You can make the changes, or just copy the whole block into your `fly.toml`, ideally from line 5 to keep your app name.
+
+## CouchDB Cluster on Fly.io
+
+So far the only solution I found is to create multiple apps on Fly, which all get their own IP address, which we then can use to set up a cluster.
+
+Thanks to `fly create` we can create a new app without a new `fly.toml`, I discovered this via the [Remix Stacks](https://remix.run/docs/en/v1/pages/stacks).
+
+```shell
+fly secrets set COUCHDB_USER="USER_NAME" COUCHDB_PASSWORD=$(cat pw) --app ct-couchdb-1
+fly secrets set COUCHDB_USER="USER_NAME" COUCHDB_PASSWORD=$(cat pw) --app ct-couchdb-2
+fly secrets set COUCHDB_USER="USER_NAME" COUCHDB_PASSWORD=$(cat pw) --app ct-couchdb-3
+```
+
+```shell
+fly volumes create data --size 1 --app ct-couchdb-1
+fly volumes create data --size 1 --app ct-couchdb-2
+fly volumes create data --size 1 --app ct-couchdb-3
+```
 
 That's it for now, thanks for reading. And feel free to get in touch via [Twitter](https://twitter.com/CanRau).
 
