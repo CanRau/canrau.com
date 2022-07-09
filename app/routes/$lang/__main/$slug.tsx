@@ -11,7 +11,8 @@ import TwitterShareButton from "react-share/lib/TwitterShareButton";
 import RedditShareButton from "react-share/lib/RedditShareButton";
 import parseISO from "date-fns/parseISO";
 import formatDate from "date-fns/format";
-import { readFile, revHash } from "~/utils.server";
+import { readFile } from "~/utils.server";
+import { revHash } from "~/utils";
 // import { bundleMDX } from "mdx-bundler";
 import { getMDXComponent, getMDXExport } from "mdx-bundler/client";
 import { bundleMDX, getContentPath, getFilePath } from "~/utils/compile-mdx.server";
@@ -24,7 +25,7 @@ import { rootUrl, domain, titleSeperator, twitterHandle, twitterId, defaultLang 
 import type { Lang, LoaderFunc } from "/types";
 import { notFoundError } from "~/utils/error-responses";
 import { Frontmatter } from "~/utils/mdx.server";
-import { OG_IMAGE_VERSION } from "~/utils/ogImageGenerator";
+import { OG_IMAGE_VERSION } from "~/utils/ogImageGenerator.server";
 // import type { TocEntry } from "@stefanprobst/rehype-extract-toc";
 
 const isProd = process.env.NODE_ENV === "production";
@@ -47,7 +48,7 @@ export const meta: MetaFunction = ({ data }) => {
   const url = `${rootUrl}/${lang}${slug}`;
   const ogImageUrl = new URL(rootUrl);
   ogImageUrl.pathname = "/assets/images/og.png";
-  ogImageUrl.searchParams.set("v", OG_IMAGE_VERSION);
+  ogImageUrl.searchParams.set("v", `${OG_IMAGE_VERSION}`);
   ogImageUrl.searchParams.set("size", "default");
   ogImageUrl.searchParams.set("rev", titleHash);
   ogImageUrl.searchParams.set("slug", slug.replace(/^\//, ""));

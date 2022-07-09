@@ -7,7 +7,7 @@ import { readFile, join } from "../utils.server";
 
 export const OG_IMAGE_VERSION = 14;
 
-export type Size = "default" | "small";
+export type Size = "default" | "small" | "medium";
 
 type SizeObj = {
   width: number;
@@ -17,6 +17,7 @@ type SizeObj = {
 
 const sizes: Record<Size, SizeObj> = {
   small: { width: 504, height: 265, padding: 40 },
+  medium: { width: 720, height: 378, padding: 40 },
   default: { width: 1200, height: 630, padding: 20 },
 } as const;
 
@@ -283,6 +284,7 @@ function draw2ColoredPixelBg({ ctx, width, height, colors }: DrawBgProps) {
 
   ctx.filter = "none";
 }
+
 type DrawRoundedMaskProps = {
   ctx: CanvasRenderingContext2D;
   x: number;

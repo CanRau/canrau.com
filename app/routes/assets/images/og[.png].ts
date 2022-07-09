@@ -3,7 +3,8 @@ import { redirect, type LoaderFunction } from "remix";
 import matter from "gray-matter";
 import { getContentPath, getFilePath } from "~/utils/compile-mdx.server";
 // import { notFoundError } from "~/utils/error-responses";
-import { readFile, revHash } from "~/utils.server";
+import { readFile } from "~/utils.server";
+import { revHash } from "~/utils";
 import { domain, languages, defaultLang } from "/config";
 import type { Lang } from "/types";
 import { type Frontmatter } from "~/utils/mdx.server";
@@ -13,7 +14,7 @@ import {
   supportedOgImageSizes,
   OG_IMAGE_VERSION,
   type Size,
-} from "~/utils/ogImageGenerator";
+} from "~/utils/ogImageGenerator.server";
 
 // inspiration distribution in canvas http://jsfiddle.net/mes2L9vf/1/
 export const loader: LoaderFunction = async ({ request }) => {

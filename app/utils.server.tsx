@@ -1,4 +1,4 @@
-import { type BinaryToTextEncoding, createHash } from "node:crypto";
+import { createHash, type BinaryToTextEncoding, type BinaryLike } from "node:crypto";
 
 export * from "node:fs/promises";
 export { basename, extname, join, relative } from "node:path";
@@ -10,13 +10,13 @@ export function hash(str: string) {
 
 /**
  *
- * @param data input string
+ * @param data input BinaryLike
  * @param encoding defaults to base64url
  * @returns string truncated to first 10 charaters
  *
  * @description inspired by [sindresorhus/rev-hash](https://github.com/sindresorhus/rev-hash)
  */
-export function revHash(data: string, encoding: BinaryToTextEncoding = "base64url") {
+export function revHash(data: BinaryLike, encoding: BinaryToTextEncoding = "base64url") {
   return createHash("sha1").update(data).digest(encoding).slice(0, 10);
 }
 
