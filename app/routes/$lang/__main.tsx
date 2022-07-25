@@ -59,7 +59,7 @@ function Layout({
   const sha = commitSha ? commitSha.substr(0, 7) : "";
   const matches = useMatches();
   // const currentRoute = matches.find((m) => m?.data?.totalPathVisits > 0);
-  const currentRoute = matches?.[matches.length - 1];
+  const currentRoute = matches[matches.length - 1];
   // console.log(
   //   "canonical? for follow intent link",
   //   currentRoute?.data?.canonical,

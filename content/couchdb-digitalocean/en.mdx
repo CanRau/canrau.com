@@ -1,0 +1,128 @@
+---
+status: draft
+slug: /couchdb-digitalocean
+lang: en
+title: "CouchDB Cluster on DigitalOcean"
+description: "How to set-up a CouchDB-Cluster on a DigitalOcean Droplet using Docker?"
+version: 1
+created: 2022-05-31T12:13:00
+updated: 2022-05-10T13:21:00
+published: 2022-05-10T13:21:00
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2022-05-10T13:27:00
+  - name: article:modified_time
+    content: 2022-05-10T13:27:00
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+published_at:
+---
+
+export const jsonld = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "CouchDB Cluster on DigitalOcean",
+  description: "How to set-up a CouchDB-Cluster on a DigitalOcean Droplet using Docker?",
+  dateCreated: "2022-05-31T12:13:00",
+  dateModified: "2022-05-10T13:21:00",
+  datePublished: "2022-05-10T13:27:00",
+  author: [
+    {
+      "@type": "Person",
+      name: "Can Rau",
+      url: "https://twitter.com/CanRau",
+      gender: "Male",
+      birthDate: "1988-1-17",
+      birthPlace: "Berlin, Germany",
+    },
+  ],
+};
+
+# {frontmatter.title}
+
+## Table of contents
+
+## Intro
+
+After days of trying to get a CouchDB cluster going on [Fly.io](https://fly.io) I decided to take a different approach. I really love Fly, the people and the service though I really need to move forward and for all the projects I have in the making or planned I need a proper database solution and preferrably one with first class client offline support.
+
+That's why I came across CouchDB and its client companion PouchDB in the first place and after considering a couple options and the acquisition of CSS-Tricks by [DigitalOcean](https://m.do.co/c/7f8024be8696) (DO) and their generous free 100$ credit and also my former experimentations with DO I decided to give it a shot.
+
+## Create your first Droplet
+
+After I created my account I was presented with some options on a welcome screen where I chose to "Deploy a container based app" and then "Deploy a Docker server" as that sounds like exactly what I wanted. Though quickly after I realized that the options are more limited than when creating a new Droplet from scratch.
+
+It's probably fine and you can add missing stuff later on, but I wanted the "real" experience from the beginning, as I'm going to add more nodes later on to form my CouchDB cluster and the welcome deployment for example seems to lack the option to set-up SSH keys, monitoring and user data.
+
+So I destroyed this instance and head over to [create a new Droplet](https://cloud.digitalocean.com/droplets/new?refcode=7f8024be8696) from the top menu, selected a "Regular with SSD" for 5$ with shared CPU, chose a region, created and added a SSH key by following the steps from the UI, enabled Monitoring and "User data".
+
+## User Data
+
+As [CouchDB Docker](https://github.com/apache/couchdb-docker/#make-a-cluster) uses the `NODENAME` environment variable to configure the database for clustering, user data seemed to be the perfect place to automatically set it up when deploying the Droplet.
+
+Here's what I copied into the "Enter user data here..." text box:
+
+```bash
+#!/bin/bash
+
+apt-get -y update
+
+export NODENAME=$(curl -s http://169.254.169.254/metadata/v1/interfaces/public/0/ipv4/address)
+export COUCHDB_ERLANG_COOKIE=MY-SECRET-COOKIE
+export COUCHDB_SECRET=SHARED-CLUSTER-SECRET
+export COUCHDB_USER=MY-ADMIN
+export COUCHDB_PASSWORD=ADMIN-PASSWORD
+
+mkdir -p /home/couchdb/{data,etc}
+
+docker run -d \
+  --name couch \
+  -v /home/couchdb/data:/opt/couchdb/data \
+  -v /home/couchdb/etc:/opt/couchdb/etc/local.d \
+  apache/couchdb:3.2.2
+```
+
+The URL in the `NODENAME` command comes from the [How to provide user data docs](https://docs.digitalocean.com/products/droplets/how-to/provide-user-data/?refcode=7f8024be8696), also check out [Metadata API](https://docs.digitalocean.com/reference/api/metadata-api/?refcode=7f8024be8696) if you're curious what else is available.
+
+You can also use the API to create it.
+
+Before you need to create a `.env` file with the following content:
+
+```env
+DO_SSH_KEY_ID=
+DO_API_TOKEN=
+
+COUCHDB_USER=
+# pre-hashed via `docker run --env-file .env -v $PWD/cbdata:/opt/couchdb/etc/local.d apache/couchdb`
+COUCHDB_PASSWORD=
+# unhashed
+COUCHDB_PASSWORD_UNHASHED=
+COUCHDB_ERLANG_COOKIE=
+COUCHDB_SECRET=
+```
+
+For your SSH key you can use the fingerprint you'll find on the [security dashboard](https://cloud.digitalocean.com/account/security) or its ID which I obtained using the API ([example here](https://www.digitalocean.com/community/questions/is-it-possible-to-get-the-ssh-key-name-or-id-of-a-droplet-through-api)). For this I had to create an [API token](https://cloud.digitalocean.com/account/api/tokens) first and then ran
+
+```url
+export $(cat .env | grep -v ^# | xargs) && curl -X POST -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer $DO_API_TOKEN/' -d \
+    '{"name":"choose_a_name","region":"sfo3","size":"s-1vcpu-1gb","image":"docker-20-04","backups": true,"ipv6": true,"monitoring": true,"tags":["env:prod","CouchDB"],"user_data":"'"$(cat ~/user-data.yml)"'","ssh_keys":[$DO_SSH_KEY_ID]}' \
+    "https://api.digitalocean.com/v2/droplets"
+```
+
+```url
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer <ENTER_YOUR_API_TOKEN>" "https://api.digitalocean.com/v2/account/keys"
+```
+
+https://cloud.digitalocean.com/droplets/new?i=01196c&size=s-1vcpu-1gb&region=sfo3&appId=87786318&image=docker-20-04&type=applications&options=ipv6,install_agent
+
+## Floating IP
+
+To set-up my domains in Cloudflare I need Floating IPs so I can have the domains ready before deploying the droplets though to do so I had to create a droplet, attach a Floating IP, then I could manually create 2 more unassigned and then delete the droplet. 
+
+I also considered [Vultr](https://www.vultr.com/) though the User Interface (UI), Developer Experience (DX) and docs of [DigitalOcean](https://m.do.co/c/7f8024be8696) just feel nicer, and although Vultr has a cheaper option I couldn't manage to get it, tried different regions etc with no luck.
+

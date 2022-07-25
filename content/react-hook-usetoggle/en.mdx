@@ -1,0 +1,78 @@
+---
+status: published
+slug: /react-hook-usetoggle
+lang: en
+title: React Hook useToggle
+description: A custom ReactJS hook `useToggle` in Typescript for toggling a boolean on and off, with an optional callback
+created: 2022-04-18T12:20:00 -5
+updated: 2022-04-18T12:20:00 -5
+published: 2022-04-18T12:20:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2022-04-18T12:20:00 -5
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+# {frontmatter.title}
+
+{frontmatter.description}
+
+```ts
+type noop = () => void;
+
+export function useToggle(
+  initialValue = false,
+  callback?: () => void,
+): [boolean, (x?: noop | any) => void] {
+  const callbackRef = useRef<noop | null>(null);
+  const [value, setValue] = useState(initialValue);
+
+  useEffect(() => {
+    if (value && typeof callback === "function") callback();
+
+    if (typeof callbackRef.current === "function") {
+      callbackRef.current();
+
+      callbackRef.current = null;
+    }
+  }, [value]);
+
+  const toggle = useCallback((callback): void => {
+    setValue((v) => !v);
+    callbackRef.current = callback;
+  }, []);
+
+  return [value, toggle];
+}
+```
+
+## Usage
+
+```tsx
+const App = () => {
+  // plain toggle
+  const [isOn, toggleIsOn] = useToggle();
+  // toggle with callback
+  const [isOnWithCallback, toggleIsOnWithCallback] = useToggle(false, () =>
+    console.log("they called back"),
+  );
+  return (
+    <>
+      {isOn ? "The light is on!" : "Hey who turned off the lights"}
+      <button onClick={toggleIsOn}>Press me</button>
+      <button onClick={() => toggleIsOn(() => console.log("individual callback"))}>Press me</button>
+      <button onClick={() => toggleIsOnWithCallback(() => console.log("individual callback"))}>
+        Press me
+      </button>
+    </>
+  );
+};
+```

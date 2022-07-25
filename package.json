@@ -25,13 +25,13 @@
     "deploy:local": "yarn build && fly deploy --no-cache --build-arg COMMIT_SHA=\"$(git rev-parse --short HEAD)\"",
     "start": "remix-serve build",
     "tree": "tree -I \"node_modules|build|content\"",
-    "docker": "yarn docker:down && yarn docker:up",
+    "docker": "yarn build && yarn docker:down && yarn docker:up",
     "docker:up": "docker-compose --file compose.ignored.yml up --build",
     "docker:down": "docker-compose --file compose.ignored.yml down",
     "clean": "rimraf .cache ./node_modules/.cache ./server/dist ./build ./public/build \"./app/styles/**/*.css\"",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/.eslintcache --ext js,jsx,ts,tsx .",
     "format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|css|less|scss|ts|tsx|md|gql|graphql|mdx|vue)\"",
-    "action:watch": "osascript -e 'tell app \"Visual Studio Code\" to display notification \"yeap marduc812.com again\" with title \"Action finished\"'"
+    "action:watch": "gh run watch && osascript -e 'tell app \"Visual Studio Code\" to display notification \"We are done here!\" with title \"Action finished\"'"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.52.0",
@@ -70,6 +70,7 @@
     "leasot": "13.1.0",
     "match-sorter": "6.3.1",
     "mdx-bundler": "8.0.1",
+    "nanoid": "4.0.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-icons": "4.3.1",

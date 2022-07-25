@@ -1,5 +1,7 @@
 import { renderToString } from "react-dom/server";
 import { createCookie, RemixServer, redirect, type EntryContext } from "remix";
+import { createGenerator } from "@unocss/core";
+import { presetUno } from "@unocss/preset-uno";
 import { defaultLang, domain } from "/config";
 // import { generateStyles } from "~/generate-styles.server";
 // const cachedStyles: Record<string, boolean> = {};
@@ -17,20 +19,8 @@ const dontCountCookie = createCookie("CR_dontcount", {
 
 // todo: [use ETags](https://sergiodxa.com/articles/use-etags-in-remix) when adding cache/caching
 
-export default async function handleRequest(
-  request: Request,
-  responseStatusCode: number,
-  responseHeaders: Headers,
-  remixContext: EntryContext,
-) {
-  const url = new URL(request.url);
-  // todo: identify url language and use instead of defaultLang
-
-  let shouldRedirect = false;
-  const headers: Record<string, string> = {};
-
-  // todo: build more extended (db-based) redirect list & solution &| [6G Firewall](https://perishablepress.com/6g/)
-  if (
+const isBadUrl = (url: URL) => {
+  return (
     url.pathname.startsWith("/.env") ||
     url.pathname.startsWith("/php") ||
     url.pathname.startsWith("/java_script") ||
@@ -41,7 +31,22 @@ export default async function handleRequest(
     url.pathname.startsWith("/nmap") ||
     url.pathname.startsWith("/boaform") ||
     url.pathname.startsWith("/wp-admin")
-  ) {
+  );
+};
+
+const redirectLogic = ({
+  url,
+  request,
+  headers,
+}: {
+  url: URL;
+  request: Request;
+  headers: Headers;
+}) => {
+  let shouldRedirect = false;
+
+  // todo: build more extended (db-based) redirect list & solution &| [6G Firewall](https://perishablepress.com/6g/)
+  if (isBadUrl(url)) {
     return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ", 307);
   }
 
@@ -49,7 +54,7 @@ export default async function handleRequest(
   if (url.host === "coding4.gaiama.org") {
     url.host = domain.toLowerCase();
     console.log(">>>>>>>>>>>>> Coding4GaiAma", request.url, url.toString());
-    return redirect(url.toString(), { headers, status: 301 });
+    shouldRedirect = true;
   }
 
   // redirect to https:
@@ -75,7 +80,7 @@ export default async function handleRequest(
     shouldRedirect = true;
   }
 
-  // Coding4GaiAma
+  // old /roadmap from Coding4GaiAma
   if (url.pathname.startsWith(`/${defaultLang}/roadmap`)) {
     url.pathname = `/${defaultLang}/todos`;
     shouldRedirect = true;
@@ -83,6 +88,27 @@ export default async function handleRequest(
 
   if (isProd && shouldRedirect) {
     return redirect(url.toString(), { headers, status: 301 });
+  }
+};
+
+export default async function handleRequest(
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  remixContext: EntryContext,
+) {
+  const url = new URL(request.url);
+  // todo: identify url language and use instead of defaultLang
+
+  // write article about how to have different subdomains in Remix
+
+  // use url.hostname and a useMatches handler function (or Context?) to send the current subdomain to routes
+  // if page content (frontmatter) defines which subdomain, it can even be excluded from other subdomains
+  // or with a canonical duplicate content can be prevented
+
+  const destination = redirectLogic({ url, request, headers: responseHeaders });
+  if (destination) {
+    return destination;
   }
 
   // todo: outsource pageview counter logic
@@ -100,9 +126,18 @@ export default async function handleRequest(
 
   const match = matches.find((m) => m.pathname === url.pathname);
 
-  const canonical = match?.route?.id && routeData?.[match.route.id]?.canonical;
+  const canonical = match?.route.id && routeData[match.route.id]?.canonical;
 
-  let markup = renderToString(<RemixServer context={remixContext} url={request.url} />);
+  const markup = renderToString(<RemixServer context={remixContext} url={request.url} />);
+
+  // note: first [UnoCSS](https://github.com/unocss/unocss) tests [article](https://antfu.me/posts/reimagine-atomic-css)
+  if (url.searchParams.has("unocss")) {
+    const generator = createGenerator({ presets: [presetUno()] });
+
+    const { css } = await generator.generate(markup);
+    responseHeaders.set("Content-Type", "text/css; charset=UTF-8");
+    return new Response(css, { headers: responseHeaders });
+  }
 
   // if (!cachedStyles.preflight) {
   //   console.log("generating preflight styles");
@@ -120,7 +155,7 @@ export default async function handleRequest(
     responseHeaders.set("Link", `<${canonical}>; rel="canonical"`);
   }
 
-  const response = new Response("<!DOCTYPE html>" + markup, {
+  const response = new Response(`<!DOCTYPE html>${markup}`, {
     status: responseStatusCode,
     headers: responseHeaders,
   });

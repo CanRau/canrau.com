@@ -55,6 +55,7 @@ export function Document({
           />
         )}
       </head>
+      {/* todo: try out `line-height: calc(1em + .5rem)` as mentioned [modern-css-reset](https://github.com/hankchizljaw/modern-css-reset/issues/51#issuecomment-1064299819) */}
       <body className="dark:bg-zinc-900">
         {children}
         {/* <RouteChangeAnnouncement /> */}

@@ -4278,6 +4278,7 @@ __metadata:
     leasot: 13.1.0
     match-sorter: 6.3.1
     mdx-bundler: 8.0.1
+    nanoid: 4.0.0
     postcss: 8.4.6
     postcss-cli: 9.1.0
     prettier: 2.5.1
@@ -9541,6 +9542,15 @@ __metadata:
     react: "*"
     react-dom: "*"
   checksum: 96fdaa67b800f659ca449e29a45bee198f530f45455d3aad02f0d0b6525aae9e0a53701822103a9d98237a4f7e405f1eaa68f642e824908a0014e145c1c18f07
+  languageName: node
+  linkType: hard
+
+"nanoid@npm:4.0.0":
+  version: 4.0.0
+  resolution: "nanoid@npm:4.0.0"
+  bin:
+    nanoid: bin/nanoid.js
+  checksum: 7d5946df5c6d383694195b781ae7b5067c149d164ec71e910d6b06676309c3459b68af570b944fb5ecd5065d19df464f05700d141d70bb712ff8ca06642fd8df
   languageName: node
   linkType: hard
 

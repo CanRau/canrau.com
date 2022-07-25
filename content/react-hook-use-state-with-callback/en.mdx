@@ -1,0 +1,69 @@
+---
+status: published
+slug: /react-hook-use-state-with-callback
+lang: en
+title: React Hook useStateWithCallback
+description: A ReactJS hook in Typescript wich wraps `useState` to run an optional callback
+created: 2022-04-18T12:20:00 -5
+updated: 2022-04-18T12:20:00 -5
+published: 2022-04-18T12:20:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2022-04-18T12:20:00 -5
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+ideas:
+published_at:
+---
+
+# {frontmatter.title}
+
+{frontmatter.description}
+
+```ts
+type Callback<S> = (state: S) => void | (() => void | undefined);
+
+export const useStateWithCallback = <S>(initialState: S, callback: Callback<S>) => {
+  const [state, setState] = useState(initialState);
+
+  const didMount = useRef(false);
+
+  useEffect(() => {
+    if (didMount.current) {
+      callback(state);
+    } else {
+      didMount.current = true;
+    }
+  }, [state, callback]);
+
+  return [state, setState];
+};
+```
+
+## Usage
+
+```tsx
+const App = () => {
+  // plain toggle
+  const [isOn, toggleIsOn] = useToggle();
+  // toggle with callback
+  const [isOnWithCallback, toggleIsOnWithCallback] = useToggle(false, () =>
+    console.log("they called back"),
+  );
+  return (
+    <>
+      {isOn ? "The light is on!" : "Hey who turned off the lights"}
+      <button onClick={toggleIsOn}>Press me</button>
+      <button onClick={() => toggleIsOn(() => console.log("individual callback"))}>Press me</button>
+      <button onClick={() => toggleIsOnWithCallback(() => console.log("individual callback"))}>
+        Press me
+      </button>
+    </>
+  );
+};
+```

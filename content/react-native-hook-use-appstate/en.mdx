@@ -1,0 +1,63 @@
+---
+status: draft
+slug: /react-native-hook-use-appstate
+lang: en
+title: React Native Hook useAppstate
+description: // todo:
+created: 2022-04-11T13:17:00 -5
+updated: 2022-04-11T13:17:00 -5
+published: 2022-04-11T13:17:00 -5
+version: 1
+meta:
+  - name: og:type
+    content: article
+  - name: article:published_time
+    content: 2022-04-11T13:17:00 -5
+  - name: article:author
+    content: CanRau
+  - name: article:section
+    content: Coding
+tags:
+  - ReactNative
+  - Hooks
+  - Snippets
+ideas:
+published_at:
+---
+
+# {frontmatter.title}
+
+```tsx
+import { useEffect, useRef, useState } from "react";
+import { AppState, AppStateStatus } from "react-native";
+
+// todo: Add switch component to allow for various RN versions
+// currently based on https://reactnative.dev/docs/0.64/appstate
+
+export const useAppState = () => {
+  const appState = useRef(AppState.currentState);
+  const [appStateVisible, setAppStateVisible] = useState(appState.current);
+
+  useEffect(() => {
+    AppState.addEventListener("change", _handleAppStateChange);
+
+    return () => {
+      AppState.removeEventListener("change", _handleAppStateChange);
+    };
+  }, []);
+
+  const _handleAppStateChange = (nextAppState: AppStateStatus) => {
+    if (appState.current.match(/inactive|background/) && nextAppState === "active") {
+      console.log("App has come to the foreground!");
+    }
+
+    appState.current = nextAppState;
+    setAppStateVisible(appState.current);
+    console.log("AppState", appState.current);
+  };
+
+  return appStateVisible;
+};
+```
+
+To remove logging, just delete the complete `if` statement and the `console.log` in the last line of `_handleAppStateChange`.

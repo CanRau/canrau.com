@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /api
+Disallow: /db
+
+Sitemap: https://www.canrau.com/en/sitemap.xml

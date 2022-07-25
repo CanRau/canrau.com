@@ -80,7 +80,7 @@ const externalLink = plugin(({ addComponents }) => {
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
   // note: disable JIT until [prettier-plugin-tailwind#29](https://github.com/Acidic9/prettier-plugin-tailwind/issues/29)
-  mode: process.env.NODE_ENV ? 'jit' : undefined,
+  mode: process.env.NODE_ENV ? "jit" : undefined,
   content: ["./{app,content}/**/*.{ts,tsx}"],
   // done: don't remove (defaults to media) until light mode has been fixed (by me 🥲)!
   // todo: make theme toggling, based on class, default to auto (via code), be customizable but also revertible to auto ([theme-change](https://github.com/saadeghi/theme-change)) [tweet](https://mobile.twitter.com/chaphasilor/status/1472142142109851652) [discord](https://discord.com/channels/770287896669978684/771068344320786452/922672997754605568)
@@ -112,6 +112,71 @@ module.exports = {
           "bg-light": withOpacity("--color-bg-light"),
           "bg-lighter": withOpacity("--color-bg-lighter"),
           "bg-lightest": withOpacity("--color-bg-lightest"),
+        },
+        // from https://tailwind.simeongriggs.dev/?limegreen=B4CC4E&orange=FFC600&magenta=853A76&green=277647&darkpurple=4B0C3B
+        // green has Lightness Minimum 10
+        // orange Lightness Minimum 20
+        brand: {
+          green: {
+            50: "#E4F6EB",
+            100: "#C9EDD8",
+            200: "#94DCB0",
+            300: "#5ECA89",
+            400: "#39AC67",
+            500: "#277647",
+            600: "#22673E",
+            700: "#1C5432",
+            800: "#174529",
+            900: "#123620",
+          },
+          limegreen: {
+            50: "#F8FAEF",
+            100: "#F0F5DB",
+            200: "#E1EAB8",
+            300: "#D2E094",
+            400: "#C3D670",
+            500: "#B4CC4E",
+            600: "#97AE32",
+            700: "#728326",
+            800: "#4C5719",
+            900: "#262C0D",
+          },
+          orange: {
+            50: "#FFF9E5",
+            100: "#FFF4CC",
+            200: "#FFE999",
+            300: "#FFDE66",
+            400: "#FFD333",
+            500: "#FFC600",
+            600: "#E0B000",
+            700: "#C29800",
+            800: "#A38000",
+            900: "#856800",
+          },
+          magenta: {
+            50: "#F6EAF3",
+            100: "#ECD4E8",
+            200: "#D8A6CE",
+            300: "#C67CB7",
+            400: "#B24D9E",
+            500: "#853A76",
+            600: "#6B2E5F",
+            700: "#522448",
+            800: "#35172F",
+            900: "#1C0C19",
+          },
+          darkpurple: {
+            50: "#F9DCF2",
+            100: "#F3B4E3",
+            200: "#E86EC9",
+            300: "#DC23AE",
+            400: "#951876",
+            500: "#4B0C3B",
+            600: "#3E0A31",
+            700: "#2C0723",
+            800: "#1F0518",
+            900: "#0D020A",
+          },
         },
       },
       // fontSize: {

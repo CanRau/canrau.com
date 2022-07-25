@@ -145,7 +145,14 @@ export const loader: LoaderFunc<LoaderParams> = async ({ params, request }) => {
   const { jsonld } = getMDXExport(code);
 
   const canonical = frontmatter.canonical || `${rootUrl}/${frontmatter?.lang}${frontmatter?.slug}`;
-  return json({ frontmatter, code, canonical, totalPathVisits, jsonld });
+
+  const headers = {
+    // "Cache-Control": "private, max-age=3600",
+    // Vary: "Cookie",
+  };
+
+  const data: LoaderData = { frontmatter, code, canonical, totalPathVisits, jsonld };
+  return json(data, { headers });
 };
 
 const headingWithClasses = (comp: FC | string, className: string) => (props: any) =>
